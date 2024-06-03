@@ -1,6 +1,7 @@
 { config, pkgs, ... };
 
 {
+    nixpkgs.config.allowUnfree = true;
     # Home Manager needs a bit of information about you and the paths it should
     # manage.
     home.username = "<USERNAME>";
@@ -39,8 +40,8 @@
         pkgs.bat
         pkgs.bitwarden-desktop
         pkgs.btop
-        pkgs.bun
         # # c
+        pkgs.cargo
         pkgs.cosign
         pkgs.curl
         # # d
@@ -49,6 +50,7 @@
         pkgs.fira-code
         pkgs.firebase-tools
         # # g
+        pkgs.gnomeExtensions.mute-spotify-ads
         pkgs.google-cloud-sdk
         # # h
         pkgs.hey
@@ -62,20 +64,32 @@
         # # o
         pkgs.obs-studio
         # # r
-        pkgs.rustup
+        pkgs.rustc
         # # s
         pkgs.spotify
         # # t
         pkgs.telegram-desktop
+        pkgs.tree
     ];
 
     fonts.fontconfig = {
         enable = true;
     };
 
+    # Bun
+    programs.bun = {
+        enable = true;
+        settings = {
+            mosl = true;
+        };
+    };
+
     # Chromium
     programs.chromium = {
         enable = true;
+        commandLineArgs = [
+            "--incognito"
+        ];
         extensions = [
             # # Dark Reader
             "eimadpbcbfnmbkopoojfekhnkhdbieeh"
