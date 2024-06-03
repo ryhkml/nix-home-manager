@@ -1,4 +1,4 @@
-{ config, pkgs, ... };
+{ config, pkgs, ... }:
 
 {
     nixpkgs.config.allowUnfree = true;
@@ -67,8 +67,6 @@
         pkgs.rustc
         # # s
         pkgs.spotify
-        # # t
-        pkgs.telegram-desktop
         pkgs.tree
     ];
 
@@ -241,4 +239,4 @@
 
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
-};
+}
