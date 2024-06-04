@@ -38,19 +38,14 @@
 
         # # b
         pkgs.bat
-        pkgs.bitwarden-desktop
         pkgs.btop
         # # c
-        pkgs.cargo
         pkgs.cosign
         pkgs.curl
-        # # d
-        pkgs.discord
         # # f
         pkgs.fira-code
         pkgs.firebase-tools
         # # g
-        pkgs.gnomeExtensions.mute-spotify-ads
         pkgs.google-cloud-sdk
         # # h
         pkgs.hey
@@ -61,12 +56,9 @@
         pkgs.jq
         # # n
         pkgs.nodejs_22
-        # # o
-        pkgs.obs-studio
         # # r
-        pkgs.rustc
-        # # s
-        pkgs.spotify
+        pkgs.rustup
+        # # t
         pkgs.tree
     ];
 
@@ -204,7 +196,19 @@
             breadcrumbs = {
                 enabled = false;
             };
+            # # Extension https://marketplace.visualstudio.com/items?itemName=GoogleCloudTools.cloudcode
+            cloudcode = {
+                # # Google Cloud project id
+                project = "<ID>";
+                # # Gemini code assist
+                duetAI = {
+                    project = "<ID>";
+                };
+            };
             editor = {
+                bracketPairColorization = {
+                    enabled = false;
+                };
                 cursorSmoothCaretAnimation = "on";
                 cursorStyle = "line";
                 fontFamily = "Fira Code";
@@ -218,15 +222,57 @@
                     enabled = false;
                 };
                 tabSize = 4;
+                tokenColorCustomizations = {
+                    textMateRules = [
+                        {
+                            scope = [
+                                "comment"
+                                "comment.line"
+                                "comment.block"
+                                "comment.block.documentation"
+                                "punctuation.definition.comment"
+                            ];
+                            settings = {
+                                fontStyle = "";
+                            };
+                        }
+                    ];
+                };
             };
             git = {
                 confirmSync = false;
+            };
+            terminal = {
+                integrated = {
+                    cursorBlinking = true;
+                    cursorStyle = "line";
+                };
             };
             workbench = {
                 activityBar = {
                     location = "top";
                 };
+                # # Extension https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-themes
+                colorTheme = "Visual Studio 2017 Dark - C++";
+                # # Extension https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-icontheme-nomo-dark
+                iconTheme = "vs-nomo-dark";
                 startupEditor = "none";
+            };
+            # # Configuration files
+            "[json]" = {
+                editor = {
+                    tabSize = 4;
+                };
+            };
+            "[yaml]" = {
+                editor = {
+                    tabSize = 2;
+                };
+            };
+            "[yml]" = {
+                editor = {
+                    tabSize = 2;
+                };
             };
         };
     };
