@@ -201,6 +201,9 @@
             }
         ];
         userSettings = {
+            breadcrumbs = {
+                enabled = false;
+            };
             editor = {
                 cursorSmoothCaretAnimation = "on";
                 cursorStyle = "line";
@@ -211,9 +214,18 @@
                 lineHeight = 1.6;
                 renderWhitespace = "none";
                 smoothScrolling = true;
+                stickyScroll = {
+                    enabled = false;
+                };
                 tabSize = 4;
             };
+            git = {
+                confirmSync = false;
+            };
             workbench = {
+                activityBar = {
+                    location = "top";
+                };
                 startupEditor = "none";
             };
         };
