@@ -77,6 +77,8 @@
             enable = true;
             commandLineArgs = [
                 "--incognito"
+                "--no-default-browser-check"
+                "--no-startup-window"
             ];
             extensions = [
                 # # Dark Reader
@@ -214,6 +216,9 @@
                             }
                         ];
                     };
+                };
+                explorer = {
+                    confirmDelete = false;
                 };
                 git = {
                     confirmSync = false;

@@ -1,0 +1,15 @@
+code --install-extension be5invis.vscode-icontheme-nomo-dark
+code --install-extension eamodio.gitlens
+code --install-extension formulahendry.auto-close-tag
+code --install-extension formulahendry.auto-complete-tag
+code --install-extension formulahendry.auto-rename-tag
+code --install-extension googlecloudtools.cloudcode
+code --install-extension jnoortheen.nix-ide
+code --install-extension mads-hartmann.bash-ide-vscode
+code --install-extension ms-vscode.cpptools-themes
+code --install-extension renxzen.google-colab-theme
+code --install-extension tomrijndorp.find-it-faster
+code --install-extension usernamehw.errorlens
+##
+## Copy and paste the code above in the terminal and run it
+##
