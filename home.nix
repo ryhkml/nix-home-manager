@@ -150,11 +150,6 @@
         ignores = [
             ".env"
         ];
-        # # Enable signing commits
-        #signing = {
-            #key = "<KEY>";
-            #signByDefault = true;
-        #};
         extraConfig = {
             init = {
                 defaultBranch = "main";
