@@ -155,6 +155,19 @@
         enable = true;
         userName = "<USERNAME>";
         userEmail = "<EMAIL>";
+        ignores = [
+            ".env"
+        ];
+        # # Enable signing commits
+        #signing = {
+            #key = "<KEY>";
+            #signByDefault = true;
+        #};
+        extraConfig = {
+            init = {
+                defaultBranch = "main";
+            };
+        };
     };
 
     # Vim
@@ -166,6 +179,7 @@
             filetype plugin on
             filetype indent on
             syntax on
+            set encoding=utf-8
             set number
             set expandtab
             set nowrap
@@ -198,6 +212,9 @@
                 renderWhitespace = "none";
                 smoothScrolling = true;
                 tabSize = 4;
+            };
+            workbench = {
+                startupEditor = "none";
             };
         };
     };
