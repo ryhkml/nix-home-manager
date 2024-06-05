@@ -33,8 +33,6 @@
             nodejs_22
             # # R
             rustup
-            # # T
-            tree
         ];
         file = {
 
@@ -87,6 +85,9 @@
                 # # uBlock Origin 💀
                 "cjpalhdlnbpafiamejdnhcphjbkeiagm"
             ];
+        };
+        eza = {
+            enable = true;
         };
         fastfetch = {
             enable = true;

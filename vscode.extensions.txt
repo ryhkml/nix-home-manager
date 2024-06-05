@@ -10,6 +10,9 @@ code --install-extension ms-vscode.cpptools-themes
 code --install-extension renxzen.google-colab-theme
 code --install-extension tomrijndorp.find-it-faster
 code --install-extension usernamehw.errorlens
+
 ##
-## Copy and paste the code above in the terminal and run it
+## Copy the vscode command above and run it in the terminal
+##
+## 1717593744210
 ##
