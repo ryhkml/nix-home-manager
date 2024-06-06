@@ -14,7 +14,6 @@
         packages = with pkgs; [
             # # C
             cosign
-            curl
             # # F
             fira-code
             firebase-tools
@@ -28,9 +27,9 @@
             jetbrains-mono
             jq
             # # L
-            # libgcc # # <- Uncomment for Fedora 40 Work Station
+            libgcc # # <- I'm using Fedora 40 btw. Leave a comment if gcc is installed 
             # # N
-            nodejs_22
+            nodejs_20
             # # R
             rustup
         ];
@@ -60,6 +59,7 @@
         btop = {
             enable = true;
             settings = {
+                color_theme = "adapta";
                 show_battery = false;
                 temp_scale = "celsius";
                 update_ms = 1000;

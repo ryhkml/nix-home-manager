@@ -1,18 +1,27 @@
+code --install-extension angular.ng-template
 code --install-extension be5invis.vscode-icontheme-nomo-dark
 code --install-extension eamodio.gitlens
 code --install-extension formulahendry.auto-close-tag
 code --install-extension formulahendry.auto-complete-tag
 code --install-extension formulahendry.auto-rename-tag
 code --install-extension googlecloudtools.cloudcode
+code --install-extension jacobpfeifer.pfeifer-hurl
 code --install-extension jnoortheen.nix-ide
 code --install-extension mads-hartmann.bash-ide-vscode
+code --install-extension mikestead.dotenv
 code --install-extension ms-vscode.cpptools-themes
+code --install-extension oven.bun-vscode
+code --install-extension redhat.java
+code --install-extension redhat.vscode-yaml
 code --install-extension renxzen.google-colab-theme
+code --install-extension rust-lang.rust-analyzer
 code --install-extension tomrijndorp.find-it-faster
 code --install-extension usernamehw.errorlens
+code --install-extension vscjava.vscode-java-debug
+code --install-extension vscjava.vscode-java-test
 
 ##
 ## Copy the vscode command above and run it in the terminal
 ##
-## 1717593744210
+## 1717688818336
 ##
