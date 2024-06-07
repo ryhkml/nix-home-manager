@@ -26,8 +26,6 @@
             jdk22
             jetbrains-mono
             jq
-            # # L
-            libgcc # # <- I'm using Fedora 40 btw. Leave a comment if gcc is installed 
             # # N
             nodejs_20
             # # R
@@ -139,20 +137,6 @@
         };
         fzf = {
             enable = true;
-        };
-        git = {
-            enable = true;
-            userName = "<USERNAME>";
-            userEmail = "<EMAIL>";
-            ignores = [
-                ".env"
-                "note.txt"
-            ];
-            extraConfig = {
-                init = {
-                    defaultBranch = "main";
-                };
-            };
         };
         ripgrep = {
             enable = true;

@@ -23,5 +23,5 @@ code --install-extension vscjava.vscode-java-test
 ##
 ## Copy the vscode command above and run it in the terminal
 ##
-## 1717688818336
+## 1717778922084
 ##
