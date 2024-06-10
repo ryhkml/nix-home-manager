@@ -8,9 +8,9 @@
     };
 
     home = {
-        username = "<USERNAME>";
-        homeDirectory = "/home/<USERNAME>";
-        stateVersion = "<VERSION>";
+        username = "ryhkml";
+        homeDirectory = "/home/ryhkml";
+        stateVersion = "24.05";
         packages = with pkgs; [
             # # C
             cosign
@@ -30,6 +30,8 @@
             nodejs_20
             # # R
             rustup
+            # # T
+            trash-cli
         ];
         file = {
 
@@ -53,6 +55,10 @@
         # #
         bat = {
             enable = true;
+            config = {
+                pager = "less -FR";
+                theme = "base16";
+            };
         };
         btop = {
             enable = true;
@@ -76,10 +82,6 @@
                 "--no-default-browser-check"
             ];
             extensions = [
-                # # Dark Reader
-                "eimadpbcbfnmbkopoojfekhnkhdbieeh"
-                # # Privacy Badger
-                "pkehgijcmpdhfbdbbnkijodmdjhbjlgp"
                 # # uBlock Origin 💀
                 "cjpalhdlnbpafiamejdnhcphjbkeiagm"
             ];
@@ -134,6 +136,28 @@
                     "break"
                 ];
             };
+        };
+        fish = {
+            enable = true;
+            shellAbbrs = {
+                ".." = "cd ..";
+                cl = "clear";
+                code = "code .";
+                la = "eza -al";
+                ll = "eza -l";
+                ls = "eza";
+                rm = "trash-put";
+                tree = "eza -T";
+                q = "exit";
+            };
+            shellAliases = {
+                docker = "podman";
+                docker-compose = "podman-compose";
+            };
+            shellInit = ''
+                set -U fish_greeting
+                set -x GPG_TTY (tty)
+            '';
         };
         fzf = {
             enable = true;
@@ -207,11 +231,28 @@
                 git = {
                     confirmSync = false;
                 };
+                security = {
+                    workspace = {
+                        trust = {
+                            banner = "never";
+                            enabled = true;
+                            startupPrompt = "never";
+                        };
+                    };
+                };
                 terminal = {
                     integrated = {
                         cursorBlinking = true;
                         cursorStyle = "line";
+                        defaultProfile = {
+                            linux = "fish";
+                        };
+                        smoothScrolling = true;
                     };
+                };
+                window = {
+                    newWindowDimensions = "maximized";
+                    restoreFullscreen = true;
                 };
                 workbench = {
                     activityBar = {
@@ -221,7 +262,13 @@
                     colorTheme = "Visual Studio 2017 Dark - C++";
                     # # Extension https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-icontheme-nomo-dark
                     iconTheme = "vs-nomo-dark";
+                    list = {
+                        smoothScrolling = true;
+                    };
                     startupEditor = "none";
+                    trustedDomains = {
+                        promptInTrustedWorkspace = true;
+                    };
                 };
                 # # Configuration files
                 "[json]" = {
