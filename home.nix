@@ -14,13 +14,19 @@
         packages = with pkgs; [
             # # C
             cosign
+            # # D
+            duf
+            # # E
+            exiftool
             # # F
             fira-code
             firebase-tools
             # # G
             google-cloud-sdk
+            gping
             # # H
             hey
+            http-server
             hurl
             # # J
             jdk22
@@ -30,14 +36,36 @@
             nodejs_20
             # # R
             rustup
+            # # S
+            sqlitebrowser
             # # T
             trash-cli
+            # # Y
+            yaml-language-server
         ];
         file = {
 
         };
         sessionVariables = {
 
+        };
+    };
+
+    editorconfig = {
+        enable = true;
+        settings = {
+            "*" = {
+                charset = "utf-8";
+                end_of_line = "lf";
+                trim_trailing_whitespace = true;
+                insert_final_newline = false;
+                indent_style = "tab";
+                indent_size = 4;
+            };
+            "*.{yaml,yml}" = {
+                indent_style = "space";
+                indent_size = 2;
+            };
         };
     };
 
@@ -53,9 +81,18 @@
         };
         # #
         # #
+        aria2 = {
+            enable = true;
+            settings = {
+                max-connection-per-server = 16;
+                retry-wait = 120;
+                split = 16;
+            };
+        };
         bat = {
             enable = true;
             config = {
+                italic-text = "never";
                 pager = "less -FR";
                 theme = "base16";
             };
@@ -67,12 +104,6 @@
                 show_battery = false;
                 temp_scale = "celsius";
                 update_ms = 1000;
-            };
-        };
-        bun = {
-            enable = true;
-            settings = {
-                mosl = true;
             };
         };
         chromium = {
@@ -141,11 +172,13 @@
             enable = true;
             shellAbbrs = {
                 ".." = "cd ..";
-                cl = "clear";
+                c = "clear";
                 code = "code .";
-                la = "eza -al";
-                ll = "eza -l";
+                home = "cd $HOME";
+                la = "eza -ahl --time-style relative";
+                ll = "eza -hl --time-style relative";
                 ls = "eza";
+                ping = "gping";
                 rm = "trash-put";
                 tree = "eza -T";
                 q = "exit";
@@ -156,7 +189,9 @@
             };
             shellInit = ''
                 set -U fish_greeting
-                set -x GPG_TTY (tty)
+                set -g BUN_INSTALL "$HOME/.bun"
+                set -g PATH "$BUN_INSTALL/bin" $PATH
+                set -g GPG_TTY (tty)
             '';
         };
         fzf = {
@@ -176,6 +211,14 @@
                 {
                     key = "ctrl+k ctrl+s";
                     command = "workbench.action.files.saveFiles";
+                }
+                {
+                    key = "ctrl+alt+'";
+                    command = "find-it-faster.findFiles";
+                }
+                {
+                    key = "ctrl+alt+;";
+                    command = "find-it-faster.findWithinFiles";
                 }
             ];
             userSettings = {
@@ -228,6 +271,16 @@
                 explorer = {
                     confirmDelete = false;
                 };
+                extensions = {
+                    autoUpdate = "onlyEnabledExtensions";
+                };
+                # # Extension https://marketplace.visualstudio.com/items?itemName=TomRijndorp.find-it-faster
+                find-it-faster = {
+                    general = {
+                        batTheme = "Visual Studio Dark+";
+                        killTerminalAfterUse = true;
+                    };
+                };
                 git = {
                     confirmSync = false;
                 };
@@ -247,9 +300,11 @@
                         defaultProfile = {
                             linux = "fish";
                         };
+                        hideOnStartup = "always";
                         smoothScrolling = true;
                     };
                 };
+                update.mode = "none";
                 window = {
                     newWindowDimensions = "maximized";
                     restoreFullscreen = true;
@@ -265,6 +320,9 @@
                     list = {
                         smoothScrolling = true;
                     };
+                    remoteIndicator = {
+                        showExtensionRecommendations = false;
+                    };
                     startupEditor = "none";
                     trustedDomains = {
                         promptInTrustedWorkspace = true;
@@ -276,12 +334,7 @@
                         tabSize = 4;
                     };
                 };
-                "[yaml]" = {
-                    editor = {
-                        tabSize = 2;
-                    };
-                };
-                "[yml]" = {
+                "[yaml],[yml]" = {
                     editor = {
                         tabSize = 2;
                     };

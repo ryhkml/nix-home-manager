@@ -1,6 +1,7 @@
 code --install-extension angular.ng-template
 code --install-extension be5invis.vscode-icontheme-nomo-dark
 code --install-extension eamodio.gitlens
+code --install-extension editorconfig.editorconfig
 code --install-extension formulahendry.auto-close-tag
 code --install-extension formulahendry.auto-complete-tag
 code --install-extension formulahendry.auto-rename-tag
@@ -23,5 +24,5 @@ code --install-extension vscjava.vscode-java-test
 ##
 ## Copy the vscode command above and run it in the terminal
 ##
-## 1717778922084
+## 1718721838716
 ##
