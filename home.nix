@@ -36,9 +36,8 @@
             nodejs_20
             # # R
             rustup
-            # # S
-            sqlitebrowser
             # # T
+            tldr
             trash-cli
             # # Y
             yaml-language-server
@@ -178,7 +177,6 @@
                 la = "eza -ahl --time-style relative";
                 ll = "eza -hl --time-style relative";
                 ls = "eza";
-                ping = "gping";
                 rm = "trash-put";
                 tree = "eza -T";
                 q = "exit";
@@ -192,6 +190,7 @@
                 set -g BUN_INSTALL "$HOME/.bun"
                 set -g PATH "$BUN_INSTALL/bin" $PATH
                 set -g GPG_TTY (tty)
+                set -g NODE_OPTIONS "--max-old-space-size=8192"
             '';
         };
         fzf = {
@@ -227,9 +226,7 @@
                 };
                 # # Extension https://marketplace.visualstudio.com/items?itemName=GoogleCloudTools.cloudcode
                 cloudcode = {
-                    # # Google Cloud project id
                     project = "adroit-cortex-391921";
-                    # # Gemini code assist
                     duetAI = {
                         project = "adroit-cortex-391921";
                     };
