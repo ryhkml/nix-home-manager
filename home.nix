@@ -108,7 +108,9 @@
         chromium = {
             enable = true;
             commandLineArgs = [
+                "--disable-auto-reload"
                 "--incognito"
+                "--no-crash-upload"
                 "--no-default-browser-check"
             ];
             extensions = [
