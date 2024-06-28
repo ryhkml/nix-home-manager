@@ -50,24 +50,6 @@
         };
     };
 
-    editorconfig = {
-        enable = true;
-        settings = {
-            "*" = {
-                charset = "utf-8";
-                end_of_line = "lf";
-                trim_trailing_whitespace = true;
-                insert_final_newline = false;
-                indent_style = "tab";
-                indent_size = 4;
-            };
-            "*.{yaml,yml}" = {
-                indent_style = "space";
-                indent_size = 2;
-            };
-        };
-    };
-
     fonts = {
         fontconfig = {
             enable = true;
@@ -183,14 +165,12 @@
                 tree = "eza -T";
                 q = "exit";
             };
-            shellAliases = {
-                docker = "podman";
-                docker-compose = "podman-compose";
-            };
             shellInit = ''
                 set -U fish_greeting
                 set -g BUN_INSTALL "$HOME/.bun"
                 set -g PATH "$BUN_INSTALL/bin" $PATH
+                set -g DOCKER_BUILDKIT 1
+                set -g DOCKER_HOST "unix:///run/user/1000/podman/podman.sock"
                 set -g GPG_TTY (tty)
                 set -g NODE_OPTIONS "--max-old-space-size=8192"
             '';
@@ -239,9 +219,11 @@
                     };
                     cursorSmoothCaretAnimation = "on";
                     cursorStyle = "line";
+                    detectIndentation = false;
                     fontFamily = "Fira Code";
                     fontLigatures = true;
                     fontSize = 14;
+                    insertSpaces = false;
                     letterSpacing = 0.4;
                     lineHeight = 1.6;
                     renderWhitespace = "none";
@@ -327,14 +309,22 @@
                         promptInTrustedWorkspace = true;
                     };
                 };
-                # # Configuration files
-                "[json]" = {
+                # # Configuration file
+                files.associations = {
+                    "**/docker-compose.yml" = "yaml";
+                    "**/docker-compose*.yml" = "yaml";
+                    "**/docker-podman-compose.yml" = "yaml";
+                    "**/docker-podman-compose*.yml" = "yaml";
+                };
+                "[nix]" = {
                     editor = {
+                        insertSpaces = false;
                         tabSize = 4;
                     };
                 };
-                "[yaml],[yml]" = {
+                "[yaml]" = {
                     editor = {
+                        insertSpaces = true;
                         tabSize = 2;
                     };
                 };
