@@ -12,6 +12,8 @@
         homeDirectory = "/home/ryhkml";
         stateVersion = "24.05";
         packages = with pkgs; [
+            # # B
+			bash-language-server
             # # C
             cosign
             # # D
@@ -154,9 +156,10 @@
         fish = {
             enable = true;
             shellAbbrs = {
+                "/" = "cd /";
                 ".." = "cd ..";
                 c = "clear";
-                code = "code .";
+                code = "eza -hl --time-style relative && code .";
                 home = "cd $HOME";
                 la = "eza -ahl --time-style relative";
                 ll = "eza -hl --time-style relative";
@@ -165,6 +168,9 @@
                 tree = "eza -T";
                 q = "exit";
             };
+			shellAliases = {
+				docker = "podman";
+			};
             shellInit = ''
                 set -U fish_greeting
                 set -g BUN_INSTALL "$HOME/.bun"
@@ -233,6 +239,7 @@
                     };
                     tabSize = 4;
                     tokenColorCustomizations = {
+						# # Disable italic font style
                         textMateRules = [
                             {
                                 scope = [
@@ -251,6 +258,7 @@
                 };
                 explorer = {
                     confirmDelete = false;
+					confirmDragAndDrop = false;
                 };
                 extensions = {
                     autoUpdate = "onlyEnabledExtensions";
@@ -309,7 +317,7 @@
                         promptInTrustedWorkspace = true;
                     };
                 };
-                # # Configuration file
+                # # Configuration YAML file
                 files.associations = {
                     "**/docker-compose.yml" = "yaml";
                     "**/docker-compose*.yml" = "yaml";
@@ -318,7 +326,6 @@
                 };
                 "[nix]" = {
                     editor = {
-                        insertSpaces = false;
                         tabSize = 4;
                     };
                 };
