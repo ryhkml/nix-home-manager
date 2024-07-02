@@ -17,6 +17,7 @@
             # # C
             cosign
             # # D
+			direnv
             duf
             # # E
             exiftool
@@ -34,6 +35,8 @@
             jdk22
             jetbrains-mono
             jq
+            # # K
+			kubernetes
             # # N
             nodejs_20
             # # R
@@ -317,12 +320,26 @@
                         promptInTrustedWorkspace = true;
                     };
                 };
-                # # Configuration YAML file
-                files.associations = {
-                    "**/docker-compose.yml" = "yaml";
-                    "**/docker-compose*.yml" = "yaml";
-                    "**/docker-podman-compose.yml" = "yaml";
-                    "**/docker-podman-compose*.yml" = "yaml";
+                # # Configuration files
+                files = {
+					associations = {
+						# # dockercompose
+						"**/*-compose.yml" = "dockercompose";
+						"**/*-compose*.yml" = "dockercompose";
+						"**/*-compose.yaml" = "dockercompose";
+						"**/*-compose*.yaml" = "dockercompose";
+						# # dockerfile
+						"**/Dockerfile*" = "dockerfile";
+						# # dotenv
+						"**/.env" = "dotenv";
+						"**/.env*" = "dotenv";
+						# # ignore
+						"**/.*ignore" = "ignore";
+						# # json
+						"**/*.json" = "json";
+					};
+					insertFinalNewline = false;
+					trimFinalNewlines = false;
                 };
                 "[nix]" = {
                     editor = {
@@ -335,6 +352,15 @@
                         tabSize = 2;
                     };
                 };
+				# # Extension https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
+				"yaml.schemas" = {
+					"https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = [
+						"**/*-compose.yml"
+						"**/*-compose*.yml"
+						"**/*-compose.yaml"
+						"**/*-compose*.yaml"
+					];
+				};
             };
         };
         zoxide = {

@@ -1,5 +1,6 @@
 code --install-extension adpyke.codesnap
 code --install-extension angular.ng-template
+code --install-extension arrterian.nix-env-selector
 code --install-extension be5invis.vscode-icontheme-nomo-dark
 code --install-extension eamodio.gitlens
 code --install-extension formulahendry.auto-close-tag
@@ -10,8 +11,10 @@ code --install-extension jacobpfeifer.pfeifer-hurl
 code --install-extension jnoortheen.nix-ide
 code --install-extension mads-hartmann.bash-ide-vscode
 code --install-extension mikestead.dotenv
+code --install-extension mkhl.direnv
 code --install-extension ms-vscode.cpptools-themes
 code --install-extension oven.bun-vscode
+code --install-extension pinage404.nix-extension-pack
 code --install-extension redhat.java
 code --install-extension redhat.vscode-yaml
 code --install-extension renxzen.google-colab-theme
@@ -25,5 +28,5 @@ code --install-extension yy0931.vscode-sqlite3-editor
 ##
 ## Copy the vscode command above and run it in the terminal
 ##
-## 1719801121620
+## 1719903025646
 ##
