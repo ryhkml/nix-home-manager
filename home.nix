@@ -29,6 +29,7 @@
             gping
             # # H
             hey
+			html-minifier
             http-server
             hurl
             # # J
@@ -37,6 +38,8 @@
             jq
             # # K
 			kubernetes
+            # # M
+			minikube
             # # N
             nodejs_20
             # # R
@@ -323,19 +326,14 @@
                 # # Configuration files
                 files = {
 					associations = {
-						# # dockercompose
 						"**/*-compose.yml" = "dockercompose";
 						"**/*-compose*.yml" = "dockercompose";
 						"**/*-compose.yaml" = "dockercompose";
 						"**/*-compose*.yaml" = "dockercompose";
-						# # dockerfile
 						"**/Dockerfile*" = "dockerfile";
-						# # dotenv
 						"**/.env" = "dotenv";
 						"**/.env*" = "dotenv";
-						# # ignore
 						"**/.*ignore" = "ignore";
-						# # json
 						"**/*.json" = "json";
 					};
 					insertFinalNewline = false;

@@ -7,6 +7,7 @@ code --install-extension formulahendry.auto-close-tag
 code --install-extension formulahendry.auto-complete-tag
 code --install-extension formulahendry.auto-rename-tag
 code --install-extension googlecloudtools.cloudcode
+code --install-extension humao.rest-client
 code --install-extension jacobpfeifer.pfeifer-hurl
 code --install-extension jnoortheen.nix-ide
 code --install-extension mads-hartmann.bash-ide-vscode
@@ -28,5 +29,5 @@ code --install-extension yy0931.vscode-sqlite3-editor
 ##
 ## Copy the vscode command above and run it in the terminal
 ##
-## 1719903025646
+## 1720112344869
 ##
