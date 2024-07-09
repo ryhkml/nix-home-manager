@@ -16,6 +16,10 @@
 			bash-language-server
             # # C
             cosign
+			(curl.override {
+				c-aresSupport = true;
+				gsaslSupport = true;
+			})
             # # D
 			direnv
             duf
