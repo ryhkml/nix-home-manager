@@ -154,6 +154,7 @@
                     "packages"
                     "terminal"
                     "break"
+					"uptime"
                     {
                         type = "display";
                         key = "Resolution";
@@ -354,6 +355,10 @@
                         tabSize = 2;
                     };
                 };
+				# # Extension https://marketplace.visualstudio.com/items?itemName=adpyke.codesnap
+				codesnap = {
+					containerPadding = "4px";
+				};
 				# # Extension https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
 				"yaml.schemas" = {
 					"https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = [
