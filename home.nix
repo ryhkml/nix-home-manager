@@ -1,11 +1,7 @@
 { config, pkgs, ... }:
 
 {
-    nixpkgs = {
-        config = {
-            allowUnfree = true;
-        };
-    };
+    nixpkgs.config.allowUnfree = true;
 
     home = {
         username = "ryhkml";
@@ -70,12 +66,8 @@
         };
     };
 
-    fonts = {
-        fontconfig = {
-            enable = true;
-        };
-    };
-
+    fonts.fontconfig.enable = true;
+        
     programs = {
         home-manager = {
             enable = true;
@@ -166,7 +158,7 @@
                 "/" = "cd /";
                 ".." = "cd ..";
                 c = "clear";
-                code = "eza -hl --time-style relative && code .";
+                C = "clear";
                 home = "cd $HOME";
                 la = "eza -ahl --time-style relative";
                 ll = "eza -hl --time-style relative";
@@ -174,6 +166,7 @@
                 rm = "trash-put";
                 tree = "eza -T";
                 q = "exit";
+                Q = "exit";
             };
 			shellAliases = {
 				code = "codium";
@@ -181,12 +174,12 @@
 			};
             shellInit = ''
                 set -U fish_greeting
-                set -g BUN_INSTALL "$HOME/.bun"
-                set -g PATH "$BUN_INSTALL/bin" $PATH
-                set -g DOCKER_BUILDKIT 1
-                set -g DOCKER_HOST "unix:///run/user/1000/podman/podman.sock"
-                set -g GPG_TTY (tty)
-                set -g NODE_OPTIONS "--max-old-space-size=8192"
+                set -gx BUN_INSTALL "$HOME/.bun"
+                set -gx PATH "$BUN_INSTALL/bin" $PATH
+                set -gx DOCKER_BUILDKIT 1
+                set -gx DOCKER_HOST "unix:///run/user/1000/podman/podman.sock"
+                set -gx GPG_TTY (tty)
+                set -gx NODE_OPTIONS "--max-old-space-size=8192"
             '';
         };
         fzf = {
@@ -375,6 +368,7 @@
                     };
                 };
                 git = {
+					autofetch = true;
                     confirmSync = false;
                 };
                 security = {
