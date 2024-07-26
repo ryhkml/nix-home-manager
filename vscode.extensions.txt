@@ -1,18 +1,18 @@
 code --install-extension adpyke.codesnap
 code --install-extension angular.ng-template
 code --install-extension arrterian.nix-env-selector
-code --install-extension be5invis.vscode-icontheme-nomo-dark
+code --install-extension chadalen.vscode-jetbrains-icon-theme
 code --install-extension eamodio.gitlens
 code --install-extension formulahendry.auto-close-tag
 code --install-extension formulahendry.auto-complete-tag
 code --install-extension formulahendry.auto-rename-tag
 code --install-extension googlecloudtools.cloudcode
 code --install-extension humao.rest-client
-code --install-extension jacobpfeifer.pfeifer-hurl
 code --install-extension jnoortheen.nix-ide
 code --install-extension mads-hartmann.bash-ide-vscode
 code --install-extension mikestead.dotenv
 code --install-extension mkhl.direnv
+code --install-extension mobalic.jetbrains-new-dark
 code --install-extension ms-vscode.cpptools-themes
 code --install-extension oven.bun-vscode
 code --install-extension pinage404.nix-extension-pack
@@ -21,7 +21,6 @@ code --install-extension redhat.vscode-yaml
 code --install-extension renxzen.google-colab-theme
 code --install-extension rust-lang.rust-analyzer
 code --install-extension tomrijndorp.find-it-faster
-code --install-extension usernamehw.errorlens
 code --install-extension vscjava.vscode-java-debug
 code --install-extension vscjava.vscode-java-test
 code --install-extension yy0931.vscode-sqlite3-editor
@@ -29,5 +28,5 @@ code --install-extension yy0931.vscode-sqlite3-editor
 ##
 ## Copy the vscode command above and run it in the terminal
 ##
-## 1720931144561
+## 1721953648977
 ##

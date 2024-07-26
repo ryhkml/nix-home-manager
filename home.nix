@@ -14,6 +14,7 @@
         packages = with pkgs; [
             # # B
 			bash-language-server
+			bitwarden-desktop
             # # C
             cosign
 			(curl.override {
@@ -22,6 +23,7 @@
 			})
             # # D
 			direnv
+			discord
             duf
             # # E
             exiftool
@@ -35,7 +37,8 @@
             hey
 			html-minifier
             http-server
-            hurl
+            # # I
+			insomnia
             # # J
             jdk22
             jetbrains-mono
@@ -45,10 +48,15 @@
             # # M
 			minikube
             # # N
+			nil
+			nixpkgs-fmt
             nodejs_20
             # # R
             rustup
+            # # S
+			spotify
             # # T
+			telegram-desktop
             tldr
             trash-cli
             # # Y
@@ -72,8 +80,6 @@
         home-manager = {
             enable = true;
         };
-        # #
-        # #
         aria2 = {
             enable = true;
             settings = {
@@ -98,19 +104,6 @@
                 temp_scale = "celsius";
                 update_ms = 1000;
             };
-        };
-        chromium = {
-            enable = true;
-            commandLineArgs = [
-                "--disable-auto-reload"
-                "--incognito"
-                "--no-crash-upload"
-                "--no-default-browser-check"
-            ];
-            extensions = [
-                # # uBlock Origin 💀
-                "cjpalhdlnbpafiamejdnhcphjbkeiagm"
-            ];
         };
         eza = {
             enable = true;
@@ -164,6 +157,9 @@
                 ];
             };
         };
+		firefox = {
+			enable = true;
+		};
         fish = {
             enable = true;
             shellAbbrs = {
@@ -180,6 +176,7 @@
                 q = "exit";
             };
 			shellAliases = {
+				code = "codium";
 				docker = "podman";
 			};
             shellInit = ''
@@ -200,6 +197,7 @@
         };
         vscode = {
             enable = true;
+			package = pkgs.vscodium;
             keybindings = [
                 {
                     key = "ctrl+shift+down";
@@ -254,11 +252,106 @@
                         textMateRules = [
                             {
                                 scope = [
-                                    "comment"
-                                    "comment.line"
+									"comment"
                                     "comment.block"
                                     "comment.block.documentation"
-                                    "punctuation.definition.comment"
+                                    "comment.line"
+                                    "constant"
+                                    "constant.character"
+                                    "constant.character.escape"
+                                    "constant.numeric"
+                                    "constant.numeric.integer"
+                                    "constant.numeric.float"
+                                    "constant.numeric.hex"
+                                    "constant.numeric.octal"
+                                    "constant.other"
+                                    "constant.regexp"
+                                    "constant.rgb-value"
+                                    "emphasis"
+                                    "entity"
+                                    "entity.name"
+                                    "entity.name.class"
+                                    "entity.name.function"
+                                    "entity.name.method"
+                                    "entity.name.section"
+                                    "entity.name.selector"
+                                    "entity.name.tag"
+                                    "entity.name.type"
+                                    "entity.other"
+                                    "entity.other.attribute-name"
+                                    "entity.other.inherited-class"
+                                    "invalid"
+                                    "invalid.deprecated"
+                                    "invalid.illegal"
+                                    "keyword"
+                                    "keyword.control"
+                                    "keyword.operator"
+                                    "keyword.operator.new"
+                                    "keyword.operator.assignment"
+                                    "keyword.operator.arithmetic"
+                                    "keyword.operator.logical"
+                                    "keyword.other"
+                                    "markup"
+                                    "markup.bold"
+                                    "markup.changed"
+                                    "markup.deleted"
+                                    "markup.heading"
+                                    "markup.inline.raw"
+                                    "markup.inserted"
+                                    "markup.italic"
+                                    "markup.list"
+                                    "markup.list.numbered"
+                                    "markup.list.unnumbered"
+                                    "markup.other"
+                                    "markup.quote"
+                                    "markup.raw"
+                                    "markup.underline"
+                                    "markup.underline.link"
+                                    "meta"
+                                    "meta.block"
+                                    "meta.cast"
+                                    "meta.class"
+                                    "meta.function"
+                                    "meta.function-call"
+                                    "meta.preprocessor"
+                                    "meta.return-type"
+                                    "meta.selector"
+                                    "meta.tag"
+                                    "meta.type.annotation"
+                                    "meta.type"
+                                    "punctuation.definition.string.begin"
+                                    "punctuation.definition.string.end"
+                                    "punctuation.separator"
+                                    "punctuation.separator.continuation"
+                                    "punctuation.terminator"
+                                    "storage"
+                                    "storage.modifier"
+                                    "storage.type"
+                                    "string"
+                                    "string.interpolated"
+                                    "string.other"
+                                    "string.quoted"
+                                    "string.quoted.double"
+                                    "string.quoted.other"
+                                    "string.quoted.single"
+                                    "string.quoted.triple"
+                                    "string.regexp"
+                                    "string.unquoted"
+                                    "strong"
+                                    "support"
+                                    "support.class"
+                                    "support.constant"
+                                    "support.function"
+                                    "support.other"
+                                    "support.type"
+                                    "support.type.property-name"
+                                    "support.variable"
+                                    "variable"
+                                    "variable.language"
+                                    "variable.name"
+                                    "variable.other"
+                                    "variable.other.readwrite"
+                                    "variable.parameter"
                                 ];
                                 settings = {
                                     fontStyle = "";
@@ -304,19 +397,21 @@
                         smoothScrolling = true;
                     };
                 };
-                update.mode = "none";
+                update = {
+					mode = "none";
+				};
                 window = {
-                    newWindowDimensions = "maximized";
                     restoreFullscreen = true;
+					title = "Code";
                 };
                 workbench = {
                     activityBar = {
                         location = "top";
                     };
                     # # Extension https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-themes
-                    colorTheme = "Visual Studio 2017 Dark - C++";
+                    colorTheme = "JetBrains New Dark";
                     # # Extension https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-icontheme-nomo-dark
-                    iconTheme = "vs-nomo-dark";
+                    iconTheme = "vscode-jetbrains-icon-theme-2023-dark";
                     list = {
                         smoothScrolling = true;
                     };
@@ -343,6 +438,14 @@
 					};
 					insertFinalNewline = false;
 					trimFinalNewlines = false;
+					watcherExclude = {
+                        "**/.angular/*/**" = true;
+                        "**/.database/*/**" = true;
+                        "**/.git/objects/**" = true;
+                        "**/.git/subtree-cache/**" = true;
+                        "**/.hg/store/**" = true;
+                        "**/node_modules/*/**" = true;
+                    };
                 };
                 "[nix]" = {
                     editor = {
@@ -357,7 +460,7 @@
                 };
 				# # Extension https://marketplace.visualstudio.com/items?itemName=adpyke.codesnap
 				codesnap = {
-					containerPadding = "4px";
+					containerPadding = "8px";
 				};
 				# # Extension https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
 				"yaml.schemas" = {
@@ -368,10 +471,111 @@
 						"**/*-compose*.yaml"
 					];
 				};
+				# # https://marketplace.visualstudio.com/items?itemName=jnoortheen.nix-ide
+                "nix.enableLanguageServer" = true;
+	            "nix.serverPath" = "nil";
+                "nix.serverSettings" = {
+                    nil = {
+                        diagnostics = {
+                            ignored = [
+                                "unused_binding"
+                                "unused_with"
+                            ];
+                        };
+                        formatting = {
+                            command = [
+                                "nixpkgs-fmt"
+                            ];
+                        };
+                    };
+                };
+                # # https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
+                "redhat.telemetry.enabled" = false;
             };
         };
         zoxide = {
             enable = true;
+        };
+    };
+
+	xdg.desktopEntries = {
+		codium = {
+			name = "Code";
+            comment = "Free/libre open source software binaries of Visual Studio Code";
+			genericName = "Text Editor";
+            exec = "codium --disable-extensions %F";
+            icon = "vscodium";
+            terminal = false;
+            categories = [
+				"Development"
+				"IDE"
+				"TextEditor"
+			];
+            mimeType = [
+                "text/plain"
+				"text/html"
+				"text/css"
+				"text/javascript"
+				"text/typescript"
+				"text/x-typescript"
+				"text/x-shellscript"
+				"text/x-java"
+				"text/x-rust"
+				"text/markdown"
+				"application/xml"
+				"application/json"
+				"inode/directory"
+            ];
+			startupNotify = true;
+			actions = {
+				new-empty-window = {
+                    name = "New Empty Window";
+					exec = "codium --disable-extensions --new-window %F";
+					icon = "vscodium";
+				};
+			};
+			settings = {
+				StartupWMClass = "vscodium";
+			};
+		};
+		codium-url-handler = {
+			name = "Code - URL Handler";
+			genericName = "Text Editor";
+			exec = "codium --disable-extensions --open-url %U";
+            icon = "vscodium";
+			terminal = false;
+			categories = [
+				"Development"
+				"IDE"
+				"TextEditor"
+				"Utility"
+			];
+			mimeType = [
+				"x-scheme-handler/vscodium"
+			];
+			noDisplay = true;
+			startupNotify = true;
+		};
+        "org.telegram.desktop" = {
+            name = "Telegram";
+            comment = "Official desktop version of Telegram messaging app";
+            genericName = "Messaging App";
+			exec = "telegram-desktop";
+            icon = "telegram";
+			terminal = false;
+			categories = [
+                "Chat"
+                "InstantMessaging"
+                "Network"
+                "Qt"
+			];
+			mimeType = [
+                "x-scheme-handler/tg"
+                "x-scheme-handler/telegram"
+			];
+            settings = {
+                StartupWMClass = "TelegramDesktop";
+            };
         };
     };
 }
