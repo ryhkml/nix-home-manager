@@ -2,6 +2,12 @@
 
 {
     nixpkgs.config.allowUnfree = true;
+	# To update the overlays package
+	# Run "home-manager build" first, then "home-manager switch"
+	# If the overlays package has no changes, simply run the "home-manager switch"
+    nixpkgs.overlays = [
+		(import ./packages/vscodium.nix)
+	];
 
     home = {
         username = "ryhkml";
@@ -25,11 +31,11 @@
             exiftool
             # # F
 			fd
+			file
             fira-code
             firebase-tools
             # # G
             google-cloud-sdk
-            gping
             # # H
             hey
 			html-minifier
@@ -53,7 +59,10 @@
             # # R
             rustup
             # # S
+			sd
 			spotify
+			sqlcipher
+			sqlite
             # # T
 			telegram-desktop
             tldr
@@ -402,7 +411,7 @@
 				};
                 window = {
                     restoreFullscreen = true;
-					title = "Code";
+					title = "VSCodium";
                 };
                 workbench = {
                     activityBar = {
@@ -498,84 +507,25 @@
         };
     };
 
-	xdg.desktopEntries = {
-		codium = {
-			name = "Code";
-            comment = "Free/libre open source software binaries of Visual Studio Code";
-			genericName = "Text Editor";
-            exec = "codium --disable-extensions %F";
-            icon = "vscodium";
-            terminal = false;
-            categories = [
-				"Development"
-				"IDE"
-				"TextEditor"
-			];
-            mimeType = [
-                "text/plain"
-				"text/html"
-				"text/css"
-				"text/javascript"
-				"text/typescript"
-				"text/x-typescript"
-				"text/x-shellscript"
-				"text/x-java"
-				"text/x-rust"
-				"text/markdown"
-				"application/xml"
-				"application/json"
-				"inode/directory"
-            ];
-			startupNotify = true;
-			actions = {
-				new-empty-window = {
-                    name = "New Empty Window";
-					exec = "codium --disable-extensions --new-window %F";
-					icon = "vscodium";
-				};
-			};
-			settings = {
-				StartupWMClass = "vscodium";
-			};
+	# Create new Telegram desktop app icon
+	xdg.desktopEntries."org.telegram.desktop" = {
+		name = "Telegram";
+		comment = "Official desktop version of Telegram messaging app";
+		genericName = "Messaging App";
+		exec = "telegram-desktop";
+		icon = "telegram";
+		terminal = false;
+		categories = [
+			"Chat"
+			"InstantMessaging"
+			"Network"
+		];
+		mimeType = [
+			"x-scheme-handler/tg"
+			"x-scheme-handler/telegram"
+		];
+		settings = {
+			StartupWMClass = "TelegramDesktop";
 		};
-		codium-url-handler = {
-			name = "Code - URL Handler";
-			genericName = "Text Editor";
-			exec = "codium --disable-extensions --open-url %U";
-            icon = "vscodium";
-			terminal = false;
-			categories = [
-				"Development"
-				"IDE"
-				"TextEditor"
-				"Utility"
-			];
-			mimeType = [
-				"x-scheme-handler/vscodium"
-			];
-			noDisplay = true;
-			startupNotify = true;
-		};
-        "org.telegram.desktop" = {
-            name = "Telegram";
-            comment = "Official desktop version of Telegram messaging app";
-            genericName = "Messaging App";
-			exec = "telegram-desktop";
-            icon = "telegram";
-			terminal = false;
-			categories = [
-                "Chat"
-                "InstantMessaging"
-                "Network"
-                "Qt"
-			];
-			mimeType = [
-                "x-scheme-handler/tg"
-                "x-scheme-handler/telegram"
-			];
-            settings = {
-                StartupWMClass = "TelegramDesktop";
-            };
-        };
     };
 }
