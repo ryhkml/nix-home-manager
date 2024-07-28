@@ -200,6 +200,9 @@
 			defaultCommand = "fd -L -H -E .git 2>/dev/null";
 			fileWidgetCommand = "fd -L -t f -t l 2>/dev/null";
         };
+        nix-index = {
+            enable = true;
+        };
         ripgrep = {
             enable = true;
         };

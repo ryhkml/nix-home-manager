@@ -3,7 +3,7 @@ self: super:
 {
 	vscodium = super.vscodium.overrideAttrs (oldAttrs: {
     	postInstall = oldAttrs.postInstall or "" + ''
-			# Add by default options to avoid VSCodium crash
+			# Add options by default to avoid VSCodium crash
       		wrapProgram $out/bin/codium --add-flags "--disable-extensions --disable-gpu"
 			# Edit mimetype .desktop configuration
 			if [ -f $out/share/applications/codium.desktop ]; then
