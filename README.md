@@ -43,13 +43,3 @@
 
 ## Next Step
 Visit [nix-community.github.io/home-manager/index.xhtml#sec-usage-configuration](https://nix-community.github.io/home-manager/index.xhtml#sec-usage-configuration) how to use `home-manager` command.
-
-## Key Points About Channels
-- **Collection of Packages:** A channel in Nix is a repository that contains a set of Nix expressions. These expressions define packages, configurations, and other build instructions. Each channel can be seen as a curated set of software and configurations. You can run the command below to view the channel list:
-	```sh
-	nix-channel --list
-	```
-
-- **Home-Manager Specifics:** In the context of home-manager, channels are used to fetch the latest configurations and package definitions for managing user environments. home-manager can be pointed to different channels to use different sets of configurations or package definitions.
-
-Channels offer an organized method to handle and distribute package collections and configurations. They ensure that environments are updated with the latest software versions and settings, thereby enhancing the efficiency and reliability of system and environment management.

@@ -24,9 +24,3 @@ code --install-extension tomrijndorp.find-it-faster
 code --install-extension vscjava.vscode-java-debug
 code --install-extension vscjava.vscode-java-test
 code --install-extension yy0931.vscode-sqlite3-editor
-
-##
-## Copy the vscode command above and run it in the terminal
-##
-## 1721953648977
-##
