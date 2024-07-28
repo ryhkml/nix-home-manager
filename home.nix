@@ -24,6 +24,7 @@
             # # E
             exiftool
             # # F
+			fd
             fira-code
             firebase-tools
             # # G
@@ -47,6 +48,8 @@
 			nil
 			nixpkgs-fmt
             nodejs_20
+            # # P
+			podman-compose
             # # R
             rustup
             # # S
@@ -184,6 +187,9 @@
         };
         fzf = {
             enable = true;
+			changeDirWidgetCommand = "fd -t d -L 2>/dev/null";
+			defaultCommand = "fd -L -H -E .git 2>/dev/null";
+			fileWidgetCommand = "fd -L -t f -t l 2>/dev/null";
         };
         ripgrep = {
             enable = true;
