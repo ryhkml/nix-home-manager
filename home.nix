@@ -65,7 +65,6 @@
 			sqlite
             # # T
 			telegram-desktop
-            tldr
             trash-cli
             # # Y
             yaml-language-server
@@ -515,7 +514,7 @@
 		name = "Telegram";
 		comment = "Official desktop version of Telegram messaging app";
 		genericName = "Messaging App";
-		exec = "telegram-desktop";
+		exec = "telegram-desktop -- %u";
 		icon = "telegram";
 		terminal = false;
 		categories = [
