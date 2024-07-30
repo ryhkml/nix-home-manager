@@ -32,7 +32,6 @@
             # # F
 			fd
 			file
-            fira-code
             firebase-tools
             # # G
             google-cloud-sdk
@@ -44,13 +43,21 @@
 			insomnia
             # # J
             jdk22
-            jetbrains-mono
             jq
             # # K
 			kubernetes
             # # M
 			minikube
             # # N
+            (nerdfonts.override {
+                fonts = [
+                    "EnvyCodeR"
+                    "FiraCode"
+                    "JetBrainsMono"
+                    "Meslo"
+                    "ZedMono"
+                ];
+            })
 			nil
 			nixpkgs-fmt
             nodejs_20
@@ -162,6 +169,41 @@
         };
 		firefox = {
 			enable = true;
+            policies = {
+                BackgroundAppUpdate = false;
+                BlockAboutSupport = true;
+                DisableAppUpdate = true;
+                DisableFeedbackCommands = true;
+                DisableFirefoxStudies = true;
+                DisableTelemetry = true;
+                DNSOverHTTPS = {
+                    Enabled = true;
+                    ProviderURL = "https://cloudflare-dns.com/dns-query";
+                    Fallback = true;
+                    Locked = true;
+                };
+                ExtensionUpdate = true;
+                HardwareAcceleration = true;
+                HttpsOnlyMode = "force_enabled";
+                ManualAppUpdateOnly = true;
+                PictureInPicture = {
+                    Enabled = true;
+                    Locked = true;
+                };
+                PromptForDownloadLocation = true;
+                SanitizeOnShutdown = {
+                    Cache = true;
+                    Cookies = false;
+                    History = true;
+                    Sessions = false;
+                    SiteSettings = false;
+                    OfflineApps = false;
+                    Locked = true;
+                };
+                SearchSuggestEnabled = false;
+                ShowHomeButton = false;
+                TranslateEnabled = false;
+            };
 		};
         fish = {
             enable = true;
@@ -170,18 +212,18 @@
                 ".." = "cd ..";
                 c = "clear";
                 C = "clear";
-                home = "cd $HOME";
-                la = "eza -ahl --time-style relative";
-                ll = "eza -hl --time-style relative";
-                ls = "eza";
-                rm = "trash-put";
-                tree = "eza -T";
+                hm = "cd ~/.config/home-manager";
                 q = "exit";
                 Q = "exit";
             };
 			shellAliases = {
 				code = "codium";
 				docker = "podman";
+                la = "eza -ahlT --color never -L 2 --time-style relative";
+                ll = "eza -hlT --color never -L 2 --time-style relative";
+                ls = "eza -hT --color never -L 1";
+                rm = "trash-put";
+                tree = "eza -T --color never";
 			};
             shellInit = ''
                 set -U fish_greeting
@@ -201,6 +243,10 @@
         };
         nix-index = {
             enable = true;
+        };
+        oh-my-posh = {
+            enable = true;
+            useTheme = "xtoys";
         };
         ripgrep = {
             enable = true;
@@ -245,7 +291,7 @@
                     cursorSmoothCaretAnimation = "on";
                     cursorStyle = "line";
                     detectIndentation = false;
-                    fontFamily = "Fira Code";
+                    fontFamily = "FiraCode Nerd Font";
                     fontLigatures = true;
                     fontSize = 14;
                     insertSpaces = false;
@@ -404,6 +450,7 @@
                         defaultProfile = {
                             linux = "fish";
                         };
+                        fontFamily = "FiraCode Nerd Font";
                         hideOnStartup = "always";
                         smoothScrolling = true;
                     };
