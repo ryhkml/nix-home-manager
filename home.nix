@@ -6,8 +6,8 @@
 	# Run "home-manager build" first, then "home-manager switch"
 	# If the overlays package has no changes, simply run the "home-manager switch"
     nixpkgs.overlays = [
-		(import ./packages/vscodium.nix)
-	];
+        (import ./packages/vscodium.nix)
+    ];
 
     home = {
         username = "ryhkml";
@@ -180,7 +180,6 @@
                     Enabled = true;
                     ProviderURL = "https://cloudflare-dns.com/dns-query";
                     Fallback = true;
-                    Locked = true;
                 };
                 ExtensionUpdate = true;
                 HardwareAcceleration = true;
@@ -219,8 +218,9 @@
 			shellAliases = {
 				code = "codium";
 				docker = "podman";
-                la = "eza -ahlT --color never -L 2 --time-style relative";
-                ll = "eza -hlT --color never -L 2 --time-style relative";
+                la = "eza -ahlT --color never -L 1 --time-style relative";
+                lg = "eza -hlT --git --color never -L 1 --time-style relative";
+                ll = "eza -hlT --color never -L 1 --time-style relative";
                 ls = "eza -hT --color never -L 1";
                 rm = "trash-put";
                 tree = "eza -T --color never";
@@ -439,7 +439,7 @@
                         trust = {
                             banner = "never";
                             enabled = true;
-                            startupPrompt = "never";
+                            startupPrompt = false;
                         };
                     };
                 };
