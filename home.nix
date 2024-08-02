@@ -167,43 +167,6 @@
                 ];
             };
         };
-		firefox = {
-			enable = true;
-            policies = {
-                BackgroundAppUpdate = false;
-                BlockAboutSupport = true;
-                DisableAppUpdate = true;
-                DisableFeedbackCommands = true;
-                DisableFirefoxStudies = true;
-                DisableTelemetry = true;
-                DNSOverHTTPS = {
-                    Enabled = true;
-                    ProviderURL = "https://cloudflare-dns.com/dns-query";
-                    Fallback = true;
-                };
-                ExtensionUpdate = true;
-                HardwareAcceleration = true;
-                HttpsOnlyMode = "force_enabled";
-                ManualAppUpdateOnly = true;
-                PictureInPicture = {
-                    Enabled = true;
-                    Locked = true;
-                };
-                PromptForDownloadLocation = true;
-                SanitizeOnShutdown = {
-                    Cache = true;
-                    Cookies = false;
-                    History = true;
-                    Sessions = false;
-                    SiteSettings = false;
-                    OfflineApps = false;
-                    Locked = true;
-                };
-                SearchSuggestEnabled = false;
-                ShowHomeButton = false;
-                TranslateEnabled = false;
-            };
-		};
         fish = {
             enable = true;
             shellAbbrs = {
@@ -297,6 +260,9 @@
                     insertSpaces = false;
                     letterSpacing = 0.4;
                     lineHeight = 1.6;
+                    minimap = {
+                        enabled = false;
+                    };
                     renderWhitespace = "none";
                     smoothScrolling = true;
                     stickyScroll = {
@@ -428,6 +394,8 @@
                     general = {
                         batTheme = "Visual Studio Dark+";
                         killTerminalAfterUse = true;
+                        restoreFocusTerminal = true;
+                        showMaximizedTerminal = true;
                     };
                 };
                 git = {
