@@ -16,7 +16,6 @@
     packages = with pkgs; [
       # # B
       bash-language-server
-      bitwarden-desktop
       # # C
       cosign
       (curl.override {
@@ -253,12 +252,17 @@
           fontFamily = "FiraCode Nerd Font";
           fontLigatures = true;
           fontSize = 14;
+          guides = {
+            highlightActiveBracketPair = false;
+          };
           insertSpaces = false;
           letterSpacing = 0.4;
           lineHeight = 1.6;
+          matchBrackets = "never";
           minimap = {
             enabled = false;
           };
+          renderLineHighlight = "none";
           renderWhitespace = "none";
           smoothScrolling = true;
           stickyScroll = {
@@ -379,11 +383,13 @@
           };
         };
         explorer = {
+          compactFolders = false;
           confirmDelete = false;
           confirmDragAndDrop = false;
         };
         extensions = {
           autoUpdate = "onlyEnabledExtensions";
+          ignoreRecommendations = true;
         };
         # # Extension https://marketplace.visualstudio.com/items?itemName=TomRijndorp.find-it-faster
         find-it-faster = {
@@ -417,23 +423,28 @@
             fontFamily = "FiraCode Nerd Font";
             hideOnStartup = "always";
             smoothScrolling = true;
+            tabs = {
+              enabled = false;
+            };
           };
         };
         update = {
           mode = "none";
         };
         window = {
+          menuBarVisibility = "toggle";
           restoreFullscreen = true;
-          title = "VSCodium";
+          title = "Code";
+          zoomLevel = 2;
         };
         workbench = {
           activityBar = {
             location = "top";
           };
           # # Extension https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-themes
-          colorTheme = "JetBrains New Dark";
+          colorTheme = "Black Waves";
           # # Extension https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-icontheme-nomo-dark
-          iconTheme = "vscode-jetbrains-icon-theme-2023-dark";
+          iconTheme = "chalice-icon-theme";
           list = {
             smoothScrolling = true;
           };

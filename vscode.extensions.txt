@@ -1,6 +1,8 @@
 code --install-extension adpyke.codesnap
 code --install-extension angular.ng-template
+code --install-extension anotherglitchinthematrix.monochrome
 code --install-extension arrterian.nix-env-selector
+code --install-extension artlaman.chalice-icon-theme
 code --install-extension chadalen.vscode-jetbrains-icon-theme
 code --install-extension eamodio.gitlens
 code --install-extension formulahendry.auto-close-tag
@@ -14,6 +16,8 @@ code --install-extension mikestead.dotenv
 code --install-extension mkhl.direnv
 code --install-extension mobalic.jetbrains-new-dark
 code --install-extension ms-vscode.cpptools-themes
+code --install-extension mujdecisy.simple-light-bw
+code --install-extension orhun.black-waves
 code --install-extension oven.bun-vscode
 code --install-extension pinage404.nix-extension-pack
 code --install-extension redhat.java
