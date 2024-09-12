@@ -24,7 +24,6 @@
       })
       # # D
       direnv
-      discord
       duf
       # # E
       exiftool
@@ -33,13 +32,12 @@
       file
       firebase-tools
       # # G
+      gnuplot
       google-cloud-sdk
       # # H
       hey
       html-minifier
       http-server
-      # # I
-      insomnia
       # # J
       jdk22
       jq
@@ -65,15 +63,19 @@
       # # R
       rustup
       # # S
-      sd
       spotify
       sqlcipher
       sqlite
       # # T
       telegram-desktop
+      tokei
       trash-cli
       # # Y
       yaml-language-server
+      yt-dlp
+      # # Y
+      zig
+      zls
     ];
     file = { };
     sessionVariables = { };
@@ -84,14 +86,6 @@
   programs = {
     home-manager = {
       enable = true;
-    };
-    aria2 = {
-      enable = true;
-      settings = {
-        max-connection-per-server = 16;
-        retry-wait = 120;
-        split = 16;
-      };
     };
     bat = {
       enable = true;
@@ -168,6 +162,7 @@
         "/" = "cd /";
         ".." = "cd ..";
         c = "clear";
+        cr = "code -r";
         C = "clear";
         hm = "cd ~/.config/home-manager";
         q = "exit";
@@ -198,9 +193,6 @@
       changeDirWidgetCommand = "fd -t d -L 2>/dev/null";
       defaultCommand = "fd -L -H -E .git 2>/dev/null";
       fileWidgetCommand = "fd -L -t f -t l 2>/dev/null";
-    };
-    nix-index = {
-      enable = true;
     };
     oh-my-posh = {
       enable = true;
@@ -257,6 +249,9 @@
           };
           insertSpaces = false;
           letterSpacing = 0.4;
+          lightbulb = {
+            enabled = "off";
+          };
           lineHeight = 1.6;
           matchBrackets = "never";
           minimap = {
@@ -525,6 +520,8 @@
         };
         # # https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
         "redhat.telemetry.enabled" = false;
+        # # https://marketplace.visualstudio.com/items?itemName=yy0931.vscode-sqlite3-editor
+        "sqlite3-editor.ui.minimizePanel" = true;
       };
     };
     zoxide = {

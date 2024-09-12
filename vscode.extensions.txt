@@ -8,7 +8,6 @@ code --install-extension eamodio.gitlens
 code --install-extension formulahendry.auto-close-tag
 code --install-extension formulahendry.auto-complete-tag
 code --install-extension formulahendry.auto-rename-tag
-code --install-extension googlecloudtools.cloudcode
 code --install-extension humao.rest-client
 code --install-extension jnoortheen.nix-ide
 code --install-extension mads-hartmann.bash-ide-vscode
