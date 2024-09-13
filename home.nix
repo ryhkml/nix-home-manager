@@ -37,7 +37,6 @@
       # # H
       hey
       html-minifier
-      http-server
       # # J
       jdk22
       jq
@@ -60,11 +59,8 @@
       nodejs_20
       # # P
       podman-compose
-      # # R
-      rustup
       # # S
       spotify
-      sqlcipher
       sqlite
       # # T
       telegram-desktop
@@ -73,7 +69,7 @@
       # # Y
       yaml-language-server
       yt-dlp
-      # # Y
+      # # Z
       zig
       zls
     ];
@@ -226,13 +222,6 @@
       userSettings = {
         breadcrumbs = {
           enabled = false;
-        };
-        # # Extension https://marketplace.visualstudio.com/items?itemName=GoogleCloudTools.cloudcode
-        cloudcode = {
-          project = "adroit-cortex-391921";
-          duetAI = {
-            project = "adroit-cortex-391921";
-          };
         };
         editor = {
           bracketPairColorization = {
@@ -522,6 +511,14 @@
         "redhat.telemetry.enabled" = false;
         # # https://marketplace.visualstudio.com/items?itemName=yy0931.vscode-sqlite3-editor
         "sqlite3-editor.ui.minimizePanel" = true;
+        # # https://marketplace.visualstudio.com/items?itemName=ziglang.vscode-zig
+        zig = {
+          path = "zig";
+          zls = {
+            path = "zls";
+          };
+          initialSetupDone = true;
+        };
       };
     };
     zoxide = {

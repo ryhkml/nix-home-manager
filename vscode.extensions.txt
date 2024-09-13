@@ -22,8 +22,8 @@ code --install-extension pinage404.nix-extension-pack
 code --install-extension redhat.java
 code --install-extension redhat.vscode-yaml
 code --install-extension renxzen.google-colab-theme
-code --install-extension rust-lang.rust-analyzer
 code --install-extension tomrijndorp.find-it-faster
 code --install-extension vscjava.vscode-java-debug
 code --install-extension vscjava.vscode-java-test
 code --install-extension yy0931.vscode-sqlite3-editor
+code --install-extension ziglang.vscode-zig
