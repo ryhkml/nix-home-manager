@@ -17,13 +17,13 @@
       # # B
       bash-language-server
       # # C
-      cosign
       (curl.override {
         c-aresSupport = true;
         gsaslSupport = true;
       })
       # # D
       direnv
+      discord
       duf
       # # E
       exiftool
@@ -33,17 +33,20 @@
       firebase-tools
       # # G
       gnuplot
+      gopls
       google-cloud-sdk
       # # H
       hey
       html-minifier
+      hyperfine
+      # # I
+      id3v2
+      imagemagick
       # # J
       jdk22
       jq
-      # # K
-      kubernetes
       # # M
-      minikube
+      musikcube
       # # N
       (nerdfonts.override {
         fonts = [
@@ -59,19 +62,17 @@
       nodejs_20
       # # P
       podman-compose
+      poppler
       # # S
-      spotify
+      shellcheck
       sqlite
       # # T
-      telegram-desktop
-      tokei
       trash-cli
+      # # U
+      ueberzugpp
       # # Y
       yaml-language-server
       yt-dlp
-      # # Z
-      zig
-      zls
     ];
     file = { };
     sessionVariables = { };
@@ -126,6 +127,10 @@
           }
           "kernel"
           {
+            type = "wm";
+            key = "Window Manager";
+          }
+          {
             type = "de";
             key = "Desktop Environment";
           }
@@ -157,12 +162,23 @@
       shellAbbrs = {
         "/" = "cd /";
         ".." = "cd ..";
+        bl = "bash --login";
         c = "clear";
         cr = "code -r";
         C = "clear";
-        hm = "cd ~/.config/home-manager";
         q = "exit";
         Q = "exit";
+        # Downloader
+        dlmp3 = "yt-dlp -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
+        # Wifi
+        nmconn = "nmcli device wifi connect NETWORK_NAME";
+        nmreconn = "nmcli connection down NETWORK_NAME && nmcli connection up NETWORK_NAME";
+        nmscan = "nmcli device wifi rescan";
+        nmls = "nmcli device wifi list";
+        nmup = "nmcli connection up NETWORK_NAME";
+        nmdown = "nmcli connection down NETWORK_NAME";
+        nmdnsv4 = "nmcli connection modify NETWORK_NAME ipv4.dns";
+        nmdnsv6 = "nmcli connection modify NETWORK_NAME ipv6.dns";
       };
       shellAliases = {
         code = "codium";
@@ -189,6 +205,9 @@
       changeDirWidgetCommand = "fd -t d -L 2>/dev/null";
       defaultCommand = "fd -L -H -E .git 2>/dev/null";
       fileWidgetCommand = "fd -L -t f -t l 2>/dev/null";
+    };
+    go = {
+      enable = true;
     };
     oh-my-posh = {
       enable = true;
@@ -453,16 +472,29 @@
             "**/.*ignore" = "ignore";
             "**/*.json" = "json";
           };
+          exclude = {
+            "**/.git" = true;
+            "**/.svn" = true;
+            "**/.hg" = true;
+            "**/CVS" = true;
+            "**/.DS_Store" = true;
+          };
           insertFinalNewline = false;
           trimFinalNewlines = false;
-          watcherExclude = {
-            "**/.angular/*/**" = true;
-            "**/.database/*/**" = true;
-            "**/.git/objects/**" = true;
-            "**/.git/subtree-cache/**" = true;
-            "**/.hg/store/**" = true;
-            "**/node_modules/*/**" = true;
+        };
+        search = {
+          exclude = {
+            # Workspace
+            "**/.angular" = true;
+            "**/.database" = true;
+            "**/node_modules" = true;
+            "**/target" = true;
+            "**/dist" = true;
+            "**/tls" = true;
+            "**/home-manager/result" = true;
           };
+          followSymlinks = false;
+          maxResults = 1000;
         };
         "[nix]" = {
           editor = {
@@ -521,30 +553,53 @@
         };
       };
     };
+    yazi = {
+      enable = true;
+      enableFishIntegration = true;
+      shellWrapperName = "yz";
+      settings = {
+        manager = {
+          ratio = [ 1 5 2 ];
+          sort_by = "created";
+          sort_dir_first = true;
+          show_hidden = true;
+        };
+        preview = {
+          max_width = 1000;
+          max_height = 1000;
+          image_delay = 100;
+        };
+      };
+      theme = {
+        filetype = {
+          rules = [
+            { name = "*"; fg = "#ffffff"; }
+            { name = "*/"; fg = "#8ab6db"; }
+          ];
+        };
+        icon = {
+          dirs = [
+            { name = "*"; text = ""; }
+          ];
+          exts = [
+            { name = "*"; text = ""; }
+          ];
+          files = [
+            { name = "*"; text = ""; }
+          ];
+        };
+      };
+      initLua = ''
+          local old_layout = Tab.layout
+        	Status.render = function() return {} end
+        	Tab.layout = function(self, ...)
+        		self._area = ui.Rect { x = self._area.x, y = self._area.y, w = self._area.w, h = self._area.h + 1 }
+        		return old_layout(self, ...)
+        	end
+      '';
+    };
     zoxide = {
       enable = true;
-    };
-  };
-
-  # Create new Telegram desktop app icon
-  xdg.desktopEntries."org.telegram.desktop" = {
-    name = "Telegram";
-    comment = "Official desktop version of Telegram messaging app";
-    genericName = "Messaging App";
-    exec = "telegram-desktop -- %u";
-    icon = "telegram";
-    terminal = false;
-    categories = [
-      "Chat"
-      "InstantMessaging"
-      "Network"
-    ];
-    mimeType = [
-      "x-scheme-handler/tg"
-      "x-scheme-handler/telegram"
-    ];
-    settings = {
-      StartupWMClass = "TelegramDesktop";
     };
   };
 }
