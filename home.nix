@@ -10,6 +10,7 @@ let
 in
 {
   nixpkgs.config.allowUnfree = true;
+  
   home = {
     username = "ryhkml";
     homeDirectory = "/home/ryhkml";
@@ -18,6 +19,7 @@ in
       # # B
       bash-language-server
       # # C
+      cmus
       (curl.override {
         c-aresSupport = true;
         gsaslSupport = true;
@@ -39,7 +41,6 @@ in
       google-cloud-sdk
       # # H
       hey
-      html-minifier
       hyperfine
       # # I
       id3v2
@@ -178,6 +179,7 @@ in
         Q = "exit";
         # Downloader
         dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
+        dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
         # Wifi
         nmconn = "nmcli device wifi connect NETWORK_NAME";
         nmreconn = "nmcli connection down NETWORK_NAME && nmcli connection up NETWORK_NAME";
@@ -313,6 +315,24 @@ in
               lsp_attach = lsp_attach,
               capabilities = require("cmp_nvim_lsp").default_capabilities(),
             })
+            -- Angular
+            -- Due to the old version of pkgs.vscode-extensions.angular.ng-template
+            -- I attempted to install via npm i @angular/language-server and create a symlink for ngserver
+            local project_library_path = "/home/ryhkml/.nvim-lsp/angular/node_modules/@angular/language-server"
+            local cmd = {
+              "ngserver",
+              "--stdio",
+              "--tsProbeLocations",
+              project_library_path ,
+              "--ngProbeLocations",
+              project_library_path
+            }
+            require("lspconfig").angularls.setup{
+              cmd = cmd,
+              on_new_config = function(new_config, new_root_dir)
+                new_config.cmd = cmd
+              end,
+            }
             -- Bash
             require("lspconfig").bashls.setup{}
             -- Dockerfile
@@ -442,6 +462,10 @@ in
           "*/.git/*",
         })
         vim.cmd [[highlight CustomCursor guifg=NONE guibg=#FFFFF]]
+        vim.api.nvim_set_hl(0, "Visual", { 
+          bg = "#8AB6DB",
+          fg = "#000000",
+        })
         vim.opt.guicursor = ""
         vim.opt.nu = true
         -- Tab
@@ -463,16 +487,18 @@ in
         vim.opt.hlsearch = false
         vim.opt.incsearch = true
         vim.opt.endofline = false
-        vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+        vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
         vim.opt.termguicolors = false
         vim.opt.guicursor = "a:ver25-CustomCursor"
         vim.opt.updatetime = 50
         --
         vim.g.mapleader = " "
-        vim.keymap.set("n", "<leader>ee", vim.cmd.Ex) 
         vim.keymap.set("n", "<C-z>", "<cmd>undo<CR>")
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
+        vim.keymap.set("n", "<leader>ww", function() vim.cmd("w") end)
+        vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
+        vim.keymap.set("n", "<leader>qq", function() vim.cmd("q") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
         vim.keymap.set("n", "<leader>hm", "<cmd>cd ~/.config/home-manager<CR>")
         vim.keymap.set("n", "<leader>dc", "<cmd>cd ~/Documents/code<CR>")
@@ -501,16 +527,14 @@ in
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
           vim.g.neovide_padding_left = 0
-          vim.g.neovide_cursor_animation_length = 0.1
-          vim.g.neovide_cursor_trail_size = 0.5
-          -- Copy/paste
-          vim.api.nvim_set_keymap('v', '<sc-c>', '"+y', {noremap = true})
-          vim.api.nvim_set_keymap('n', '<sc-v>', 'l"+P', {noremap = true})
-          vim.api.nvim_set_keymap('v', '<sc-v>', '"+P', {noremap = true})
-          vim.api.nvim_set_keymap('c', '<sc-v>', '<C-o>l<C-o>"+<C-o>P<C-o>l', {noremap = true})
-          vim.api.nvim_set_keymap('i', '<sc-v>', '<ESC>l"+Pli', {noremap = true})
-          vim.api.nvim_set_keymap('t', '<sc-v>', '<C-\\><C-n>"+Pi', {noremap = true})
         end
+        -- Copy/Paste
+        vim.api.nvim_set_keymap('n', '<C-S-c>', '"+yy', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap('n', '<C-S-v>', '""_dP', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap('v', '<C-S-c>', '"+y', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap('v', '<C-S-v>', '""_dP', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap('i', '<C-S-v>', '<C-r>+', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap('i', '<C-S-c>', '<Esc>"+yyi', {noremap = true, silent = true})
       '';
       viAlias = true;
       vimAlias = true;
