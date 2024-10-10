@@ -1,6 +1,22 @@
 { pkgs, ... }:
 
 let
+  angularCli = pkgs.stdenv.mkDerivation rec {
+    pname = "static-angular-cli";
+    version = "18.2.8";
+    src = pkgs.fetchFromGitHub {
+      owner = "ryhkml";
+      repo = "static-angular-cli";
+      rev = "932236d1f1e262c44f60046932487b9c7435b4e9";
+      sha256 = "0s418am9ws9m5im9dpl3cgcpn50lrgdni78vydi0gh4wqs2mn48d";
+    };
+    buildInputs = [ pkgs.nodejs_20 ];
+    buildPhase = ''
+      mkdir -p $out/bin
+      ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
+      chmod +x $out/bin/ng
+    '';
+  };
   yaziPlugins = pkgs.fetchFromGitHub {
     owner = "yazi-rs";
     repo = "plugins";
@@ -16,6 +32,8 @@ in
     homeDirectory = "/home/ryhkml";
     stateVersion = "24.05";
     packages = with pkgs; [
+      # # A
+      angularCli
       # # B
       bash-language-server
       # # C
@@ -73,8 +91,10 @@ in
       yaml-language-server
       yt-dlp
     ];
-    file = { };
-    sessionVariables = { };
+    file = {
+    };
+    sessionVariables = {
+    };
   };
 
   programs = {
