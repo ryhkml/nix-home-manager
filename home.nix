@@ -50,15 +50,6 @@ in
       jdk22
       jq
       # # N
-      (nerdfonts.override {
-        fonts = [
-          "EnvyCodeR"
-          "FiraCode"
-          "JetBrainsMono"
-          "Meslo"
-          "ZedMono"
-        ];
-      })
       nil
       nixpkgs-fmt
       nix-prefetch-git
@@ -85,8 +76,6 @@ in
     file = { };
     sessionVariables = { };
   };
-
-  fonts.fontconfig.enable = true;
 
   programs = {
     home-manager = {
@@ -251,12 +240,12 @@ in
                 untracked    = { text = "U" },
               },
               signs_staged = {
-                add          = { text = "A" },
-                change       = { text = "C" },
-                delete       = { text = "D" },
-                topdelete    = { text = "-" },
-                changedelete = { text = "~" },
-                untracked    = { text = "U" },
+                add          = { text = "SA" },
+                change       = { text = "SC" },
+                delete       = { text = "SD" },
+                topdelete    = { text = "S-" },
+                changedelete = { text = "S~" },
+                untracked    = { text = "SU" },
               },
             })
           '';
@@ -461,12 +450,18 @@ in
           "*/.angular/*",
           "*/.git/*",
         })
-        vim.cmd [[highlight CustomCursor guifg=NONE guibg=#FFFFF]]
+        -- Highlight
         vim.api.nvim_set_hl(0, "Visual", { 
           bg = "#8AB6DB",
           fg = "#000000",
         })
-        vim.opt.guicursor = ""
+        -- Cursor
+        vim.opt.guicursor = {
+          "n-v-c:block-Cursor/lCursor",
+          "i-ci-ve:ver25-Cursor/lCursor",
+          "r-cr:hor20",
+          "o:hor50",
+        }
         vim.opt.nu = true
         -- Tab
         vim.opt.tabstop = 4
@@ -490,7 +485,6 @@ in
         vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
         vim.opt.termguicolors = false
-        vim.opt.guicursor = "a:ver25-CustomCursor"
         vim.opt.updatetime = 50
         --
         vim.g.mapleader = " "
@@ -529,12 +523,15 @@ in
           vim.g.neovide_padding_left = 0
         end
         -- Copy/Paste
+        vim.o.clipboard = "unnamedplus"
         vim.api.nvim_set_keymap('n', '<C-S-c>', '"+yy', {noremap = true, silent = true})
         vim.api.nvim_set_keymap('n', '<C-S-v>', '""_dP', {noremap = true, silent = true})
         vim.api.nvim_set_keymap('v', '<C-S-c>', '"+y', {noremap = true, silent = true})
         vim.api.nvim_set_keymap('v', '<C-S-v>', '""_dP', {noremap = true, silent = true})
         vim.api.nvim_set_keymap('i', '<C-S-v>', '<C-r>+', {noremap = true, silent = true})
         vim.api.nvim_set_keymap('i', '<C-S-c>', '<Esc>"+yyi', {noremap = true, silent = true})
+        -- End
+        vim.o.showcmd = false
       '';
       viAlias = true;
       vimAlias = true;
