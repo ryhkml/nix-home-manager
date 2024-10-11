@@ -10,12 +10,17 @@ let
       rev = "932236d1f1e262c44f60046932487b9c7435b4e9";
       sha256 = "0s418am9ws9m5im9dpl3cgcpn50lrgdni78vydi0gh4wqs2mn48d";
     };
-    buildInputs = [ pkgs.nodejs_20 ];
     buildPhase = ''
       mkdir -p $out/bin
       ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
       chmod +x $out/bin/ng
     '';
+  };
+  lacklusterNvim = pkgs.fetchFromGitHub {
+    owner = "slugbyte";
+    repo = "lackluster.nvim";
+    rev = "59d03c9e92cb03351af2904a26e16b6627d2d5db";
+    sha256 = "0r9bpwn7j5zzf4i1hhwmzh65zdd6c50iklgrnjcs57f6nzb4qm1q";
   };
   yaziPlugins = pkgs.fetchFromGitHub {
     owner = "yazi-rs";
@@ -87,14 +92,14 @@ in
       typescript-language-server
       # # U
       ueberzugpp
+      # # V
+      vscode-langservers-extracted
       # # Y
       yaml-language-server
       yt-dlp
     ];
-    file = {
-    };
-    sessionVariables = {
-    };
+    file = {};
+    sessionVariables = {};
   };
 
   programs = {
@@ -292,10 +297,15 @@ in
           plugin = indent-blankline-nvim;
           type = "lua";
           config = ''
-            require("ibl").setup({
+            require("ibl").setup{
               debounce = 100,
-              indent = { char = "·" },
-            })
+              indent = {
+                char = "·",
+              },
+              scope = {
+                enabled = false,
+              },
+            }
           '';
         }
         lsp-zero-nvim
@@ -344,10 +354,14 @@ in
             }
             -- Bash
             require("lspconfig").bashls.setup{}
+            -- CSS
+            require("lspconfig").cssls.setup{}
             -- Dockerfile
             require("lspconfig").dockerls.setup{}
             -- Go
             require("lspconfig").gopls.setup{}
+            -- HTML
+            require("lspconfig").html.setup{}
             -- Java
             require("lspconfig").java_language_server.setup{}
             -- Nix
@@ -451,6 +465,43 @@ in
           '';
         }
         {
+          plugin = nvim-treesitter;
+          type = "lua";
+          config = ''
+            local dir_parser = os.getenv("HOME") .. "/.vim/parsers" 
+            vim.opt.runtimepath:append(dir_parser)
+            require("nvim-treesitter.configs").setup{
+              ensure_installed = {
+                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
+                "bash", "css", "dockerfile", "go", "html", "java", "javascript",
+                "nix", "sql", "typescript", "yaml",
+              },
+              sync_install = false,
+              auto_install = true,
+              parser_install_dir = dir_parser,
+              highlight = {
+                enable = true,
+                additional_vim_regex_highlighting = false,
+              },
+              indent = {
+                enable = true
+              }
+            }
+          '';
+        }
+        {
+          plugin = vim-closetag;
+          config = ''
+            let g:closetag_filenames = "*.html,*.xhtml"
+            let g:closetag_xhtml_filenames = "*.xhtml"
+            let g:closetag_filetypes = "html,xhtml"
+            let g:closetag_xhtml_filetypes = "xhtml"
+            let g:closetag_emptyTags_caseSensitive = 1
+            let g:closetag_shortcut = ">"
+            let g:closetag_close_shortcut = "<leader>>"
+          '';
+        }
+        {
           plugin = nvim-autopairs;
           type = "lua";
           config = ''
@@ -458,6 +509,31 @@ in
           '';
         } 
         vim-visual-multi
+        {
+          plugin = lacklusterNvim;
+          type = "lua";
+          config = ''
+            local lackluster = require("lackluster")
+            lackluster.setup({
+              tweak_color = {
+                lack = "default",
+                luster = "default",
+                orange = "default",
+                yellow = "default",
+                green = "default",
+                blue = "default",
+                read = "default",
+              },
+              tweak_background = {
+                normal = "#000000",
+                popup = "#000000",
+                menu = "#000000",
+                telescope = "#000000",
+              }
+            })
+            vim.cmd.colorscheme("lackluster-hack")
+          '';
+        }
       ];
       extraLuaConfig = ''
         vim.scriptencoding = "utf-8"
@@ -469,11 +545,6 @@ in
           "*/dist/*",
           "*/.angular/*",
           "*/.git/*",
-        })
-        -- Highlight
-        vim.api.nvim_set_hl(0, "Visual", { 
-          bg = "#8AB6DB",
-          fg = "#000000",
         })
         -- Cursor
         vim.opt.guicursor = {
@@ -490,10 +561,10 @@ in
         vim.opt.expandtab = true
         vim.api.nvim_create_autocmd("FileType", {
           pattern = { "yaml", "nix" },
-            callback = function()
-              vim.opt_local.tabstop = 2
-              vim.opt_local.softtabstop = 2
-              vim.opt_local.shiftwidth = 2
+          callback = function()
+            vim.opt_local.tabstop = 2
+            vim.opt_local.softtabstop = 2
+            vim.opt_local.shiftwidth = 2
           end,
         })
         vim.opt.smartindent = true
@@ -517,9 +588,10 @@ in
         vim.keymap.set("n", "<leader>hm", "<cmd>cd ~/.config/home-manager<CR>")
         vim.keymap.set("n", "<leader>dc", "<cmd>cd ~/Documents/code<CR>")
         -- Greatest remap ever
-        vim.keymap.set({ "n", "x" }, "<leader>p", [["0p]])
+        vim.keymap.set({"n", "x"}, "<leader>p", [["0p]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
+        -- Duplicate
         vim.cmd([[
           function! DuplicateLine()
             normal! yyp
@@ -536,7 +608,7 @@ in
         vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
         -- Neovide config goes here
         if vim.g.neovide then
-          vim.g.neovide_transparency = 0.97
+          vim.g.neovide_transparency = 0.925
           vim.g.neovide_padding_top = 0
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
