@@ -16,6 +16,7 @@ let
       chmod +x $out/bin/ng
     '';
   };
+  # Theme
   lacklusterNvim = pkgs.fetchFromGitHub {
     owner = "slugbyte";
     repo = "lackluster.nvim";
@@ -49,7 +50,6 @@ in
       })
       # # D
       direnv
-      docker-compose-language-service
       dockerfile-language-server-nodejs
       duf
       # # E
@@ -255,6 +255,7 @@ in
           plugin = gitsigns-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/lewis6991/gitsigns.nvim
             require("gitsigns").setup({
               signs = {
                 add          = { text = "A" },
@@ -297,6 +298,7 @@ in
           plugin = indent-blankline-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/lukas-reineke/indent-blankline.nvim
             require("ibl").setup{
               debounce = 100,
               indent = {
@@ -315,6 +317,7 @@ in
           plugin = cmp-nvim-lsp;
           type = "lua";
           config = ''
+            -- https://github.com/neovim/nvim-lspconfig
             local lsp_zero = require("lsp-zero")
             local lsp_attach = function(client, bufnr)
               local opts = {buffer = bufnr}
@@ -391,6 +394,7 @@ in
           plugin = nvim-cmp;
           type = "lua";
           config = ''
+            -- https://github.com/hrsh7th/nvim-cmp
             local cmp = require("cmp")
             local cmp_format = require("lsp-zero").cmp_format({ details = true })
             cmp.setup({
@@ -422,9 +426,11 @@ in
           plugin = telescope-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/nvim-telescope/telescope.nvim
             require("telescope").setup{
               pickers = {
                 find_files = {
+                  hidden = true,
                   theme = "dropdown",
                 },
                 live_grep = {                              
@@ -451,23 +457,28 @@ in
           '';
         }
         {
-          plugin = harpoon;
+          plugin = harpoon2;
           type = "lua";
           config = ''
-            local mark = require("harpoon.mark")
-            local ui = require("harpoon.ui")
-            vim.keymap.set("n", "<leader>a", mark.add_file)
-            vim.keymap.set("n", "<A-e>", ui.toggle_quick_menu)
-            vim.keymap.set("n", "<A-1>", function() ui.nav_file(1) end)
-            vim.keymap.set("n", "<A-2>", function() ui.nav_file(2) end)
-            vim.keymap.set("n", "<A-3>", function() ui.nav_file(3) end)
-            vim.keymap.set("n", "<A-4>", function() ui.nav_file(4) end)
+            -- https://github.com/ThePrimeagen/harpoon/tree/harpoon2
+            local harpoon = require("harpoon")
+            harpoon:setup()
+            vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+            vim.keymap.set("n", "<A-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+            vim.keymap.set("n", "<A-1>", function() harpoon:list():select(1) end)
+            vim.keymap.set("n", "<A-2>", function() harpoon:list():select(2) end)
+            vim.keymap.set("n", "<A-3>", function() harpoon:list():select(3) end)
+            vim.keymap.set("n", "<A-4>", function() harpoon:list():select(4) end)
+            -- Toggle previous & next buffers stored within Harpoon list
+            vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+            vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
           '';
         }
         {
           plugin = nvim-treesitter;
           type = "lua";
           config = ''
+            -- https://github.com/nvim-treesitter/nvim-treesitter
             local dir_parser = os.getenv("HOME") .. "/.vim/parsers" 
             vim.opt.runtimepath:append(dir_parser)
             require("nvim-treesitter.configs").setup{
@@ -505,6 +516,7 @@ in
           plugin = nvim-autopairs;
           type = "lua";
           config = ''
+            -- https://github.com/windwp/nvim-autopairs
             require("nvim-autopairs").setup()
           '';
         } 
@@ -532,6 +544,75 @@ in
               }
             })
             vim.cmd.colorscheme("lackluster-hack")
+          '';
+        }
+        {
+          plugin = nvim-colorizer-lua;
+          type = "lua";
+          config = ''
+            -- https://github.com/nvchad/nvim-colorizer.lua
+            require("colorizer").setup {
+              filetypes = {
+                "*",
+                html = {
+                  mode = "foreground",
+                },
+              },
+              user_default_options = {
+                RGB = true,
+                RRGGBB = true,
+                names = false,
+                RRGGBBAA = true,
+                AARRGGBB = true,
+                rgb_fn = false,
+                hsl_fn = false,
+                css = false,
+                css_fn = false,
+                mode = "background",
+                tailwind = false,
+                sass = { enable = false, parsers = { "css" }, },
+                virtualtext = "■",
+                always_update = false
+              },
+              buftypes = {},
+            }
+          '';
+        }
+        {
+          plugin = comment-nvim;
+          type = "lua";
+          config = ''
+            -- https://github.com/numToStr/Comment.nvim
+            require("Comment").setup()
+          '';
+        }
+        {
+          plugin = treesj;
+          type = "lua";
+          config = ''
+            -- https://github.com/Wansmer/treesj
+            require("treesj").setup({})
+          '';
+        }
+        {
+          plugin = mini-surround;
+          type = "lua";
+          config = ''
+            -- https://github.com/echasnovski/mini.surround
+            require("mini.surround").setup({
+              highlight_duration = 250,
+            })
+          '';
+        }
+        {
+          plugin = lsp_lines-nvim;
+          type = "lua";
+          config = ''
+            -- https://github.com/maan2003/lsp_lines.nvim
+            vim.diagnostic.config({
+              virtual_text = false,
+            })
+            require("lsp_lines").setup()
           '';
         }
       ];
@@ -608,7 +689,7 @@ in
         vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
         -- Neovide config goes here
         if vim.g.neovide then
-          vim.g.neovide_transparency = 0.925
+          vim.g.neovide_transparency = 0.95
           vim.g.neovide_padding_top = 0
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
