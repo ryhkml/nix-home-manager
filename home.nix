@@ -16,6 +16,12 @@ let
       chmod +x $out/bin/ng
     '';
   };
+  angularLanguageServer = pkgs.fetchFromGitHub {
+    owner = "ryhkml";
+    repo = "static-angular-language-server";
+    rev = "ef8fe1eae993c4b5d4afaeab79496cf28025409d";
+    sha256 = "1bwhd5l8svqy3z5b961vjfmzqn9g6x0fbr123p4lrvgsdg1xyink";
+  };
   # Theme
   lacklusterNvim = pkgs.fetchFromGitHub {
     owner = "slugbyte";
@@ -338,16 +344,13 @@ in
               capabilities = require("cmp_nvim_lsp").default_capabilities(),
             })
             -- Angular
-            -- Due to the old version of pkgs.vscode-extensions.angular.ng-template
-            -- I attempted to install via npm i @angular/language-server and create a symlink for ngserver
-            local project_library_path = "/home/ryhkml/.nvim-lsp/angular/node_modules/@angular/language-server"
             local cmd = {
-              "ngserver",
+              "${angularLanguageServer}/node_modules/.bin/ngserver",
               "--stdio",
               "--tsProbeLocations",
-              project_library_path ,
+              "${angularLanguageServer}/node_modules",
               "--ngProbeLocations",
-              project_library_path
+              "${angularLanguageServer}/node_modules",
             }
             require("lspconfig").angularls.setup{
               cmd = cmd,
@@ -462,13 +465,19 @@ in
           config = ''
             -- https://github.com/ThePrimeagen/harpoon/tree/harpoon2
             local harpoon = require("harpoon")
-            harpoon:setup()
+            harpoon:setup({
+              settings = {
+                save_on_toggle = false,
+                sync_on_ui_close = true,
+              }
+            })
             vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
             vim.keymap.set("n", "<A-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
             vim.keymap.set("n", "<A-1>", function() harpoon:list():select(1) end)
             vim.keymap.set("n", "<A-2>", function() harpoon:list():select(2) end)
             vim.keymap.set("n", "<A-3>", function() harpoon:list():select(3) end)
             vim.keymap.set("n", "<A-4>", function() harpoon:list():select(4) end)
+            vim.keymap.set("n", "<A-5>", function() harpoon:list():select(5) end)
             -- Toggle previous & next buffers stored within Harpoon list
             vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
             vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
@@ -635,6 +644,8 @@ in
           "o:hor50",
         }
         vim.opt.nu = true
+        vim.opt.cursorline = true
+        vim.opt.cursorlineopt = "number"
         -- Tab
         vim.opt.tabstop = 4
         vim.opt.softtabstop = 4
@@ -689,7 +700,7 @@ in
         vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
         -- Neovide config goes here
         if vim.g.neovide then
-          vim.g.neovide_transparency = 0.95
+          vim.g.neovide_transparency = 0.925
           vim.g.neovide_padding_top = 0
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
