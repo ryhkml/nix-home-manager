@@ -118,6 +118,7 @@ in
         italic-text = "never";
         pager = "less -FR";
         theme = "base16";
+        wrap = "never";
       };
     };
     btop = {
@@ -193,13 +194,14 @@ in
         ".." = "cd ..";
         bl = "bash --login";
         c = "clear";
-        cr = "code -r";
         C = "clear";
         q = "exit";
         Q = "exit";
         # Downloader
         dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
         dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
+        # Git
+        gitpt = "bash -c 'tag_name=$(cat package.json | jq .version | sed \'s/\"//g\') && git tag -s $tag_name -m \"$(date +\'%Y/%m/%d\')\" && git push origin --tag'";
         # Wifi
         nmconn = "nmcli device wifi connect NETWORK_NAME";
         nmreconn = "nmcli connection down NETWORK_NAME && nmcli connection up NETWORK_NAME";
@@ -212,12 +214,12 @@ in
         nv = "neovide";
       };
       shellAliases = {
-        code = "codium";
         docker = "podman";
         la = "eza -ahlT --color never -L 1 --time-style relative";
         lg = "eza -hlT --git --color never -L 1 --time-style relative";
         ll = "eza -hlT --color never -L 1 --time-style relative";
         ls = "eza -hT --color never -L 1";
+        # Safety rm
         rm = "trash-put";
         tree = "eza -T --color never";
       };
@@ -327,16 +329,16 @@ in
             local lsp_zero = require("lsp-zero")
             local lsp_attach = function(client, bufnr)
               local opts = {buffer = bufnr}
-              vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-              vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-              vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-              vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-              vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-              vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-              vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-              vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-              vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-              vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+              vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
+              vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
+              vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
+              vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
+              vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
+              vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
+              vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
+              vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
+              vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
+              vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
             end
             lsp_zero.extend_lspconfig({
               sign_text = true,
@@ -434,14 +436,7 @@ in
               pickers = {
                 find_files = {
                   hidden = true,
-                  theme = "dropdown",
                 },
-                live_grep = {                              
-                  theme = "dropdown",
-                },
-                help_tags = {
-                  theme = "dropdown",
-                }
               },
               extensions = {
                 fzf = {
@@ -604,12 +599,21 @@ in
           '';
         }
         {
-          plugin = mini-surround;
+          plugin = nvim-surround;
           type = "lua";
           config = ''
-            -- https://github.com/echasnovski/mini.surround
-            require("mini.surround").setup({
-              highlight_duration = 250,
+            -- https://github.com/kylechui/nvim-surround
+            require("nvim-surround").setup({
+              surrounds = {
+                ["("] = false,
+                ["["] = false,
+                ["{"] = false,
+              },
+              aliases = {
+                ["("] = ")",
+                ["["] = "]",
+                ["{"] = "}",
+              }
             })
           '';
         }
@@ -673,12 +677,11 @@ in
         vim.g.mapleader = " "
         vim.keymap.set("n", "<C-z>", "<cmd>undo<CR>")
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
-        vim.keymap.set("n", "<leader>ww", function() vim.cmd("w") end)
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
-        vim.keymap.set("n", "<leader>qq", function() vim.cmd("q") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
-        vim.keymap.set("n", "<leader>hm", "<cmd>cd ~/.config/home-manager<CR>")
-        vim.keymap.set("n", "<leader>dc", "<cmd>cd ~/Documents/code<CR>")
+        -- Tab
+        vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", {noremap = true, silent = true})
+        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", {noremap = true, silent = true})
         -- Greatest remap ever
         vim.keymap.set({"n", "x"}, "<leader>p", [["0p]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
@@ -708,12 +711,12 @@ in
         end
         -- Copy/Paste
         vim.o.clipboard = "unnamedplus"
-        vim.api.nvim_set_keymap('n', '<C-S-c>', '"+yy', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap('n', '<C-S-v>', '""_dP', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap('v', '<C-S-c>', '"+y', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap('v', '<C-S-v>', '""_dP', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap('i', '<C-S-v>', '<C-r>+', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap('i', '<C-S-c>', '<Esc>"+yyi', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("n", "<C-S-c>", '"+yy', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("n", "<C-S-v>", '""_dP', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("v", "<C-S-c>", '"+y', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("v", "<C-S-v>", '""_dP', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("i", "<C-S-v>", '<C-r>+', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("i", "<C-S-c>", '<Esc>"+yyi', {noremap = true, silent = true})
         -- End
         vim.o.showcmd = false
       '';
@@ -726,6 +729,32 @@ in
     };
     ripgrep = {
       enable = true;
+    };
+    tmux = {
+      enable = true;
+      mouse = true;
+      shortcut = "a";
+      plugins = with pkgs.tmuxPlugins; [
+        {
+          plugin = yank;
+          extraConfig = ''
+            set -g @yank_selection_mouse "clipboard"
+          '';
+        }
+        {
+          plugin = nord;
+        }
+      ];
+      extraConfig = ''
+        # Status bar
+        set-option -g status-right ""
+        # Window
+        bind -n M-Right next-window
+        bind -n M-Left previous-window
+        bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
+        bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
+      '';
+      shell = "/home/ryhkml/.local/bin/fish-login";
     };
     yazi = {
       enable = true;
