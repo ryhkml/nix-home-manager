@@ -1,40 +1,74 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 let
-  yaziPlugins = pkgs.fetchFromGitHub {
-    owner = "yazi-rs";
-    repo = "plugins";
-    rev = "35100e7dc1e02d4e6e407298be40154332941c4d";
-    sha256 = "0r4w2013bg090rjk3ic68wg6cxmryhs3a2d9iar3g6c9nl7mv8sc";
+  # A wrapper function for nix OpenGL application
+  # Big thanks from https://github.com/nix-community/nixGL/issues/44
+  nixgl = import <nixgl> {};
+  nixglWrap = pkg: pkgs.runCommand "${pkg.name}-nixgl-wrapper" {} ''
+    mkdir $out
+    ln -s ${pkg}/* $out
+    rm $out/bin
+    mkdir $out/bin
+    for bin in ${pkg}/bin/*; do
+      wrapped_bin=$out/bin/$(basename $bin)
+      echo "exec ${lib.getExe' nixgl.auto.nixGLDefault "nixGL"} $bin \"\$@\"" > $wrapped_bin
+      chmod +x $wrapped_bin
+    done
+  '';
+  # Build my own function clone from Github
+  cloneFromGitHub = repo: ref: builtins.fetchGit {
+    url = "https://github.com/${repo}.git";
+    ref = ref;
   };
+  # Build my own function for vim plugins
+  # Some vim plugins is not available in nixpkgs
+  myVimPlugin = repo: pkgs.vimUtils.buildVimPlugin {
+    pname = "${lib.strings.sanitizeDerivationName repo}";
+    version = "HEAD";
+    src = cloneFromGitHub repo "HEAD";
+  };
+  # Angular
+  # Angular CLI is not available in nixpkgs
+  angularCli = pkgs.stdenv.mkDerivation rec {
+    pname = "static-angular-cli";
+    version = "18.2.8";
+    src = cloneFromGitHub "ryhkml/static-angular-cli" "HEAD";
+    buildPhase = ''
+      mkdir -p $out/bin
+      ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
+      chmod +x $out/bin/ng
+    '';
+  };
+  # LSP for Angular is outdated in nixpkgs
+  angularLanguageServer = cloneFromGitHub "ryhkml/static-angular-language-server" "HEAD";
+  # Yazi
+  # Yazi plugins is not available in nixpkgs
+  yaziPlugins = cloneFromGitHub "yazi-rs/plugins" "HEAD";
 in
 {
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [
-    (import ./packages/vscodium.nix)
-  ];
-
+  
   home = {
     username = "ryhkml";
     homeDirectory = "/home/ryhkml";
     stateVersion = "24.05";
     packages = with pkgs; [
+      # # A
+      angularCli
       # # B
       bash-language-server
       # # C
+      cmus
       (curl.override {
         c-aresSupport = true;
         gsaslSupport = true;
       })
       # # D
-      direnv
-      docker-compose-language-service
       dockerfile-language-server-nodejs
       duf
       # # E
       exiftool
       # # F
-      fd
       file
       firebase-tools
       # # G
@@ -43,7 +77,6 @@ in
       google-cloud-sdk
       # # H
       hey
-      html-minifier
       hyperfine
       # # I
       id3v2
@@ -53,15 +86,6 @@ in
       jdk22
       jq
       # # N
-      (nerdfonts.override {
-        fonts = [
-          "EnvyCodeR"
-          "FiraCode"
-          "JetBrainsMono"
-          "Meslo"
-          "ZedMono"
-        ];
-      })
       nil
       nixpkgs-fmt
       nix-prefetch-git
@@ -81,19 +105,63 @@ in
       typescript-language-server
       # # U
       ueberzugpp
+      # # V
+      vscode-langservers-extracted
       # # Y
       yaml-language-server
       yt-dlp
     ];
-    file = { };
-    sessionVariables = { };
+    file = {};
+    sessionVariables = {
+      EDITOR = lib.mkDefault "neovide";
+      TERMINAL = "alacritty";
+    };
   };
 
-  fonts.fontconfig.enable = true;
-
   programs = {
-    home-manager = {
+    home-manager.enable = true;
+    alacritty = {
       enable = true;
+      settings = {
+        shell = {
+          program = "/home/ryhkml/.nix-profile/bin/fish";
+          args = [ "--login" ];
+        };
+        font = {
+          normal = {
+            family = "FiraCode Nerd Font";
+            style = "Regular";
+          };
+          size = 15;
+        };
+        colors = {
+          primary.foreground = "#ffffff";
+          primary.background = "#000000";
+          normal.red = "#ff4d4f";
+          normal.blue = "#1890ff";
+          normal.green = "#52c41a";
+          normal.yellow = "#faad14";
+        };
+        cursor = {
+          style = {
+            shape = "Beam";
+            blinking = "Always";
+          };
+          blink_interval = 500;
+          blink_timeout = 0;
+        };
+        window = {
+          decorations = "None";
+            padding = {
+              x = 3;
+              y = 3;
+            };
+            dynamic_padding = true;
+            opacity = 0.925;
+        };
+        selection.save_to_clipboard = true;
+      };
+      package = nixglWrap pkgs.alacritty;
     };
     bat = {
       enable = true;
@@ -101,6 +169,7 @@ in
         italic-text = "never";
         pager = "less -FR";
         theme = "base16";
+        wrap = "never";
       };
     };
     btop = {
@@ -113,9 +182,11 @@ in
         clock_format = "";
       };
     };
-    eza = {
+    direnv = {
       enable = true;
+      nix-direnv.enable = true;
     };
+    eza.enable = true;
     fastfetch = {
       enable = true;
       settings = {
@@ -169,37 +240,50 @@ in
         ];
       };
     };
+    fd = {
+      enable = true;
+      hidden = true;
+      ignores = [ ".git/" ".angular/" ".database/" "node_modules/" "target/" ];
+      extraOptions = [ "-tf" ];
+    };
     fish = {
       enable = true;
       shellAbbrs = {
         "/" = "cd /";
         ".." = "cd ..";
-        bl = "bash --login";
         c = "clear";
-        cr = "code -r";
         C = "clear";
         q = "exit";
         Q = "exit";
-        # Downloader
+        # Greatest abbreviations downloader ever
         dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
+        dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
+        # Git
+        gitpt = "set tag_name (jq .version package.json -r); and git tag -s $tag_name -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
         # Wifi
-        nmconn = "nmcli device wifi connect NETWORK_NAME";
-        nmreconn = "nmcli connection down NETWORK_NAME && nmcli connection up NETWORK_NAME";
-        nmscan = "nmcli device wifi rescan";
-        nmls = "nmcli device wifi list";
+        nmwon = "nmcli radio wifi on";
+        nmwoff = "nmcli radio wifi off";
+        nmwconn = "nmcli device wifi connect NETWORK_NAME";
+        nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 0.1; and nmcli connection up $net_name";
+        nmwscan = "nmcli device wifi rescan";
+        nmwls = "nmcli device wifi list";
+        nmactive = "nmcli connection show --active";
         nmup = "nmcli connection up NETWORK_NAME";
         nmdown = "nmcli connection down NETWORK_NAME";
-        nmdnsv4 = "nmcli connection modify NETWORK_NAME ipv4.dns";
-        nmdnsv6 = "nmcli connection modify NETWORK_NAME ipv6.dns";
-        nv = "neovide";
+        nmdnsv4-cloudflare = "nmcli connection modify NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
+        nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
+        nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
+        nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
+        # Neovide
+        nv = "fd | fzf --reverse | xargs -r neovide";
       };
       shellAliases = {
-        code = "codium";
         docker = "podman";
         la = "eza -ahlT --color never -L 1 --time-style relative";
         lg = "eza -hlT --git --color never -L 1 --time-style relative";
         ll = "eza -hlT --color never -L 1 --time-style relative";
         ls = "eza -hT --color never -L 1";
+        # Safety rm
         rm = "trash-put";
         tree = "eza -T --color never";
       };
@@ -243,6 +327,7 @@ in
           plugin = gitsigns-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/lewis6991/gitsigns.nvim
             require("gitsigns").setup({
               signs = {
                 add          = { text = "A" },
@@ -253,12 +338,12 @@ in
                 untracked    = { text = "U" },
               },
               signs_staged = {
-                add          = { text = "A" },
-                change       = { text = "C" },
-                delete       = { text = "D" },
-                topdelete    = { text = "-" },
-                changedelete = { text = "~" },
-                untracked    = { text = "U" },
+                add          = { text = "SA" },
+                change       = { text = "SC" },
+                delete       = { text = "SD" },
+                topdelete    = { text = "S-" },
+                changedelete = { text = "S~" },
+                untracked    = { text = "SU" },
               },
             })
           '';
@@ -285,10 +370,16 @@ in
           plugin = indent-blankline-nvim;
           type = "lua";
           config = ''
-            require("ibl").setup({
+            -- https://github.com/lukas-reineke/indent-blankline.nvim
+            require("ibl").setup{
               debounce = 100,
-              indent = { char = "·" },
-            })
+              indent = {
+                char = "·",
+              },
+              scope = {
+                enabled = false,
+              },
+            }
           '';
         }
         lsp-zero-nvim
@@ -298,31 +389,51 @@ in
           plugin = cmp-nvim-lsp;
           type = "lua";
           config = ''
+            -- https://github.com/neovim/nvim-lspconfig
             local lsp_zero = require("lsp-zero")
             local lsp_attach = function(client, bufnr)
               local opts = {buffer = bufnr}
-              vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-              vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-              vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-              vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-              vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-              vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-              vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-              vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-              vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-              vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+              vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
+              vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
+              vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
+              vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
+              vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
+              vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
+              vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
+              vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
+              vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
+              vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
             end
             lsp_zero.extend_lspconfig({
               sign_text = true,
               lsp_attach = lsp_attach,
               capabilities = require("cmp_nvim_lsp").default_capabilities(),
             })
+            -- Angular
+            local cmd = {
+              "${angularLanguageServer}/node_modules/.bin/ngserver",
+              "--stdio",
+              "--tsProbeLocations",
+              "${angularLanguageServer}/node_modules",
+              "--ngProbeLocations",
+              "${angularLanguageServer}/node_modules",
+            }
+            require("lspconfig").angularls.setup{
+              cmd = cmd,
+              on_new_config = function(new_config, new_root_dir)
+                new_config.cmd = cmd
+              end,
+            }
             -- Bash
             require("lspconfig").bashls.setup{}
+            -- CSS
+            require("lspconfig").cssls.setup{}
             -- Dockerfile
             require("lspconfig").dockerls.setup{}
             -- Go
             require("lspconfig").gopls.setup{}
+            -- HTML
+            require("lspconfig").html.setup{}
             -- Java
             require("lspconfig").java_language_server.setup{}
             -- Nix
@@ -352,6 +463,7 @@ in
           plugin = nvim-cmp;
           type = "lua";
           config = ''
+            -- https://github.com/hrsh7th/nvim-cmp
             local cmp = require("cmp")
             local cmp_format = require("lsp-zero").cmp_format({ details = true })
             cmp.setup({
@@ -383,17 +495,12 @@ in
           plugin = telescope-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/nvim-telescope/telescope.nvim
             require("telescope").setup{
               pickers = {
                 find_files = {
-                  theme = "dropdown",
+                  hidden = true,
                 },
-                live_grep = {                              
-                  theme = "dropdown",
-                },
-                help_tags = {
-                  theme = "dropdown",
-                }
               },
               extensions = {
                 fzf = {
@@ -412,27 +519,179 @@ in
           '';
         }
         {
-          plugin = harpoon;
+          plugin = harpoon2;
           type = "lua";
           config = ''
-            local mark = require("harpoon.mark")
-            local ui = require("harpoon.ui")
-            vim.keymap.set("n", "<leader>a", mark.add_file)
-            vim.keymap.set("n", "<A-e>", ui.toggle_quick_menu)
-            vim.keymap.set("n", "<A-1>", function() ui.nav_file(1) end)
-            vim.keymap.set("n", "<A-2>", function() ui.nav_file(2) end)
-            vim.keymap.set("n", "<A-3>", function() ui.nav_file(3) end)
-            vim.keymap.set("n", "<A-4>", function() ui.nav_file(4) end)
+            -- https://github.com/ThePrimeagen/harpoon/tree/harpoon2
+            local harpoon = require("harpoon")
+            harpoon:setup({
+              settings = {
+                save_on_toggle = false,
+                sync_on_ui_close = true,
+              }
+            })
+            vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+            vim.keymap.set("n", "<A-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+            vim.keymap.set("n", "<A-1>", function() harpoon:list():select(1) end)
+            vim.keymap.set("n", "<A-2>", function() harpoon:list():select(2) end)
+            vim.keymap.set("n", "<A-3>", function() harpoon:list():select(3) end)
+            vim.keymap.set("n", "<A-4>", function() harpoon:list():select(4) end)
+            vim.keymap.set("n", "<A-5>", function() harpoon:list():select(5) end)
+            -- Toggle previous & next buffers stored within Harpoon list
+            vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+            vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
+          '';
+        }
+        {
+          plugin = nvim-treesitter;
+          type = "lua";
+          config = ''
+            -- https://github.com/nvim-treesitter/nvim-treesitter
+            local dir_parser = os.getenv("HOME") .. "/.vim/parsers" 
+            vim.opt.runtimepath:append(dir_parser)
+            require("nvim-treesitter.configs").setup{
+              ensure_installed = {
+                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
+                "bash", "css", "dockerfile", "go", "html", "java", "javascript",
+                "nix", "sql", "typescript", "yaml",
+              },
+              sync_install = false,
+              auto_install = true,
+              parser_install_dir = dir_parser,
+              highlight = {
+                enable = true,
+                additional_vim_regex_highlighting = false,
+              },
+              indent = {
+                enable = true
+              }
+            }
+          '';
+        }
+        {
+          plugin = vim-closetag;
+          config = ''
+            let g:closetag_filenames = "*.html,*.xhtml"
+            let g:closetag_xhtml_filenames = "*.xhtml"
+            let g:closetag_filetypes = "html,xhtml"
+            let g:closetag_xhtml_filetypes = "xhtml"
+            let g:closetag_emptyTags_caseSensitive = 1
+            let g:closetag_shortcut = ">"
+            let g:closetag_close_shortcut = "<leader>>"
           '';
         }
         {
           plugin = nvim-autopairs;
           type = "lua";
           config = ''
+            -- https://github.com/windwp/nvim-autopairs
             require("nvim-autopairs").setup()
           '';
         } 
         vim-visual-multi
+        {
+          plugin = myVimPlugin "slugbyte/lackluster.nvim";
+          type = "lua";
+          config = ''
+            local lackluster = require("lackluster")
+            lackluster.setup({
+              tweak_color = {
+                lack = "default",
+                luster = "default",
+                orange = "default",
+                yellow = "default",
+                green = "default",
+                blue = "default",
+                read = "default",
+              },
+              tweak_background = {
+                normal = "#000000",
+                popup = "#000000",
+                menu = "#000000",
+                telescope = "#000000",
+              }
+            })
+            vim.cmd.colorscheme("lackluster-hack")
+          '';
+        }
+        {
+          plugin = nvim-colorizer-lua;
+          type = "lua";
+          config = ''
+            -- https://github.com/nvchad/nvim-colorizer.lua
+            require("colorizer").setup {
+              filetypes = {
+                "*",
+                html = {
+                  mode = "foreground",
+                },
+              },
+              user_default_options = {
+                RGB = true,
+                RRGGBB = true,
+                names = false,
+                RRGGBBAA = true,
+                AARRGGBB = true,
+                rgb_fn = false,
+                hsl_fn = false,
+                css = false,
+                css_fn = false,
+                mode = "background",
+                tailwind = false,
+                sass = { enable = false, parsers = { "css" }, },
+                virtualtext = "■",
+                always_update = false
+              },
+              buftypes = {},
+            }
+          '';
+        }
+        {
+          plugin = comment-nvim;
+          type = "lua";
+          config = ''
+            -- https://github.com/numToStr/Comment.nvim
+            require("Comment").setup()
+          '';
+        }
+        {
+          plugin = treesj;
+          type = "lua";
+          config = ''
+            -- https://github.com/Wansmer/treesj
+            require("treesj").setup({})
+          '';
+        }
+        {
+          plugin = nvim-surround;
+          type = "lua";
+          config = ''
+            -- https://github.com/kylechui/nvim-surround
+            require("nvim-surround").setup({
+              surrounds = {
+                ["("] = false,
+                ["["] = false,
+                ["{"] = false,
+              },
+              aliases = {
+                ["("] = ")",
+                ["["] = "]",
+                ["{"] = "}",
+              }
+            })
+          '';
+        }
+        {
+          plugin = lsp_lines-nvim;
+          type = "lua";
+          config = ''
+            -- https://github.com/maan2003/lsp_lines.nvim
+            vim.diagnostic.config({
+              virtual_text = false,
+            })
+            require("lsp_lines").setup()
+          '';
+        }
       ];
       extraLuaConfig = ''
         vim.scriptencoding = "utf-8"
@@ -445,9 +704,16 @@ in
           "*/.angular/*",
           "*/.git/*",
         })
-        vim.cmd [[highlight CustomCursor guifg=NONE guibg=#FFFFF]]
-        vim.opt.guicursor = ""
+        -- Cursor
+        vim.opt.guicursor = {
+          "n-v-c:block-Cursor/lCursor",
+          "i-ci-ve:ver25-Cursor/lCursor",
+          "r-cr:hor20",
+          "o:hor50",
+        }
         vim.opt.nu = true
+        vim.opt.cursorline = true
+        vim.opt.cursorlineopt = "number"
         -- Tab
         vim.opt.tabstop = 4
         vim.opt.softtabstop = 4
@@ -455,10 +721,10 @@ in
         vim.opt.expandtab = true
         vim.api.nvim_create_autocmd("FileType", {
           pattern = { "yaml", "nix" },
-            callback = function()
-              vim.opt_local.tabstop = 2
-              vim.opt_local.softtabstop = 2
-              vim.opt_local.shiftwidth = 2
+          callback = function()
+            vim.opt_local.tabstop = 2
+            vim.opt_local.softtabstop = 2
+            vim.opt_local.shiftwidth = 2
           end,
         })
         vim.opt.smartindent = true
@@ -467,23 +733,24 @@ in
         vim.opt.hlsearch = false
         vim.opt.incsearch = true
         vim.opt.endofline = false
-        vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+        vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
         vim.opt.termguicolors = false
-        vim.opt.guicursor = "a:ver25-CustomCursor"
         vim.opt.updatetime = 50
         --
         vim.g.mapleader = " "
-        vim.keymap.set("n", "<leader>ee", vim.cmd.Ex) 
         vim.keymap.set("n", "<C-z>", "<cmd>undo<CR>")
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
+        vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
-        vim.keymap.set("n", "<leader>hm", "<cmd>cd ~/.config/home-manager<CR>")
-        vim.keymap.set("n", "<leader>dc", "<cmd>cd ~/Documents/code<CR>")
-        -- Greatest remap ever
-        vim.keymap.set({ "n", "x" }, "<leader>p", [["0p]])
+        -- Tab
+        vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", {noremap = true, silent = true})
+        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", {noremap = true, silent = true})
+        -- Yank
+        vim.keymap.set({"n", "x"}, "<leader>p", [["0p]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
+        -- Duplicate
         vim.cmd([[
           function! DuplicateLine()
             normal! yyp
@@ -500,372 +767,78 @@ in
         vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
         -- Neovide config goes here
         if vim.g.neovide then
-          vim.g.neovide_transparency = 0.97
+          vim.g.neovide_transparency = 0.95
           vim.g.neovide_padding_top = 0
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
           vim.g.neovide_padding_left = 0
-          vim.g.neovide_cursor_animation_length = 0.1
-          vim.g.neovide_cursor_trail_size = 0.5
-          -- Copy/paste
-          vim.api.nvim_set_keymap('v', '<sc-c>', '"+y', {noremap = true})
-          vim.api.nvim_set_keymap('n', '<sc-v>', 'l"+P', {noremap = true})
-          vim.api.nvim_set_keymap('v', '<sc-v>', '"+P', {noremap = true})
-          vim.api.nvim_set_keymap('c', '<sc-v>', '<C-o>l<C-o>"+<C-o>P<C-o>l', {noremap = true})
-          vim.api.nvim_set_keymap('i', '<sc-v>', '<ESC>l"+Pli', {noremap = true})
-          vim.api.nvim_set_keymap('t', '<sc-v>', '<C-\\><C-n>"+Pi', {noremap = true})
         end
+        -- Copy/Paste
+        vim.o.clipboard = "unnamedplus"
+        vim.api.nvim_set_keymap("n", "<C-S-c>", '"+yy', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("n", "<C-S-v>", '""_dP', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("v", "<C-S-c>", '"+y', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("v", "<C-S-v>", '""_dP', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("i", "<C-S-v>", '<C-r>+', {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("i", "<C-S-c>", '<Esc>"+yyi', {noremap = true, silent = true})
+        -- End
+        vim.o.showcmd = false
       '';
       viAlias = true;
       vimAlias = true;
+    };
+    neovide = {
+      enable = true;
+      settings = {
+        fork = false;
+        frame = "full";
+        idle = true;
+        maximized = false;
+        neovim-bin = "/home/ryhkml/.nix-profile/bin/nvim";
+        no-multigrid = false;
+        srgb = false;
+        tabs = true;
+        theme = "dark";
+        title-hidden = true;
+        vsync = true;
+        wsl = false;
+        font = {
+          normal = [ "FiraCode Nerd Font" ];
+          size = 15.5;
+        };
+      };
+      package = nixglWrap pkgs.neovide;
     };
     oh-my-posh = {
       enable = true;
       useTheme = "xtoys";
     };
-    ripgrep = {
+    ripgrep.enable = true;
+    tmux = {
       enable = true;
-    };
-    vscode = {
-      enable = true;
-      package = pkgs.vscodium;
-      keybindings = [
+      mouse = true;
+      shortcut = "a";
+      plugins = with pkgs.tmuxPlugins; [
         {
-          key = "ctrl+shift+down";
-          command = "editor.action.copyLinesDownAction";
-          when = "editorTextFocus && !editorReadonly";
+          plugin = yank;
+          extraConfig = ''
+            set -g @yank_selection_mouse "clipboard"
+          '';
         }
         {
-          key = "ctrl+k ctrl+s";
-          command = "workbench.action.files.saveFiles";
+          plugin = nord;
         }
       ];
-      userSettings = {
-        breadcrumbs = {
-          enabled = false;
-        };
-        editor = {
-          bracketPairColorization = {
-            enabled = false;
-          };
-          cursorSmoothCaretAnimation = "on";
-          cursorStyle = "line";
-          detectIndentation = false;
-          fontFamily = "FiraCode Nerd Font";
-          fontLigatures = true;
-          fontSize = 14;
-          guides = {
-            highlightActiveBracketPair = false;
-          };
-          insertSpaces = false;
-          letterSpacing = 0.4;
-          lightbulb = {
-            enabled = "off";
-          };
-          lineHeight = 1.6;
-          matchBrackets = "never";
-          minimap = {
-            enabled = false;
-          };
-          renderLineHighlight = "none";
-          renderWhitespace = "none";
-          smoothScrolling = true;
-          stickyScroll = {
-            enabled = false;
-          };
-          tabSize = 4;
-          tokenColorCustomizations = {
-            # # Disable italic font style
-            textMateRules = [
-              {
-                scope = [
-                  "comment"
-                  "comment.block"
-                  "comment.block.documentation"
-                  "comment.line"
-                  "constant"
-                  "constant.character"
-                  "constant.character.escape"
-                  "constant.numeric"
-                  "constant.numeric.integer"
-                  "constant.numeric.float"
-                  "constant.numeric.hex"
-                  "constant.numeric.octal"
-                  "constant.other"
-                  "constant.regexp"
-                  "constant.rgb-value"
-                  "emphasis"
-                  "entity"
-                  "entity.name"
-                  "entity.name.class"
-                  "entity.name.function"
-                  "entity.name.method"
-                  "entity.name.section"
-                  "entity.name.selector"
-                  "entity.name.tag"
-                  "entity.name.type"
-                  "entity.other"
-                  "entity.other.attribute-name"
-                  "entity.other.inherited-class"
-                  "invalid"
-                  "invalid.deprecated"
-                  "invalid.illegal"
-                  "keyword"
-                  "keyword.control"
-                  "keyword.operator"
-                  "keyword.operator.new"
-                  "keyword.operator.assignment"
-                  "keyword.operator.arithmetic"
-                  "keyword.operator.logical"
-                  "keyword.other"
-                  "markup"
-                  "markup.bold"
-                  "markup.changed"
-                  "markup.deleted"
-                  "markup.heading"
-                  "markup.inline.raw"
-                  "markup.inserted"
-                  "markup.italic"
-                  "markup.list"
-                  "markup.list.numbered"
-                  "markup.list.unnumbered"
-                  "markup.other"
-                  "markup.quote"
-                  "markup.raw"
-                  "markup.underline"
-                  "markup.underline.link"
-                  "meta"
-                  "meta.block"
-                  "meta.cast"
-                  "meta.class"
-                  "meta.function"
-                  "meta.function-call"
-                  "meta.preprocessor"
-                  "meta.return-type"
-                  "meta.selector"
-                  "meta.tag"
-                  "meta.type.annotation"
-                  "meta.type"
-                  "punctuation.definition.string.begin"
-                  "punctuation.definition.string.end"
-                  "punctuation.separator"
-                  "punctuation.separator.continuation"
-                  "punctuation.terminator"
-                  "storage"
-                  "storage.modifier"
-                  "storage.type"
-                  "string"
-                  "string.interpolated"
-                  "string.other"
-                  "string.quoted"
-                  "string.quoted.double"
-                  "string.quoted.other"
-                  "string.quoted.single"
-                  "string.quoted.triple"
-                  "string.regexp"
-                  "string.unquoted"
-                  "strong"
-                  "support"
-                  "support.class"
-                  "support.constant"
-                  "support.function"
-                  "support.other"
-                  "support.type"
-                  "support.type.property-name"
-                  "support.variable"
-                  "variable"
-                  "variable.language"
-                  "variable.name"
-                  "variable.other"
-                  "variable.other.readwrite"
-                  "variable.parameter"
-                ];
-                settings = {
-                  fontStyle = "";
-                };
-              }
-            ];
-          };
-        };
-        explorer = {
-          compactFolders = false;
-          confirmDelete = false;
-          confirmDragAndDrop = false;
-        };
-        extensions = {
-          autoUpdate = "onlyEnabledExtensions";
-          ignoreRecommendations = true;
-        };
-        git = {
-          autofetch = true;
-          confirmSync = false;
-        };
-        security = {
-          workspace = {
-            trust = {
-              banner = "never";
-              enabled = true;
-              startupPrompt = false;
-            };
-          };
-        };
-        terminal = {
-          integrated = {
-            cursorBlinking = true;
-            cursorStyle = "line";
-            defaultProfile = {
-              linux = "fish";
-            };
-            fontFamily = "FiraCode Nerd Font";
-            hideOnStartup = "always";
-            smoothScrolling = true;
-            tabs = {
-              enabled = false;
-            };
-          };
-        };
-        update = {
-          mode = "none";
-        };
-        window = {
-          menuBarVisibility = "toggle";
-          restoreFullscreen = true;
-          title = "Code";
-          zoomLevel = 2;
-        };
-        workbench = {
-          activityBar = {
-            location = "top";
-          };
-          # # Extension https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-themes
-          colorTheme = "Black Waves";
-          # # Extension https://marketplace.visualstudio.com/items?itemName=be5invis.vscode-icontheme-nomo-dark
-          iconTheme = "chalice-icon-theme";
-          list = {
-            smoothScrolling = true;
-          };
-          remoteIndicator = {
-            showExtensionRecommendations = false;
-          };
-          startupEditor = "none";
-          trustedDomains = {
-            promptInTrustedWorkspace = true;
-          };
-        };
-        # # Configuration files
-        files = {
-          associations = {
-            "**/config" = "plaintext";
-            "**/conf" = "plaintext";
-            "**/*.conf" = "plaintext";
-            "**/*.cfg" = "plaintext";
-            "**/*-compose.yml" = "dockercompose";
-            "**/*-compose*.yml" = "dockercompose";
-            "**/*-compose.yaml" = "dockercompose";
-            "**/*-compose*.yaml" = "dockercompose";
-            "**/Dockerfile*" = "dockerfile";
-            "**/.env" = "dotenv";
-            "**/.env*" = "dotenv";
-            "**/.*ignore" = "ignore";
-            "**/*.json" = "json";
-          };
-          exclude = {
-            "**/.git" = true;
-            "**/.svn" = true;
-            "**/.hg" = true;
-            "**/CVS" = true;
-            "**/.DS_Store" = true;
-            "**/.angular" = true;
-            "**/node_modules" = true;
-            "**/home-manager/result" = true;
-          };
-          watcherExclude = {
-            "**/.angular/*/**" = true;
-            "**/.database/*/**" = true;
-            "**/.git/objects/**" = true;
-            "**/.git/subtree-cache/**" = true;
-            "**/.hg/store/**" = true;
-            "**/target" = true;
-            "**/node_modules/**" = true;
-            "**/home-manager/result" = true;
-          };
-          insertFinalNewline = false;
-          trimFinalNewlines = false;
-        };
-        search = {
-          exclude = {
-            # Workspace
-            "**/.angular" = true;
-            "**/.database" = true;
-            "**/node_modules" = true;
-            "**/target" = true;
-            "**/dist" = true;
-            "**/tls" = true;
-            "**/home-manager/result" = true;
-          };
-          followSymlinks = false;
-          maxResults = 1000;
-        };
-        "[nix]" = {
-          editor = {
-            insertSpaces = true;
-            tabSize = 2;
-          };
-        };
-        "[yaml]" = {
-          editor = {
-            insertSpaces = true;
-            tabSize = 2;
-          };
-        };
-        # # Extension https://marketplace.visualstudio.com/items?itemName=adpyke.codesnap
-        codesnap = {
-          containerPadding = "8px";
-        };
-        # # Extension https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
-        "yaml.schemas" = {
-          "https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json" = [
-            "**/*-compose.yml"
-            "**/*-compose*.yml"
-            "**/*-compose.yaml"
-            "**/*-compose*.yaml"
-          ];
-        };
-        # # https://marketplace.visualstudio.com/items?itemName=jnoortheen.nix-ide
-        "nix.enableLanguageServer" = true;
-        "nix.serverPath" = "nil";
-        "nix.serverSettings" = {
-          nil = {
-            diagnostics = {
-              ignored = [
-                "unused_binding"
-                "unused_with"
-              ];
-            };
-            formatting = {
-              command = [
-                "nixpkgs-fmt"
-              ];
-            };
-          };
-        };
-        # # https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
-        "redhat.telemetry.enabled" = false;
-        # # https://marketplace.visualstudio.com/items?itemName=yy0931.vscode-sqlite3-editor
-        "sqlite3-editor" = {
-          "ui.minimizePanel" = true;
-          telemetry = "deny";
-        };
-        # # https://marketplace.visualstudio.com/items?itemName=golang.Go
-        go = {
-          gopath = "/home/ryhkml/.go";
-        };
-        gopls = {
-          ui.semanticTokens = true;
-        };
-        # #
-        "gitlens.telemetry.enabled" = false;
-      };
+      extraConfig = ''
+        # Status bar
+        set-option -g status-right ""
+        # Window
+        bind -n M-Right next-window
+        bind -n M-Left previous-window
+        bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
+        bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
+      '';
+      shell = "/home/ryhkml/.local/bin/fish-login";
     };
     yazi = {
       enable = true;
@@ -927,8 +900,6 @@ in
         }
       '';
     };
-    zoxide = {
-      enable = true;
-    };
+    zoxide.enable = true;
   };
 }
