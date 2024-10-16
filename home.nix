@@ -1,40 +1,35 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 
 let
+  # Build my own function clone from Github
+  cloneFromGitHub = repo: ref: builtins.fetchGit {
+    url = "https://github.com/${repo}.git";
+    ref = ref;
+  };
+  # Build my own function for vim plugins
+  # Some vim plugins is not available in nixpkgs
+  myVimPlugin = repo: pkgs.vimUtils.buildVimPlugin {
+    pname = "${lib.strings.sanitizeDerivationName repo}";
+    version = "HEAD";
+    src = cloneFromGitHub repo "HEAD";
+  };
+  # Angular
+  # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
     version = "18.2.8";
-    src = pkgs.fetchFromGitHub {
-      owner = "ryhkml";
-      repo = "static-angular-cli";
-      rev = "932236d1f1e262c44f60046932487b9c7435b4e9";
-      sha256 = "0s418am9ws9m5im9dpl3cgcpn50lrgdni78vydi0gh4wqs2mn48d";
-    };
+    src = cloneFromGitHub "ryhkml/static-angular-cli" "HEAD";
     buildPhase = ''
       mkdir -p $out/bin
       ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
       chmod +x $out/bin/ng
     '';
   };
-  angularLanguageServer = pkgs.fetchFromGitHub {
-    owner = "ryhkml";
-    repo = "static-angular-language-server";
-    rev = "ef8fe1eae993c4b5d4afaeab79496cf28025409d";
-    sha256 = "1bwhd5l8svqy3z5b961vjfmzqn9g6x0fbr123p4lrvgsdg1xyink";
-  };
-  # Theme
-  lacklusterNvim = pkgs.fetchFromGitHub {
-    owner = "slugbyte";
-    repo = "lackluster.nvim";
-    rev = "59d03c9e92cb03351af2904a26e16b6627d2d5db";
-    sha256 = "0r9bpwn7j5zzf4i1hhwmzh65zdd6c50iklgrnjcs57f6nzb4qm1q";
-  };
-  yaziPlugins = pkgs.fetchFromGitHub {
-    owner = "yazi-rs";
-    repo = "plugins";
-    rev = "35100e7dc1e02d4e6e407298be40154332941c4d";
-    sha256 = "0r4w2013bg090rjk3ic68wg6cxmryhs3a2d9iar3g6c9nl7mv8sc";
-  };
+  # LSP for Angular is outdated in nixpkgs
+  angularLanguageServer = cloneFromGitHub "ryhkml/static-angular-language-server" "HEAD";
+  # Yazi
+  # Yazi plugins is not available in nixpkgs
+  yaziPlugins = cloneFromGitHub "yazi-rs/plugins" "HEAD";
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -55,13 +50,11 @@ in
         gsaslSupport = true;
       })
       # # D
-      direnv
       dockerfile-language-server-nodejs
       duf
       # # E
       exiftool
       # # F
-      fd
       file
       firebase-tools
       # # G
@@ -109,9 +102,7 @@ in
   };
 
   programs = {
-    home-manager = {
-      enable = true;
-    };
+    home-manager.enable = true;
     bat = {
       enable = true;
       config = {
@@ -131,9 +122,11 @@ in
         clock_format = "";
       };
     };
-    eza = {
+    direnv = {
       enable = true;
+      nix-direnv.enable = true;
     };
+    eza.enable = true;
     fastfetch = {
       enable = true;
       settings = {
@@ -187,31 +180,42 @@ in
         ];
       };
     };
+    fd = {
+      enable = true;
+      hidden = true;
+      ignores = [ ".git/" ".angular/" ".database/" "node_modules/" "target/" ];
+      extraOptions = [ "-tf" ];
+    };
     fish = {
       enable = true;
       shellAbbrs = {
         "/" = "cd /";
         ".." = "cd ..";
-        bl = "bash --login";
         c = "clear";
         C = "clear";
         q = "exit";
         Q = "exit";
-        # Downloader
+        # Greatest abbreviations downloader ever
         dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
         dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
         # Git
-        gitpt = "bash -c 'tag_name=$(cat package.json | jq .version | sed \'s/\"//g\') && git tag -s $tag_name -m \"$(date +\'%Y/%m/%d\')\" && git push origin --tag'";
+        gitpt = "set tag_name (jq .version package.json -r); and git tag -s $tag_name -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
         # Wifi
-        nmconn = "nmcli device wifi connect NETWORK_NAME";
-        nmreconn = "nmcli connection down NETWORK_NAME && nmcli connection up NETWORK_NAME";
-        nmscan = "nmcli device wifi rescan";
-        nmls = "nmcli device wifi list";
+        nmwon = "nmcli radio wifi on";
+        nmwoff = "nmcli radio wifi off";
+        nmwconn = "nmcli device wifi connect NETWORK_NAME";
+        nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 0.1; and nmcli connection up $net_name";
+        nmwscan = "nmcli device wifi rescan";
+        nmwls = "nmcli device wifi list";
+        nmactive = "nmcli connection show --active";
         nmup = "nmcli connection up NETWORK_NAME";
         nmdown = "nmcli connection down NETWORK_NAME";
-        nmdnsv4 = "nmcli connection modify NETWORK_NAME ipv4.dns";
-        nmdnsv6 = "nmcli connection modify NETWORK_NAME ipv6.dns";
-        nv = "neovide";
+        nmdnsv4-cloudflare = "nmcli connection modify NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
+        nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
+        nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
+        nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
+        # Neovide
+        nv = "fd | fzf --reverse | xargs -r neovide";
       };
       shellAliases = {
         docker = "podman";
@@ -526,7 +530,7 @@ in
         } 
         vim-visual-multi
         {
-          plugin = lacklusterNvim;
+          plugin = myVimPlugin "slugbyte/lackluster.nvim";
           type = "lua";
           config = ''
             local lackluster = require("lackluster")
@@ -682,7 +686,7 @@ in
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", {noremap = true, silent = true})
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", {noremap = true, silent = true})
-        -- Greatest remap ever
+        -- Yank
         vim.keymap.set({"n", "x"}, "<leader>p", [["0p]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
@@ -703,7 +707,7 @@ in
         vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
         -- Neovide config goes here
         if vim.g.neovide then
-          vim.g.neovide_transparency = 0.925
+          vim.g.neovide_transparency = 0.95
           vim.g.neovide_padding_top = 0
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
@@ -727,9 +731,7 @@ in
       enable = true;
       useTheme = "xtoys";
     };
-    ripgrep = {
-      enable = true;
-    };
+    ripgrep.enable = true;
     tmux = {
       enable = true;
       mouse = true;
@@ -816,8 +818,6 @@ in
         }
       '';
     };
-    zoxide = {
-      enable = true;
-    };
+    zoxide.enable = true;
   };
 }
