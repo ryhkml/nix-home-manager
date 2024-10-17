@@ -44,6 +44,8 @@ let
   # Yazi
   # Yazi plugins is not available in nixpkgs
   yaziPlugins = cloneFromGitHub "yazi-rs/plugins" "HEAD";
+  # Source DB
+  pathTasksServerDb = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./path/tasks-db.txt);
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -83,8 +85,6 @@ in
       imagemagick
       # # J
       java-language-server
-      jdk22
-      jq
       # # N
       nil
       nixpkgs-fmt
@@ -97,7 +97,6 @@ in
       # # S
       shellcheck
       sqlite
-      sqls
       # # T
       tokei
       trash-cli
@@ -125,8 +124,8 @@ in
       settings = {
         shell = {
           program = "/home/ryhkml/.nix-profile/bin/fish";
-          args = [ "--login" ];
         };
+        live_config_reload = false;
         font = {
           normal = {
             family = "FiraCode Nerd Font";
@@ -264,7 +263,7 @@ in
         nmwon = "nmcli radio wifi on";
         nmwoff = "nmcli radio wifi off";
         nmwconn = "nmcli device wifi connect NETWORK_NAME";
-        nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 0.1; and nmcli connection up $net_name";
+        nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 1; and nmcli connection up $net_name";
         nmwscan = "nmcli device wifi rescan";
         nmwls = "nmcli device wifi list";
         nmactive = "nmcli connection show --active";
@@ -289,13 +288,13 @@ in
       };
       shellInit = ''
         set -U fish_greeting
-        set -gx BUN_INSTALL "$HOME/.bun"
-        set -gx PATH "$BUN_INSTALL/bin" $PATH
+        set -gx BUN_INSTALL $HOME/.bun
+        set -gx PATH $BUN_INSTALL/bin $PATH
         set -gx DOCKER_BUILDKIT 1
-        set -gx DOCKER_HOST "unix:///run/user/1000/podman/podman.sock"
-        set -gx GOPATH "$HOME/.go"
+        set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
+        set -gx GOPATH $HOME/.go
         set -gx GPG_TTY (tty)
-        set -gx NODE_OPTIONS "--max-old-space-size=8192"
+        set -gx NODE_OPTIONS --max-old-space-size=8192
       '';
     };
     fzf = {
@@ -308,6 +307,11 @@ in
       enable = true;
       goPath = ".go";
     };
+    java = {
+      enable = true;
+      package = pkgs.jdk22;
+    };
+    jq.enable = true;
     lazygit = {
       enable = true;
       settings = {
@@ -321,7 +325,6 @@ in
     };
     neovim = {
       enable = true;
-      defaultEditor = true;
       plugins = with pkgs.vimPlugins; [ 
         {
           plugin = gitsigns-nvim;
@@ -711,6 +714,7 @@ in
           "r-cr:hor20",
           "o:hor50",
         }
+        -- Number
         vim.opt.nu = true
         vim.opt.cursorline = true
         vim.opt.cursorlineopt = "number"
@@ -738,33 +742,28 @@ in
         vim.opt.termguicolors = false
         vim.opt.updatetime = 50
         --
+        local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
         vim.keymap.set("n", "<C-z>", "<cmd>undo<CR>")
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
         -- Tab
-        vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", {noremap = true, silent = true})
-        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", {noremap = true, silent = true})
-        -- Yank
-        vim.keymap.set({"n", "x"}, "<leader>p", [["0p]])
-        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
-        vim.keymap.set("n", "<leader>Y", [["+Y]])
+        vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
+        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
         -- Duplicate
         vim.cmd([[
           function! DuplicateLine()
             normal! yyp
           endfunction
         ]])
-        vim.api.nvim_set_keymap("n", "<C-S-Down>", ":call DuplicateLine()<CR>", {noremap = true, silent = true})
+        vim.api.nvim_set_keymap("n", "<C-S-Down>", ":call DuplicateLine()<CR>", options)
         --
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
         -- Undotree
         vim.keymap.set("n", "<leader><F1>", vim.cmd.UndotreeToggle)
-        -- Git
-        vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
         -- Neovide config goes here
         if vim.g.neovide then
           vim.g.neovide_transparency = 0.95
@@ -772,16 +771,12 @@ in
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
           vim.g.neovide_padding_left = 0
+          vim.opt.clipboard = "unnamedplus"
+          vim.api.nvim_set_keymap("n", "<C-S-c>", '"+y', options)
+          vim.api.nvim_set_keymap("v", "<C-S-c>", '"+y', options)
+          vim.api.nvim_set_keymap("n", "<C-S-v>", '"+p', options)
+          vim.api.nvim_set_keymap("i", "<C-S-v>", '<C-r>+', options)
         end
-        -- Copy/Paste
-        vim.o.clipboard = "unnamedplus"
-        vim.api.nvim_set_keymap("n", "<C-S-c>", '"+yy', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap("n", "<C-S-v>", '""_dP', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap("v", "<C-S-c>", '"+y', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap("v", "<C-S-v>", '""_dP', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap("i", "<C-S-v>", '<C-r>+', {noremap = true, silent = true})
-        vim.api.nvim_set_keymap("i", "<C-S-c>", '<Esc>"+yyi', {noremap = true, silent = true})
-        -- End
         vim.o.showcmd = false
       '';
       viAlias = true;
@@ -814,10 +809,23 @@ in
       useTheme = "xtoys";
     };
     ripgrep.enable = true;
+    sqls = {
+      enable = true;
+      settings = {
+        lowercaseKeywords = false;
+        connections = [
+          {
+            driver = "sqlite3";
+            dataSourceName = pathTasksServerDb;
+          }
+        ];
+      };
+    };
     tmux = {
       enable = true;
       mouse = true;
       shortcut = "a";
+      disableConfirmationPrompt = true;
       plugins = with pkgs.tmuxPlugins; [
         {
           plugin = yank;
@@ -835,10 +843,15 @@ in
         # Window
         bind -n M-Right next-window
         bind -n M-Left previous-window
+        bind -n M-1 select-window -t 0
+        bind -n M-2 select-window -t 1
+        bind -n M-3 select-window -t 2
+        bind -n M-4 select-window -t 3
+        bind -n M-5 select-window -t 4
         bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
       '';
-      shell = "/home/ryhkml/.local/bin/fish-login";
+      shell = "/home/ryhkml/.nix-profile/bin/fish";
     };
     yazi = {
       enable = true;
@@ -846,7 +859,7 @@ in
       shellWrapperName = "yz";
       settings = {
         manager = {
-          ratio = [ 1 5 2 ];
+          ratio = [ 2 2 4 ];
           sort_by = "natural";
           sort_dir_first = true;
           show_hidden = true;
