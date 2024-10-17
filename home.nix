@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 let
   # A wrapper function for nix OpenGL application
@@ -117,13 +117,67 @@ in
     };
   };
 
+  programs.home-manager.enable = true;
+
+  programs.fish = {
+    enable = true;
+    shellAbbrs = {
+      "/" = "cd /";
+      ".." = "cd ..";
+      c = "clear";
+      C = "clear";
+      q = "exit";
+      Q = "exit";
+      # Greatest abbreviations downloader ever
+      dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
+      dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
+      # Git
+      gitpt = "set tag_name (jq .version package.json -r); and git tag -s $tag_name -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
+      # Wifi
+      nmwon = "nmcli radio wifi on";
+      nmwoff = "nmcli radio wifi off";
+      nmwconn = "nmcli device wifi connect NETWORK_NAME";
+      nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 1; and nmcli connection up $net_name";
+      nmwscan = "nmcli device wifi rescan";
+      nmwls = "nmcli device wifi list";
+      nmactive = "nmcli connection show --active";
+      nmup = "nmcli connection up NETWORK_NAME";
+      nmdown = "nmcli connection down NETWORK_NAME";
+      nmdnsv4-cloudflare = "nmcli connection modify NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
+      nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
+      nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
+      nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
+      # Neovide
+      nv = "fd | fzf --reverse | xargs -r neovide";
+    };
+    shellAliases = {
+      docker = "podman";
+      la = "eza -ahlT --color never -L 1 --time-style relative";
+      lg = "eza -hlT --git --color never -L 1 --time-style relative";
+      ll = "eza -hlT --color never -L 1 --time-style relative";
+      ls = "eza -hT --color never -L 1";
+      # Safety rm
+      rm = "trash-put";
+      tree = "eza -T --color never";
+    };
+    shellInit = ''
+      set -U fish_greeting
+      set -gx BUN_INSTALL $HOME/.bun
+      set -gx PATH $BUN_INSTALL/bin $PATH
+      set -gx DOCKER_BUILDKIT 1
+      set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
+      set -gx GOPATH $HOME/.go
+      set -gx GPG_TTY (tty)
+      set -gx NODE_OPTIONS --max-old-space-size=8192
+    '';
+  };
+
   programs = {
-    home-manager.enable = true;
     alacritty = {
       enable = true;
       settings = {
         shell = {
-          program = "/home/ryhkml/.nix-profile/bin/fish";
+          program = "${config.home.profileDirectory}/bin/fish";
         };
         live_config_reload = false;
         font = {
@@ -244,58 +298,6 @@ in
       hidden = true;
       ignores = [ ".git/" ".angular/" ".database/" "node_modules/" "target/" ];
       extraOptions = [ "-tf" ];
-    };
-    fish = {
-      enable = true;
-      shellAbbrs = {
-        "/" = "cd /";
-        ".." = "cd ..";
-        c = "clear";
-        C = "clear";
-        q = "exit";
-        Q = "exit";
-        # Greatest abbreviations downloader ever
-        dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
-        dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
-        # Git
-        gitpt = "set tag_name (jq .version package.json -r); and git tag -s $tag_name -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
-        # Wifi
-        nmwon = "nmcli radio wifi on";
-        nmwoff = "nmcli radio wifi off";
-        nmwconn = "nmcli device wifi connect NETWORK_NAME";
-        nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 1; and nmcli connection up $net_name";
-        nmwscan = "nmcli device wifi rescan";
-        nmwls = "nmcli device wifi list";
-        nmactive = "nmcli connection show --active";
-        nmup = "nmcli connection up NETWORK_NAME";
-        nmdown = "nmcli connection down NETWORK_NAME";
-        nmdnsv4-cloudflare = "nmcli connection modify NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
-        nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
-        nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
-        nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
-        # Neovide
-        nv = "fd | fzf --reverse | xargs -r neovide";
-      };
-      shellAliases = {
-        docker = "podman";
-        la = "eza -ahlT --color never -L 1 --time-style relative";
-        lg = "eza -hlT --git --color never -L 1 --time-style relative";
-        ll = "eza -hlT --color never -L 1 --time-style relative";
-        ls = "eza -hT --color never -L 1";
-        # Safety rm
-        rm = "trash-put";
-        tree = "eza -T --color never";
-      };
-      shellInit = ''
-        set -U fish_greeting
-        set -gx BUN_INSTALL $HOME/.bun
-        set -gx PATH $BUN_INSTALL/bin $PATH
-        set -gx DOCKER_BUILDKIT 1
-        set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
-        set -gx GOPATH $HOME/.go
-        set -gx GPG_TTY (tty)
-        set -gx NODE_OPTIONS --max-old-space-size=8192
-      '';
     };
     fzf = {
       enable = true;
@@ -789,7 +791,7 @@ in
         frame = "full";
         idle = true;
         maximized = false;
-        neovim-bin = "/home/ryhkml/.nix-profile/bin/nvim";
+        neovim-bin = "${config.home.profileDirectory}/bin/nvim";
         no-multigrid = false;
         srgb = false;
         tabs = true;
@@ -851,7 +853,7 @@ in
         bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
       '';
-      shell = "/home/ryhkml/.nix-profile/bin/fish";
+      shell = "${config.home.profileDirectory}/bin/fish";
     };
     yazi = {
       enable = true;
