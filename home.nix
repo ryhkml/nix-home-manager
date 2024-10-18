@@ -39,6 +39,10 @@ let
       ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
       chmod +x $out/bin/ng
     '';
+    installPhase = ''
+      mkdir -p $out/lib/node_modules
+      cp -r ${src}/node_modules $out/lib/
+    '';
   };
   # LSP for Angular is outdated in nixpkgs
   angularLanguageServer = builtins.fetchGit {
@@ -141,7 +145,24 @@ in
       yaml-language-server
       yt-dlp
     ];
-    file = {};
+    file = {
+      ".angular-config.json".text = builtins.toJSON {
+        "$schema" = "${angularCli}/lib/node_modules/@angular/cli/lib/config/schema.json";
+        version = 1;
+        cli = {
+          completion.prompted = true;
+          # Disable telemetry
+          analytics = false;
+        };
+        projects = {};
+      };
+      ".bunfig.toml".text = ''
+        mosl = true
+        telemetry = false
+        [install.cache]
+        disable = true
+      '';
+    };
     sessionVariables = {
       EDITOR = lib.mkDefault "neovide";
       TERMINAL = "alacritty";
@@ -625,7 +646,7 @@ in
             -- https://github.com/windwp/nvim-autopairs
             require("nvim-autopairs").setup()
           '';
-        } 
+        }
         vim-visual-multi
         {
           plugin = myVimPlugin "slugbyte/lackluster.nvim" "6d206a3af7dd2e8389eecebab858e7d97813fc0c";
