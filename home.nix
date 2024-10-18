@@ -15,24 +15,25 @@ let
       chmod +x $wrapped_bin
     done
   '';
-  # Build my own function clone from Github
-  cloneFromGitHub = repo: ref: builtins.fetchGit {
-    url = "https://github.com/${repo}.git";
-    ref = ref;
-  };
-  # Build my own function for vim plugins
-  # Some vim plugins is not available in nixpkgs
-  myVimPlugin = repo: pkgs.vimUtils.buildVimPlugin {
+  # Vim plugins
+  # Some Vim plugins is not available in nixpkgs
+  myVimPlugin = repo: rev: pkgs.vimUtils.buildVimPlugin {
     pname = "${lib.strings.sanitizeDerivationName repo}";
     version = "HEAD";
-    src = cloneFromGitHub repo "HEAD";
+    src = builtins.fetchGit {
+      url = "https://github.com/${repo}.git";
+      rev = rev;
+    };
   };
   # Angular
   # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "18.2.8";
-    src = cloneFromGitHub "ryhkml/static-angular-cli" "HEAD";
+    version = "18.2.9";
+    src = builtins.fetchGit {
+      url = "https://github.com/ryhkml/static-angular-cli.git";
+      rev = "2c5a0b6c450d2e97a2a33935c617af95d2383cd2";
+    };
     buildPhase = ''
       mkdir -p $out/bin
       ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
@@ -40,12 +41,41 @@ let
     '';
   };
   # LSP for Angular is outdated in nixpkgs
-  angularLanguageServer = cloneFromGitHub "ryhkml/static-angular-language-server" "HEAD";
+  angularLanguageServer = builtins.fetchGit {
+    url = "https://github.com/ryhkml/static-angular-language-server.git";
+    rev = "ef8fe1eae993c4b5d4afaeab79496cf28025409d"; 
+  };
+  # Bun only for x86_64-linux
+  # Bun version update in nixpkgs is lengthy
+  bunBin = pkgs.stdenv.mkDerivation rec {
+    pname = "bun";
+    version = "1.1.31";
+    src = pkgs.fetchurl {
+      url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
+      sha256 = "16rlx9y7im6nbdjcz1ri2md55i70q8nsqijg5a1fidxdh8dssy6c";
+    };
+    nativeBuildInputs = [ pkgs.unzip ];
+    phases = [ "unpackPhase" "installPhase" ];
+    unpackPhase = ''
+      runHook preUnpack
+      mkdir $out
+      unzip $src -d $out
+      runHook postUnpack
+    '';
+    installPhase =  ''
+      runHook preInstall
+      mkdir -p $out/bin
+      mv $out/bun-linux-x64/bun $out/bin/bun
+      chmod +x $out/bin/bun
+      runHook postInstall
+    '';
+  };
   # Yazi
   # Yazi plugins is not available in nixpkgs
-  yaziPlugins = cloneFromGitHub "yazi-rs/plugins" "HEAD";
-  # Source DB
-  pathTasksServerDb = builtins.replaceStrings ["\n"] [""] (builtins.readFile ./path/tasks-db.txt);
+  yaziPlugins = builtins.fetchGit {
+    url = "https://github.com/yazi-rs/plugins.git";
+    rev = "4f1d0ae0862f464e08f208f1807fcafcd8778e16";
+  };
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -59,6 +89,7 @@ in
       angularCli
       # # B
       bash-language-server
+      bunBin
       # # C
       cmus
       (curl.override {
@@ -84,7 +115,7 @@ in
       id3v2
       imagemagick
       # # J
-      java-language-server
+      jdt-language-server
       # # N
       nil
       nixpkgs-fmt
@@ -162,8 +193,6 @@ in
     };
     shellInit = ''
       set -U fish_greeting
-      set -gx BUN_INSTALL $HOME/.bun
-      set -gx PATH $BUN_INSTALL/bin $PATH
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GOPATH $HOME/.go
@@ -194,6 +223,10 @@ in
           normal.blue = "#1890ff";
           normal.green = "#52c41a";
           normal.yellow = "#faad14";
+          normal.black = "#000000";
+          normal.white = "#ffffff";
+          normal.cyan = "#33bcb7";
+          normal.magenta = "#e0529c";
         };
         cursor = {
           style = {
@@ -397,17 +430,17 @@ in
             -- https://github.com/neovim/nvim-lspconfig
             local lsp_zero = require("lsp-zero")
             local lsp_attach = function(client, bufnr)
-              local opts = {buffer = bufnr}
-              vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", opts)
-              vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", opts)
-              vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", opts)
-              vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", opts)
-              vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", opts)
-              vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", opts)
-              vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", opts)
-              vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", opts)
-              vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", opts)
-              vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", opts)
+              local options = { buffer = bufnr }
+              vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", options)
+              vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", options)
+              vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", options)
+              vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", options)
+              vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", options)
+              vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", options)
+              vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", options)
+              vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", options)
+              vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", options)
+              vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", options)
             end
             lsp_zero.extend_lspconfig({
               sign_text = true,
@@ -440,7 +473,7 @@ in
             -- HTML
             require("lspconfig").html.setup{}
             -- Java
-            require("lspconfig").java_language_server.setup{}
+            require("lspconfig").jdtls.setup{}
             -- Nix
             require("lspconfig").nil_ls.setup{}
             -- SQL
@@ -595,7 +628,7 @@ in
         } 
         vim-visual-multi
         {
-          plugin = myVimPlugin "slugbyte/lackluster.nvim";
+          plugin = myVimPlugin "slugbyte/lackluster.nvim" "6d206a3af7dd2e8389eecebab858e7d97813fc0c";
           type = "lua";
           config = ''
             local lackluster = require("lackluster")
@@ -644,7 +677,7 @@ in
                 mode = "background",
                 tailwind = false,
                 sass = { enable = false, parsers = { "css" }, },
-                virtualtext = "■",
+                virtualtext = "^",
                 always_update = false
               },
               buftypes = {},
@@ -818,7 +851,7 @@ in
         connections = [
           {
             driver = "sqlite3";
-            dataSourceName = pathTasksServerDb;
+            dataSourceName ="${builtins.getEnv "HOME"}/Documents/code/tasks-server/.database/tasks-test.db";
           }
         ];
       };
