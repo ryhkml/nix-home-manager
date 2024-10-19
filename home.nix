@@ -80,6 +80,8 @@ let
     url = "https://github.com/yazi-rs/plugins.git";
     rev = "4f1d0ae0862f464e08f208f1807fcafcd8778e16";
   };
+  #
+  pathHome = builtins.getEnv "HOME";
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -199,8 +201,11 @@ in
       nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
       nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
       nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
-      # Neovide
-      nv = "fd | fzf --reverse | xargs -r neovide";
+      # Editor
+      fneovide = "fd | fzf --reverse | xargs -r neovide";
+      fnvim = "fd | fzf --reverse | xargs -r nvim";
+      fvim = "fd | fzf --reverse | xargs -r nvim";
+      fvi = "fd | fzf --reverse | xargs -r nvim";
     };
     shellAliases = {
       docker = "podman";
@@ -264,7 +269,7 @@ in
               y = 3;
             };
             dynamic_padding = true;
-            opacity = 0.925;
+            opacity = 0.96;
         };
         selection.save_to_clipboard = true;
       };
@@ -405,24 +410,6 @@ in
                 untracked    = { text = "SU" },
               },
             })
-          '';
-        }
-        {
-          plugin = lightline-vim;
-          config = ''
-            function! GitsignsHead()
-              return get(b:, "gitsigns_head", "")
-            endfunction
-            let g:lightline = {
-              \ "colorscheme": "wombat",
-              \ "active": {
-              \   "left": [["mode", "paste"], ["gitbranch", "readonly", "filename", "modified"]],
-              \   "right": [["lineinfo"], ["percent"], ["filetype"]],
-              \ },
-              \ "component_function": {
-              \   "gitbranch": "GitsignsHead"
-              \ },
-              \ }
           '';
         }
         {
@@ -674,6 +661,20 @@ in
           '';
         }
         {
+          plugin = lualine-nvim;
+          type = "lua";
+          config = ''
+            require("lualine").setup({
+              options = {
+                theme = "lackluster",
+              },
+              sections = {
+                lualine_x = { "filetype" },
+              },
+            })
+          '';
+        }
+        {
           plugin = nvim-colorizer-lua;
           type = "lua";
           config = ''
@@ -822,7 +823,7 @@ in
         vim.keymap.set("n", "<leader><F1>", vim.cmd.UndotreeToggle)
         -- Neovide config goes here
         if vim.g.neovide then
-          vim.g.neovide_transparency = 0.95
+          vim.g.neovide_transparency = 0.97
           vim.g.neovide_padding_top = 0
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
@@ -862,7 +863,77 @@ in
     };
     oh-my-posh = {
       enable = true;
-      useTheme = "xtoys";
+      settings = {
+        "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
+        blocks = [
+          {
+            alignment = "left";
+            segments = [
+              {
+                foreground = "#d9d7ee";
+                style = "plain";
+                template = "# ";
+                type = "root";
+              }
+              {
+                foreground = "#ffffff";
+                style = "plain";
+                template = "{{ .UserName }}-{{ .HostName }} ";
+                type = "session";
+              }
+              {
+                foreground = "#d9d7ee";
+                properties.style = "agnoster_short";
+                style = "plain";
+                template = "at {{ .Path }} ";
+                type = "path";
+              }
+              {
+                foreground = "#d9d7ee";
+                properties = {
+                  branch_icon = "";
+                  fetch_upstream_icon = false;
+                };
+                style = "plain";
+                template = " HEAD:{{ .UpstreamIcon }}{{ .HEAD }}";
+                type = "git";
+              }
+            ];
+            type = "prompt";
+          }
+          {
+            alignment = "right";
+            segments = [
+              {
+                foreground = "#d9d7ee";
+                properties = {
+                  threshold = 0;
+                };
+                style = "plain";
+                template = " {{ .FormattedMs }}";
+                type = "executiontime";
+              }
+            ];
+            type = "prompt";
+          }
+          {
+            alignment = "left";
+            newline = true;
+            segments = [
+              {
+                foreground = "#d9d7ee";
+                foreground_templates = [ "{{ if gt .Code 0 }}#ff4d4f{{ end }}" ];
+                properties.always_enabled = true;
+                style = "plain";
+                template = "> ";
+                type = "status";
+              }
+            ];
+            type = "prompt";
+          }
+        ];
+        version = 2;
+      };
     };
     ripgrep.enable = true;
     sqls = {
@@ -872,7 +943,7 @@ in
         connections = [
           {
             driver = "sqlite3";
-            dataSourceName ="${builtins.getEnv "HOME"}/Documents/code/tasks-server/.database/tasks-test.db";
+            dataSourceName ="${pathHome}/Documents/code/tasks-server/.database/tasks-test.db";
           }
         ];
       };
@@ -941,7 +1012,7 @@ in
         filetype = {
           rules = [
             { name = "*"; fg = "#ffffff"; }
-            { name = "*/"; fg = "#8ab6db"; }
+            { name = "*/"; fg = "#526596"; }
           ];
         };
         icon = {
