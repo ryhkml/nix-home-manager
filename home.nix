@@ -63,8 +63,8 @@ let
     unpackPhase = ''
       runHook preUnpack
       mkdir $out
-      unzip $src -d $out
       runHook postUnpack
+      unzip $src -d $out
     '';
     installPhase =  ''
       runHook preInstall
@@ -166,7 +166,7 @@ in
       '';
     };
     sessionVariables = {
-      EDITOR = lib.mkDefault "neovide";
+      EDITOR = "nvim";
       TERMINAL = "alacritty";
     };
   };
@@ -203,9 +203,6 @@ in
       nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
       # Editor
       fneovide = "fd | fzf --reverse | xargs -r neovide";
-      fnvim = "fd | fzf --reverse | xargs -r nvim";
-      fvim = "fd | fzf --reverse | xargs -r nvim";
-      fvi = "fd | fzf --reverse | xargs -r nvim";
     };
     shellAliases = {
       docker = "podman";
@@ -386,6 +383,7 @@ in
     };
     neovim = {
       enable = true;
+      defaultEditor = true;
       plugins = with pkgs.vimPlugins; [ 
         {
           plugin = gitsigns-nvim;
@@ -805,6 +803,11 @@ in
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
+        --
+        vim.keymap.set("x", "<leader>p", [["_dP]])
+        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
+        vim.keymap.set("n", "<leader>Y", [["+Y]])
+        vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
@@ -834,6 +837,12 @@ in
           vim.api.nvim_set_keymap("n", "<C-S-v>", '"+p', options)
           vim.api.nvim_set_keymap("i", "<C-S-v>", '<C-r>+', options)
         end
+        vim.api.nvim_create_autocmd("VimLeave", {
+          pattern = "*",
+          callback = function()
+            vim.o.guicursor = "a:ver1"
+          end,
+        })
         vim.o.showcmd = false
       '';
       viAlias = true;
@@ -970,11 +979,6 @@ in
         # Window
         bind -n M-Right next-window
         bind -n M-Left previous-window
-        bind -n M-1 select-window -t 0
-        bind -n M-2 select-window -t 1
-        bind -n M-3 select-window -t 2
-        bind -n M-4 select-window -t 3
-        bind -n M-5 select-window -t 4
         bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
       '';
