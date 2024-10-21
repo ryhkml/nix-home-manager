@@ -209,6 +209,12 @@ in
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
     '';
+    shellInitLast = ''
+      if status is-interactive
+        and not set -q TMUX
+          exec tmux new-session -A -s Main
+      end
+    '';
   };
 
   programs = {
@@ -230,13 +236,13 @@ in
           primary.foreground = "#ffffff";
           primary.background = "#000000";
           normal.red = "#ff4d4f";
-          normal.blue = "#1890ff";
+          normal.blue = "#615296";
           normal.green = "#52c41a";
           normal.yellow = "#faad14";
           normal.black = "#000000";
           normal.white = "#ffffff";
-          normal.cyan = "#33bcb7";
-          normal.magenta = "#e0529c";
+          normal.cyan = "#528796";
+          normal.magenta = "#528796";
         };
         cursor = {
           style = {
@@ -763,6 +769,7 @@ in
           "*/.angular/*",
           "*/.git/*",
         })
+        vim.opt.clipboard = "unnamedplus"
         -- Cursor
         vim.opt.guicursor = {
           "n-v-c:block-Cursor/lCursor",
@@ -832,7 +839,6 @@ in
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
           vim.g.neovide_padding_left = 0
-          vim.opt.clipboard = "unnamedplus"
           vim.api.nvim_set_keymap("n", "<C-S-c>", '"+y', options)
           vim.api.nvim_set_keymap("v", "<C-S-c>", '"+y', options)
           vim.api.nvim_set_keymap("n", "<C-S-v>", '"+p', options)
@@ -880,7 +886,7 @@ in
             alignment = "left";
             segments = [
               {
-                foreground = "#d9d7ee";
+                foreground = "#615296";
                 style = "plain";
                 template = "# ";
                 type = "root";
@@ -892,14 +898,14 @@ in
                 type = "session";
               }
               {
-                foreground = "#d9d7ee";
+                foreground = "#615296";
                 properties.style = "agnoster_short";
                 style = "plain";
                 template = "at {{ .Path }} ";
                 type = "path";
               }
               {
-                foreground = "#d9d7ee";
+                foreground = "#615296";
                 properties = {
                   branch_icon = "";
                   fetch_upstream_icon = false;
@@ -915,7 +921,7 @@ in
             alignment = "right";
             segments = [
               {
-                foreground = "#d9d7ee";
+                foreground = "#615296";
                 properties = {
                   threshold = 0;
                 };
@@ -931,7 +937,7 @@ in
             newline = true;
             segments = [
               {
-                foreground = "#d9d7ee";
+                foreground = "#615296";
                 foreground_templates = [ "{{ if gt .Code 0 }}#ff4d4f{{ end }}" ];
                 properties.always_enabled = true;
                 style = "plain";
@@ -962,6 +968,7 @@ in
       enable = true;
       mouse = true;
       shortcut = "a";
+      baseIndex = 1;
       disableConfirmationPrompt = true;
       plugins = with pkgs.tmuxPlugins; [
         {
@@ -984,6 +991,9 @@ in
         bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
         bind-key , command-prompt "rename-window '%%'"
+        # Pane
+        set -g pane-active-border "fg=#615296"
+        set -ag pane-active-border bg=default
       '';
       shell = "${config.home.profileDirectory}/bin/fish";
     };
