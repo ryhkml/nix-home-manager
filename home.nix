@@ -94,7 +94,6 @@ in
       # # A
       angularCli
       # # B
-      bash-language-server
       bunBin
       # # C
       cmus
@@ -103,7 +102,6 @@ in
         gsaslSupport = true;
       })
       # # D
-      dockerfile-language-server-nodejs
       duf
       # # E
       exiftool
@@ -112,7 +110,6 @@ in
       firebase-tools
       # # G
       gnuplot
-      gopls
       google-cloud-sdk
       # # H
       hey
@@ -120,31 +117,21 @@ in
       # # I
       id3v2
       imagemagick
-      # # J
-      jdt-language-server
       # # N
-      nil
-      nixpkgs-fmt
       nix-prefetch-git
       nodejs_20
-      nodePackages.vls
       # # P
       podman-compose
       poppler
       # # S
-      shellcheck
       sqlite
       # # T
       tokei
       trash-cli
       typescript
-      typescript-language-server
       # # U
       ueberzugpp
-      # # V
-      vscode-langservers-extracted
       # # Y
-      yaml-language-server
       yt-dlp
     ];
     file = {
@@ -751,6 +738,20 @@ in
           '';
         }
       ];
+      extraPackages = with pkgs; [
+        # LSP and Fmt
+        bash-language-server
+        dockerfile-language-server-nodejs
+        gopls
+        jdt-language-server
+        nil
+        nixpkgs-fmt
+        nodePackages.vls
+        shellcheck
+        typescript-language-server
+        vscode-langservers-extracted
+        yaml-language-server
+      ];
       extraLuaConfig = ''
         vim.scriptencoding = "utf-8"
         vim.opt.encoding = "utf-8"
@@ -803,11 +804,11 @@ in
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
-        --
+        -- Yank/Paste/Delete
         vim.keymap.set("x", "<leader>p", [["_dP]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
-        vim.keymap.set({"n", "v"}, "<leader>d", [["_d]])
+        vim.keymap.set({"n", "v"}, "dd", [["_d]])
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
@@ -974,6 +975,7 @@ in
         }
       ];
       extraConfig = ''
+        set -s escape-time 0
         # Status bar
         set-option -g status-right ""
         # Window
@@ -981,6 +983,7 @@ in
         bind -n M-Left previous-window
         bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
+        bind-key , command-prompt "rename-window '%%'"
       '';
       shell = "${config.home.profileDirectory}/bin/fish";
     };
