@@ -29,10 +29,10 @@ let
   # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "18.2.9";
+    version = "18.2.10";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "2c5a0b6c450d2e97a2a33935c617af95d2383cd2";
+      rev = "958dbe268b4f83413cd63b67b5fcbe1b6f7ce537";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -53,10 +53,10 @@ let
   # Bun version update in nixpkgs is lengthy
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.32";
+    version = "1.1.33";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1ig875izfp49gcavrryfi5mnhikq2n76f4mki9mw3j0wjab0l5z2";
+      sha256 = "0n58padshfgf1wrfi7mxni7m1h2hwx4w4msjz5qw8jd7snkha0m0";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [ "unpackPhase" "installPhase" ];
@@ -121,7 +121,6 @@ in
       nix-prefetch-git
       nodejs_20
       # # P
-      pdfcpu
       podman-compose
       poppler
       # # S
@@ -190,7 +189,7 @@ in
       nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
       nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
       # Editor
-      fneovide = "fd | fzf --reverse | xargs -r neovide";
+      fv = "fd | fzf --reverse | xargs -r nvim";
     };
     shellAliases = {
       docker = "podman";
@@ -211,7 +210,6 @@ in
       set -gx NODE_OPTIONS --max-old-space-size=8192
     '';
     shellInitLast = ''
-      # Use tmux by default
       if status is-interactive
         and not set -q TMUX
           exec tmux new-session -A -s Main
@@ -474,6 +472,8 @@ in
             require("lspconfig").html.setup{}
             -- Java
             require("lspconfig").jdtls.setup{}
+            -- Nginx
+            require("lspconfig").nginx_language_server.setup{}
             -- Nix
             require("lspconfig").nil_ls.setup{}
             -- SQL
@@ -591,7 +591,7 @@ in
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
                 "bash", "css", "dockerfile", "go", "html", "java", "javascript",
-                "nix", "sql", "typescript", "yaml",
+                "nginx", "nix", "sql", "typescript", "yaml",
               },
               sync_install = false,
               auto_install = true,
@@ -628,6 +628,7 @@ in
         }
         vim-visual-multi
         {
+          # https://github.com/slugbyte/lackluster.nvim
           plugin = myVimPlugin "slugbyte/lackluster.nvim" "6d206a3af7dd2e8389eecebab858e7d97813fc0c";
           type = "lua";
           config = ''
@@ -751,6 +752,7 @@ in
         dockerfile-language-server-nodejs
         gopls
         jdt-language-server
+        nginx-language-server
         nil
         nixpkgs-fmt
         nodePackages.vls
@@ -770,26 +772,14 @@ in
           "*/.angular/*",
           "*/.git/*",
         })
-        -- Filetype
-        local function set_filetype_conf()
-          vim.bo.filetype = "conf"
-        end
-        local function set_filetype_dotenv()
-          vim.bo.filetype = "dotenv"
-        end
-        vim.api.nvim_create_augroup("FiletypeConfig", { clear = true })
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-          pattern = { "*/config", "*/conf" },
-          callback = set_filetype_conf,
-          group = "FiletypeConfig",
-        })
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-          pattern = { "*/.env*" },
-          callback = set_filetype_dotenv,
-          group = "FiletypeConfig",
-        })
-        --
         vim.opt.clipboard = "unnamedplus"
+        -- Cursor
+        vim.opt.guicursor = {
+          "n-v-c:block-Cursor/lCursor",
+          "i-ci-ve:ver25-Cursor/lCursor",
+          "r-cr:hor20",
+          "o:hor50",
+        }
         -- Number
         vim.opt.nu = true
         vim.opt.cursorline = true
@@ -818,13 +808,13 @@ in
         vim.opt.termguicolors = false
         vim.opt.updatetime = 50
         --
-        vim.g.mapleader = " "
         local options = { noremap = true, silent = true }
+        vim.g.mapleader = " "
         vim.keymap.set("n", "<C-z>", "<cmd>undo<CR>")
         vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
-        -- Copy/Paste
+        -- Yank/Paste/Delete
         vim.keymap.set("x", "<leader>p", [["_dP]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
@@ -1007,7 +997,7 @@ in
         # Pane
         set -g pane-active-border "fg=#615296"
         set -ag pane-active-border bg=default
-        #
+        # Yazi
         set -g allow-passthrough all
         set -ag update-environment TERM
         set -ag update-environment TERM_PROGRAM
@@ -1046,7 +1036,7 @@ in
         filetype = {
           rules = [
             { name = "*"; fg = "#ffffff"; }
-            { name = "*/"; fg = "#615296"; }
+            { name = "*/"; fg = "#526596"; }
           ];
         };
         icon = {
@@ -1072,17 +1062,19 @@ in
         require("mime-ext"):setup{
           with_files = {
             config = "text/plain",
-            ["Dockerfile"] = "text/plain",
-            [".dockerignore"] = "text/plain",
-            [".gcloudignore"] = "text/plain",
-            [".gitignores"] = "text/plain",
-            [".gitattributes"] = "text/plain",
             [".env"] = "text/plain",
             [".env.development"] = "text/plain",
+            [".env.example"] = "text/plain",
             [".env.local"] = "text/plain",
             [".env.production"] = "text/plain",
             [".env.test"] = "text/plain",
+            ["Dockerfile"] = "text/plain",
+            [".dockerignore"] = "text/plain",
+            [".gcloudignore"] = "text/plain",
+            [".gitattributes"] = "text/plain",
+            [".gitignore"] = "text/plain",
           },
+          fallback_file1 = false,
         }
       '';
     };
