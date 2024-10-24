@@ -29,7 +29,7 @@
 	```sh
 	nix-shell '<home-manager>' -A install
 
-    echo "\"\$HOME\"/.nix-profile/etc/profile.d/nix.sh" | tee -a $HOME/.bashrc > /dev/null
+    echo ". \"\$HOME\"/.nix-profile/etc/profile.d/nix.sh" | tee -a $HOME/.bashrc > /dev/null
 
     source $HOME/.bashrc
 	```
