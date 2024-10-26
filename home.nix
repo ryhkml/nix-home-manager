@@ -117,6 +117,7 @@ in
       # # I
       id3v2
       imagemagick
+      inlyne
       # # N
       nix-prefetch-git
       nodejs_20
@@ -150,6 +151,12 @@ in
         telemetry = false
         [install.cache]
         disable = true
+      '';
+      ".config/inlyne/inlyne.toml".text = ''
+        theme = "Light"
+        [font-options]
+        regular-font = "FiraCode Nerd Font"
+        monospace-font = "FiraCode Nerd Font"
       '';
     };
     sessionVariables = {
@@ -188,8 +195,8 @@ in
       nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
       nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
       nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
-      # Editor
-      fv = "fd | fzf --reverse | xargs -r nvim";
+      # Greatest abbreviations ever
+      fv = "fd -H -I -E .angular -E .git -E node_modules | fzf --reverse | xargs -r nvim";
     };
     shellAliases = {
       docker = "podman";
@@ -350,7 +357,7 @@ in
     fzf = {
       enable = true;
       changeDirWidgetCommand = "fd -t d -L 2>/dev/null";
-      defaultCommand = "fd -L -H -E .git 2>/dev/null";
+      defaultCommand = "fd -L -H -I -E .git 2>/dev/null";
       fileWidgetCommand = "fd -L -t f -t l 2>/dev/null";
     };
     go = {
@@ -538,6 +545,8 @@ in
               pickers = {
                 find_files = {
                   hidden = true,
+                  no_ignore = true,
+                  file_ignore_patterns = { ".angular", ".git", "node_modules" },
                 },
               },
               extensions = {
@@ -815,10 +824,9 @@ in
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
         -- Yank/Paste/Delete
-        vim.keymap.set("x", "<leader>p", [["_dP]])
-        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
-        vim.keymap.set("n", "<leader>Y", [["+Y]])
-        vim.keymap.set({"n", "v"}, "dd", [["_d]])
+        vim.keymap.set("n", "di", '"_di', options)
+        vim.keymap.set("n", "dd", '"_dd', options)
+        vim.keymap.set("n", "D", '"_D', options)
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
