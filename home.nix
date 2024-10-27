@@ -25,7 +25,7 @@ let
       rev = rev;
     };
   };
-  # Angular
+  # Angular CLI
   # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
@@ -50,7 +50,7 @@ let
     rev = "ef8fe1eae993c4b5d4afaeab79496cf28025409d"; 
   };
   # Bun only for x86_64-linux
-  # Bun version update in nixpkgs is lengthy
+  # Bun version in nixpkgs is outdated
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
     version = "1.1.33";
@@ -72,6 +72,58 @@ let
       mv $out/bun-linux-x64/bun $out/bin/bun
       chmod +x $out/bin/bun
       runHook postInstall
+    ''; 
+  };
+  # Google Cloud CLI only for x86_64-linux
+  # Google Cloud CLI version in nixpkgs is outdated
+  gcloudCli = pkgs.stdenv.mkDerivation rec {
+    pname = "google-cloud-sdk";
+    version = "498.0.0";
+    src = pkgs.fetchurl {
+      url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
+      sha256 = "0kybk4p5rbg0m9v04cn12q8dg30f0a2xw5i79640bmifrkdwsfsz";
+    };
+    nativeBuildInputs = [ pkgs.gnutar ];
+    installPhase = ''
+      mkdir -p $out
+      mkdir -p $out/share/doc
+      tar -xzf $src --strip-components=1 -C $out
+      # Prevent collision between 2 LICENSE
+      mv $out/LICENSE $out/share/doc/LICENSE-google-cloud-sdk
+    '';
+  };
+  # Nodejs only for x86_64-linux
+  # Nodejs version in nixpkgs is outdated
+  nodejsBin = pkgs.stdenv.mkDerivation rec {
+    pname = "nodejs";
+    version = "22.10.0";
+    src = pkgs.fetchurl {
+      url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
+      sha256 = "0qjhnxw78p6nw63xrfi0xa8x7nkshx2nyy5b3z13pklbi9jr2rs0";
+    };
+    nativeBuildInputs = [ pkgs.gnutar ];
+    installPhase = ''
+      mkdir -p $out
+      mkdir -p $out/share/doc
+      tar -xJf $src --strip-components=1 -C $out
+      # Prevent collision between 2 LICENSE
+      mv $out/LICENSE $out/share/doc/LICENSE-nodejs
+    '';
+  };
+  # Oh-my-posh only for x86_64-linux
+  # Oh-my-posh version in nixpkgs is outdated
+  ohMyPoshBin = pkgs.stdenv.mkDerivation rec {
+    pname = "oh-my-posh";
+    version = "23.20.3";
+    src = pkgs.fetchurl {
+      url = "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v${version}/posh-linux-amd64";
+      sha256 = "1w9dgpww17a7gmn3gfy3jwbyvx2x3y1smc3ygssi4770p6q4n1hq";
+    };
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src $out/bin/oh-my-posh
+      chmod +x $out/bin/oh-my-posh
     '';
   };
   # Yazi
@@ -93,8 +145,6 @@ in
     packages = with pkgs; [
       # # A
       angularCli
-      # # B
-      bunBin
       # # C
       cmus
       (curl.override {
@@ -110,7 +160,7 @@ in
       firebase-tools
       # # G
       gnuplot
-      google-cloud-sdk
+      gcloudCli
       # # H
       hey
       hyperfine
@@ -120,7 +170,7 @@ in
       inlyne
       # # N
       nix-prefetch-git
-      nodejs_20
+      nodejsBin
       # # P
       podman-compose
       poppler
@@ -169,6 +219,12 @@ in
 
   programs.fish = {
     enable = true;
+    plugins = with pkgs.fishPlugins; [
+      {
+        name = "autopair";
+        src = autopair.src;
+      }
+    ];
     shellAbbrs = {
       "/" = "cd /";
       ".." = "cd ..";
@@ -289,6 +345,10 @@ in
         update_ms = 1000;
         clock_format = "";
       };
+    };
+    bun = {
+      enable = true;
+      package = bunBin;
     };
     direnv = {
       enable = true;
@@ -824,9 +884,13 @@ in
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
         -- Yank/Paste/Delete
+        vim.keymap.set("n", "ci", '"_ci', options)
+        vim.keymap.set("n", "cw", '"_cw', options)
         vim.keymap.set("n", "di", '"_di', options)
         vim.keymap.set("n", "dd", '"_dd', options)
         vim.keymap.set("n", "D", '"_D', options)
+        vim.keymap.set("n", "x", '"_x', options)
+        vim.keymap.set("n", "X", '"_X', options)
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
@@ -890,6 +954,9 @@ in
     };
     oh-my-posh = {
       enable = true;
+      enableBashIntegration = false;
+      enableZshIntegration = false;
+      package = ohMyPoshBin;
       settings = {
         "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
         blocks = [
