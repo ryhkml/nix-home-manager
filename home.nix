@@ -74,6 +74,21 @@ let
       runHook postInstall
     ''; 
   };
+  # Firebase CLI
+  firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
+    pname = "firebase-tools";
+    version = "13.23.0";
+    src = pkgs.fetchurl {
+      url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
+      sha256 = "092w6mf15ygsbjniv312dnid6cv9ly0mi2038dxpf1zvpa4v352a";
+    };
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src $out/bin/firebase
+      chmod +x $out/bin/firebase
+    '';
+  };
   # Google Cloud CLI only for x86_64-linux
   # Google Cloud CLI version in nixpkgs is outdated
   gcloudCli = pkgs.stdenv.mkDerivation rec {
@@ -145,6 +160,8 @@ in
     packages = with pkgs; [
       # # A
       angularCli
+      # # B
+      (nixglWrap brave)
       # # C
       cmus
       (curl.override {
@@ -157,7 +174,7 @@ in
       exiftool
       # # F
       file
-      firebase-tools
+      firebaseToolsCli
       # # G
       gnuplot
       gcloudCli
@@ -233,24 +250,25 @@ in
       q = "exit";
       Q = "exit";
       # Greatest abbreviations downloader ever
-      dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 URL";
-      dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 URL";
+      dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 ?";
+      dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 ?";
       # Git
-      gitpt = "set tag_name (jq .version package.json -r); and git tag -s $tag_name -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
+      gitpt = "set TAG_NAME (jq .version package.json -r); and git tag -s $TAG_NAME -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
       # Wifi
+      getnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
       nmwon = "nmcli radio wifi on";
       nmwoff = "nmcli radio wifi off";
-      nmwconn = "nmcli device wifi connect NETWORK_NAME";
-      nmreconn = "set net_name NETWORK_NAME; and nmcli connection down $net_name; and sleep 1; and nmcli connection up $net_name";
+      nmwconn = "nmcli device wifi connect ?";
+      nmreconn = "nmcli connection down $NETWORK_NAME; and nmcli connection up $NETWORK_NAME";
       nmwscan = "nmcli device wifi rescan";
       nmwls = "nmcli device wifi list";
       nmactive = "nmcli connection show --active";
-      nmup = "nmcli connection up NETWORK_NAME";
-      nmdown = "nmcli connection down NETWORK_NAME";
-      nmdnsv4-cloudflare = "nmcli connection modify NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
-      nmdnsv6-cloudflare = "nmcli connection modify NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
-      nmdnsv4-quad9 = "nmcli connection modify NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
-      nmdnsv6-quad9 = "nmcli connection modify NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
+      nmup = "nmcli connection up $NETWORK_NAME";
+      nmdown = "nmcli connection down $NETWORK_NAME";
+      nmdnsv4-cloudflare = "nmcli connection modify $NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
+      nmdnsv6-cloudflare = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
+      nmdnsv4-quad9 = "nmcli connection modify $NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
+      nmdnsv6-quad9 = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E node_modules | fzf --reverse | xargs -r nvim";
     };
@@ -265,18 +283,17 @@ in
       tree = "eza -T --color never";
     };
     shellInit = ''
+      if status is-interactive
+        and not set -q TMUX
+          exec tmux new-session -A -s Main
+      end
       set -U fish_greeting
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GOPATH $HOME/.go
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
-    '';
-    shellInitLast = ''
-      if status is-interactive
-        and not set -q TMUX
-          exec tmux new-session -A -s Main
-      end
+      set -gx XCURSOR_PATH $XCURSOR_PATH ~/.local/share/icons
     '';
   };
 
@@ -658,9 +675,10 @@ in
             vim.opt.runtimepath:append(dir_parser)
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
-                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
-                "bash", "css", "dockerfile", "go", "html", "java", "javascript",
-                "nginx", "nix", "sql", "typescript", "yaml",
+                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
+                "bash", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
+                "nginx", "nix", "scss", "sql", "pem", "toml", "typescript", "yaml", "xml",
+                "gitattributes", "gitcommit", "gitignore", "git_config"
               },
               sync_install = false,
               auto_install = true,
@@ -697,10 +715,10 @@ in
         }
         vim-visual-multi
         {
-          # https://github.com/slugbyte/lackluster.nvim
           plugin = myVimPlugin "slugbyte/lackluster.nvim" "6d206a3af7dd2e8389eecebab858e7d97813fc0c";
           type = "lua";
           config = ''
+            -- https://github.com/slugbyte/lackluster.nvim
             local lackluster = require("lackluster")
             lackluster.setup({
               tweak_color = {
@@ -842,13 +860,24 @@ in
           "*/.git/*",
         })
         vim.opt.clipboard = "unnamedplus"
-        -- Cursor
-        vim.opt.guicursor = {
-          "n-v-c:block-Cursor/lCursor",
-          "i-ci-ve:ver25-Cursor/lCursor",
-          "r-cr:hor20",
-          "o:hor50",
-        }
+        -- Filetype
+        local function set_filetype_conf()
+          vim.bo.filetype = "conf"
+        end
+        local function set_filetype_dotenv()
+          vim.bo.filetype = "dotenv"
+        end
+        vim.api.nvim_create_augroup("FiletypeConfig", { clear = true })
+        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+          pattern = { "*/config", "*/conf" },
+          callback = set_filetype_conf,
+          group = "FiletypeConfig",
+        })
+        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+          pattern = { "*/.env*" },
+          callback = set_filetype_dotenv,
+          group = "FiletypeConfig",
+        })
         -- Number
         vim.opt.nu = true
         vim.opt.cursorline = true
@@ -887,20 +916,13 @@ in
         vim.keymap.set("n", "ci", '"_ci', options)
         vim.keymap.set("n", "cw", '"_cw', options)
         vim.keymap.set("n", "di", '"_di', options)
-        vim.keymap.set("n", "dd", '"_dd', options)
-        vim.keymap.set("n", "D", '"_D', options)
+        vim.keymap.set({ "n", "v" }, "dd", '"_dd', options)
+        vim.keymap.set({ "n", "v" }, "D", '"_D', options)
         vim.keymap.set("n", "x", '"_x', options)
         vim.keymap.set("n", "X", '"_X', options)
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
-        -- Duplicate
-        vim.cmd([[
-          function! DuplicateLine()
-            normal! yyp
-          endfunction
-        ]])
-        vim.api.nvim_set_keymap("n", "<C-S-Down>", ":call DuplicateLine()<CR>", options)
         --
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
@@ -914,10 +936,6 @@ in
           vim.g.neovide_padding_bottom = 0
           vim.g.neovide_padding_right = 0
           vim.g.neovide_padding_left = 0
-          vim.api.nvim_set_keymap("n", "<C-S-c>", '"+y', options)
-          vim.api.nvim_set_keymap("v", "<C-S-c>", '"+y', options)
-          vim.api.nvim_set_keymap("n", "<C-S-v>", '"+p', options)
-          vim.api.nvim_set_keymap("i", "<C-S-v>", '<C-r>+', options)
         end
         vim.api.nvim_create_autocmd("VimLeave", {
           pattern = "*",
