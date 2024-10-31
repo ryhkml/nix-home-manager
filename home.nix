@@ -74,8 +74,7 @@ let
       runHook postInstall
     ''; 
   };
-  # Firebase CLI only for Linux
-  # Firebase CLI version in nixpkgs is outdated
+  # Firebase CLI
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
     version = "13.23.0";
@@ -92,7 +91,6 @@ let
   };
   # Google Cloud CLI only for x86_64-linux
   # Google Cloud CLI version in nixpkgs is outdated
-  # Btw, size of Google Cloud CLI reaches ~500MB💀
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
     version = "498.0.0";
@@ -260,7 +258,7 @@ in
       getnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
       nmwon = "nmcli radio wifi on";
       nmwoff = "nmcli radio wifi off";
-      nmwconn = "nmcli device wifi connect $NETWORK_NAME";
+      nmwconn = "nmcli device wifi connect ?";
       nmreconn = "nmcli connection down $NETWORK_NAME; and nmcli connection up $NETWORK_NAME";
       nmwscan = "nmcli device wifi rescan";
       nmwls = "nmcli device wifi list";
@@ -679,7 +677,7 @@ in
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
                 "bash", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
                 "nginx", "nix", "scss", "sql", "pem", "toml", "typescript", "yaml", "xml",
-                "gitattributes", "gitcommit", "gitignore", "git_config" 
+                "gitattributes", "gitcommit", "gitignore", "git_config"
               },
               sync_install = false,
               auto_install = true,
@@ -716,10 +714,10 @@ in
         }
         vim-visual-multi
         {
-          # https://github.com/slugbyte/lackluster.nvim
           plugin = myVimPlugin "slugbyte/lackluster.nvim" "6d206a3af7dd2e8389eecebab858e7d97813fc0c";
           type = "lua";
           config = ''
+            -- https://github.com/slugbyte/lackluster.nvim
             local lackluster = require("lackluster")
             lackluster.setup({
               tweak_color = {
@@ -1089,8 +1087,9 @@ in
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
         bind-key , command-prompt "rename-window '%%'"
         # Pane
-        set -g pane-active-border "fg=#615296"
-        set -ag pane-active-border bg=default
+        set -g pane-active-border "bg=default,fg=#615296"
+        set -g pane-border-style "fg=default"
+        set -g pane-border-lines simple
         # Yazi
         set -g allow-passthrough all
         set -ag update-environment TERM
