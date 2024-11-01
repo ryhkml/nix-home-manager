@@ -29,10 +29,10 @@ let
   # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "18.2.10";
+    version = "18.2.11";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "958dbe268b4f83413cd63b67b5fcbe1b6f7ce537";
+      rev = "bd8fb0788e6cf1beee92f3e5bb7f51a2f64af538";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -47,7 +47,7 @@ let
   # LSP for Angular is outdated in nixpkgs
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "ef8fe1eae993c4b5d4afaeab79496cf28025409d"; 
+    rev = "cfbc4ca8a8a34c4c5e4c8b8aefb10c0beb4cfe57"; 
   };
   # Bun only for x86_64-linux
   # Bun version in nixpkgs is outdated
@@ -77,10 +77,10 @@ let
   # Firebase CLI
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.23.0";
+    version = "13.23.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "092w6mf15ygsbjniv312dnid6cv9ly0mi2038dxpf1zvpa4v352a";
+      sha256 = "1v2fzpr22z2x87857hrsbvrjjy99g8bp2f9lnhryv3xh06lzypl5";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -93,10 +93,10 @@ let
   # Google Cloud CLI version in nixpkgs is outdated
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "498.0.0";
+    version = "499.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0kybk4p5rbg0m9v04cn12q8dg30f0a2xw5i79640bmifrkdwsfsz";
+      sha256 = "0mgdkaskm1m938dnxhmq6wl0lcms3i4vackqd2klhfvj5idn0ybq";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -111,10 +111,10 @@ let
   # Nodejs version in nixpkgs is outdated
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.10.0";
+    version = "22.11.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0qjhnxw78p6nw63xrfi0xa8x7nkshx2nyy5b3z13pklbi9jr2rs0";
+      sha256 = "0whac6zl0sc18wlf0bnlm8cl4lyrm53cs7yg25ia40ih6kfhggw3";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
