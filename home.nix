@@ -1,30 +1,39 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   # A wrapper function for nix OpenGL application
   # Big thanks from https://github.com/nix-community/nixGL/issues/44
-  nixgl = import <nixgl> {};
-  nixglWrap = pkg: pkgs.runCommand "${pkg.name}-nixgl-wrapper" {} ''
-    mkdir $out
-    ln -s ${pkg}/* $out
-    rm $out/bin
-    mkdir $out/bin
-    for bin in ${pkg}/bin/*; do
-      wrapped_bin=$out/bin/$(basename $bin)
-      echo "exec ${lib.getExe' nixgl.auto.nixGLDefault "nixGL"} $bin \"\$@\"" > $wrapped_bin
-      chmod +x $wrapped_bin
-    done
-  '';
+  nixgl = import <nixgl> { };
+  nixglWrap =
+    pkg:
+    pkgs.runCommand "${pkg.name}-nixgl-wrapper" { } ''
+      mkdir $out
+      ln -s ${pkg}/* $out
+      rm $out/bin
+      mkdir $out/bin
+      for bin in ${pkg}/bin/*; do
+        wrapped_bin=$out/bin/$(basename $bin)
+        echo "exec ${lib.getExe' nixgl.auto.nixGLDefault "nixGL"} $bin \"\$@\"" > $wrapped_bin
+        chmod +x $wrapped_bin
+      done
+    '';
   # Vim plugins
   # Some Vim plugins is not available in nixpkgs
-  myVimPlugin = repo: rev: pkgs.vimUtils.buildVimPlugin {
-    pname = "${lib.strings.sanitizeDerivationName repo}";
-    version = "HEAD";
-    src = builtins.fetchGit {
-      url = "https://github.com/${repo}.git";
-      rev = rev;
+  myVimPlugin =
+    repo: rev:
+    pkgs.vimUtils.buildVimPlugin {
+      pname = "${lib.strings.sanitizeDerivationName repo}";
+      version = "HEAD";
+      src = builtins.fetchGit {
+        url = "https://github.com/${repo}.git";
+        rev = rev;
+      };
     };
-  };
   # Angular CLI
   # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
@@ -47,32 +56,35 @@ let
   # LSP for Angular is outdated in nixpkgs
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "cfbc4ca8a8a34c4c5e4c8b8aefb10c0beb4cfe57"; 
+    rev = "cfbc4ca8a8a34c4c5e4c8b8aefb10c0beb4cfe57";
   };
   # Bun only for x86_64-linux
   # Bun version in nixpkgs is outdated
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.33";
+    version = "1.1.34";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0n58padshfgf1wrfi7mxni7m1h2hwx4w4msjz5qw8jd7snkha0m0";
+      sha256 = "07rgzkq0mgfpfqx2g02qm4wh08aza29xj15dcy3k9icna3zh1h2b";
     };
     nativeBuildInputs = [ pkgs.unzip ];
-    phases = [ "unpackPhase" "installPhase" ];
+    phases = [
+      "unpackPhase"
+      "installPhase"
+    ];
     unpackPhase = ''
       runHook preUnpack
       mkdir $out
       runHook postUnpack
       unzip $src -d $out
     '';
-    installPhase =  ''
+    installPhase = ''
       runHook preInstall
       mkdir -p $out/bin
       mv $out/bun-linux-x64/bun $out/bin/bun
       chmod +x $out/bin/bun
       runHook postInstall
-    ''; 
+    '';
   };
   # Firebase CLI
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
@@ -152,7 +164,7 @@ let
 in
 {
   nixpkgs.config.allowUnfree = true;
-  
+
   home = {
     username = "ryhkml";
     homeDirectory = "/home/ryhkml";
@@ -211,7 +223,7 @@ in
           # Disable telemetry
           analytics = false;
         };
-        projects = {};
+        projects = { };
       };
       ".bunfig.toml".text = ''
         mosl = true
@@ -333,12 +345,12 @@ in
         };
         window = {
           decorations = "None";
-            padding = {
-              x = 3;
-              y = 3;
-            };
-            dynamic_padding = true;
-            opacity = 0.96;
+          padding = {
+            x = 3;
+            y = 3;
+          };
+          dynamic_padding = true;
+          opacity = 0.96;
         };
         selection.save_to_clipboard = true;
       };
@@ -427,7 +439,13 @@ in
     fd = {
       enable = true;
       hidden = true;
-      ignores = [ ".git/" ".angular/" ".database/" "node_modules/" "target/" ];
+      ignores = [
+        ".git/"
+        ".angular/"
+        ".database/"
+        "node_modules/"
+        "target/"
+      ];
       extraOptions = [ "-tf" ];
     };
     fzf = {
@@ -452,14 +470,19 @@ in
           merging = {
             args = "-S";
           };
-          mainBranches = [ "master" "main" "dev" "next" ];
+          mainBranches = [
+            "master"
+            "main"
+            "dev"
+            "next"
+          ];
         };
       };
     };
     neovim = {
       enable = true;
       defaultEditor = true;
-      plugins = with pkgs.vimPlugins; [ 
+      plugins = with pkgs.vimPlugins; [
         {
           plugin = gitsigns-nvim;
           type = "lua";
@@ -831,20 +854,59 @@ in
             require("lsp_lines").setup()
           '';
         }
+        {
+          plugin = conform-nvim;
+          type = "lua";
+          config = ''
+            require("conform").setup({
+              formatters_by_ft = {
+                fish = { "fish_indent" },
+                go = { "gofmt" },
+                java = { "google-java-format" },
+                javascript = { "prettier", stop_after_first = true },
+                lua = { "stylua" },
+                nix = { "nixfmt" },
+                sh = { "beautysh" },
+                sql = { "sqlfluff" },
+                typescript = { "prettier", stop_after_first = true },
+                yaml = { "yamlfmt" },
+                ["*"] = { "codespell" },
+                ["_"] = { "trim_whitespace" }
+              },
+              format_on_save = {
+                timeout_ms = 3000,
+                lsp_format = "fallback",
+              },
+              log_level = vim.log.levels.ERROR,
+              notify_on_error = true,
+              notify_no_formatters = true,
+            })
+            require("conform").formatters.prettier = {
+              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4" },
+            }
+          '';
+        }
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
         bash-language-server
+        beautysh
+        codespell
         dockerfile-language-server-nodejs
+        google-java-format
         gopls
         jdt-language-server
         nginx-language-server
         nil
-        nixpkgs-fmt
+        nixfmt-rfc-style
+        nodePackages.prettier
         nodePackages.vls
         shellcheck
+        stylua
+        sqlfluff
         typescript-language-server
         vscode-langservers-extracted
+        yamlfmt
         yaml-language-server
       ];
       extraLuaConfig = ''
@@ -1054,7 +1116,7 @@ in
         connections = [
           {
             driver = "sqlite3";
-            dataSourceName ="${pathHome}/Documents/code/tasks-server/.database/tasks-test.db";
+            dataSourceName = "${pathHome}/Documents/code/tasks-server/.database/tasks-test.db";
           }
         ];
       };
@@ -1103,7 +1165,11 @@ in
       shellWrapperName = "yz";
       settings = {
         manager = {
-          ratio = [ 2 2 4 ];
+          ratio = [
+            2
+            2
+            4
+          ];
           sort_by = "natural";
           sort_dir_first = true;
           show_hidden = true;
@@ -1116,11 +1182,11 @@ in
         plugin = {
           prepend_fetchers = [
             {
-              id    = "mime";
-              "if"  = "!mime";
-              name  = "*";
-              run   = "mime-ext";
-              prio  = "high";
+              id = "mime";
+              "if" = "!mime";
+              name = "*";
+              run = "mime-ext";
+              prio = "high";
             }
           ];
         };
@@ -1128,19 +1194,34 @@ in
       theme = {
         filetype = {
           rules = [
-            { name = "*"; fg = "#ffffff"; }
-            { name = "*/"; fg = "#526596"; }
+            {
+              name = "*";
+              fg = "#ffffff";
+            }
+            {
+              name = "*/";
+              fg = "#526596";
+            }
           ];
         };
         icon = {
           dirs = [
-            { name = "*"; text = ""; }
+            {
+              name = "*";
+              text = "";
+            }
           ];
           exts = [
-            { name = "*"; text = ""; }
+            {
+              name = "*";
+              text = "";
+            }
           ];
           files = [
-            { name = "*"; text = ""; }
+            {
+              name = "*";
+              text = "";
+            }
           ];
         };
       };
