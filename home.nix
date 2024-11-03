@@ -862,16 +862,19 @@ in
               formatters_by_ft = {
                 fish = { "fish_indent" },
                 go = { "gofmt" },
-                java = { "google-java-format" },
+                java = { "astyle" },
                 javascript = { "prettier", stop_after_first = true },
                 lua = { "stylua" },
                 nix = { "nixfmt" },
                 sh = { "beautysh" },
-                sql = { "sqlfluff" },
+                sql = { "sleek" },
                 typescript = { "prettier", stop_after_first = true },
                 yaml = { "yamlfmt" },
                 ["*"] = { "codespell" },
                 ["_"] = { "trim_whitespace" }
+              },
+              default_format_opts = {
+                lsp_format = "fallback",
               },
               format_on_save = {
                 timeout_ms = 3000,
@@ -881,6 +884,15 @@ in
               notify_on_error = true,
               notify_no_formatters = true,
             })
+            require("conform").formatters.astyle = {
+              prepend_args = { "--style=java", "-t4", "--add-braces" },
+            }
+            require("conform").formatters.beautysh = {
+              prepend_args = { "--indent-size", "4", "--tab" },
+            }
+            require("conform").formatters.nixfmt = {
+              prepend_args = { "--width=128" },
+            }
             require("conform").formatters.prettier = {
               prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4" },
             }
@@ -889,11 +901,11 @@ in
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
+        astyle
         bash-language-server
         beautysh
         codespell
         dockerfile-language-server-nodejs
-        google-java-format
         gopls
         jdt-language-server
         nginx-language-server
@@ -902,8 +914,8 @@ in
         nodePackages.prettier
         nodePackages.vls
         shellcheck
+        sleek
         stylua
-        sqlfluff
         typescript-language-server
         vscode-langservers-extracted
         yamlfmt
