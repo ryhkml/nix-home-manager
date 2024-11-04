@@ -860,12 +860,19 @@ in
           config = ''
             require("conform").setup({
               formatters_by_ft = {
+                css = { "prettier" },
                 fish = { "fish_indent" },
                 go = { "gofmt" },
+                html = { "prettier" },
                 java = { "astyle" },
                 javascript = { "prettier", stop_after_first = true },
+                json = { "prettier" },
+                jsonc = { "prettier" },
+                less = { "prettier" },
                 lua = { "stylua" },
+                markdown = { "prettier" },
                 nix = { "nixfmt" },
+                scss = { "prettier" },
                 sh = { "beautysh" },
                 sql = { "sleek" },
                 typescript = { "prettier", stop_after_first = true },
@@ -894,7 +901,7 @@ in
               prepend_args = { "--width=128" },
             }
             require("conform").formatters.prettier = {
-              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4" },
+              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" },
             }
           '';
         }
