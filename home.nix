@@ -173,7 +173,7 @@ in
       # # A
       angularCli
       # # B
-      (nixglWrap brave)
+      brave
       # # C
       cmus
       (curl.override {
@@ -261,11 +261,13 @@ in
       C = "clear";
       q = "exit";
       Q = "exit";
+      # Update library
+      cmusup = "cmus-remote -C clear; cmus-remote -C \"add ~/Music\"; cmus-remote -C \"update-cache -f\"";
       # Greatest abbreviations downloader ever
       dlmp3 = "yt-dlp --embed-thumbnail -o \"%(channel)s - %(title)s.%(ext)s\" -f bestaudio -x --audio-format mp3 --audio-quality 320 ?";
       dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 ?";
       # Git
-      gitpt = "set TAG_NAME (jq .version package.json -r); and git tag -s $TAG_NAME -m \"(date +'%Y/%m/%d')\"; and git push origin --tag";
+      gitpt = "set -l TAG_NAME (jq .version package.json -r); set -l TIMESTAMP (date +'%Y/%m/%d'); git tag -s $TAG_NAME -m \"$TIMESTAMP\"; git push origin --tag";
       # Wifi
       getnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
       nmwon = "nmcli radio wifi on";
@@ -306,6 +308,29 @@ in
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
     '';
+    functions = {
+      "screenshot_entire_screen --no-scope-shadowing" = ''
+        set -l output_dir ~/Pictures/screenshot/entire-screen
+        set -l timestamp (date +'%F-%T')
+        set -l output_file $output_dir/ss-$timestamp.png
+        grim $output_file
+        notify-send "Screenshot" "Entire screen saved" -t 2000
+      '';
+      "screenshot_on_window_focus --no-scope-shadowing" = ''
+        set -l output_dir ~/Pictures/screenshot/window-focus
+        set -l timestamp (date +'%F-%T')
+        set -l output_file $output_dir/ss-$timestamp.png
+        grim -g (swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | slurp) $output_file
+        notify-send "Screenshot" "Focus window screen saved" -t 2000
+      '';
+      "screenshot_selected_area --no-scope-shadowing" = ''
+        set -l output_dir ~/Pictures/screenshot/selected-area
+        set -l timestamp (date +'%F-%T')
+        set -l output_file $output_dir/ss-$timestamp.png
+        grim -g (slurp) $output_file
+        notify-send "Screenshot" "Selected area saved" -t 2000
+      '';
+    };
   };
 
   programs = {
@@ -315,7 +340,7 @@ in
         shell = {
           program = "${config.home.profileDirectory}/bin/fish";
         };
-        live_config_reload = false;
+        general.live_config_reload = false;
         font = {
           normal = {
             family = "FiraCode Nerd Font";
@@ -460,7 +485,7 @@ in
     };
     java = {
       enable = true;
-      package = pkgs.jdk22;
+      package = pkgs.jdk;
     };
     jq.enable = true;
     lazygit = {
@@ -995,6 +1020,8 @@ in
         -- Yank/Paste/Delete
         vim.keymap.set("n", "ci", '"_ci', options)
         vim.keymap.set("n", "cw", '"_cw', options)
+        vim.keymap.set("n", "caw", '"_caw', options)
+        vim.keymap.set("n", "daw", '"_daw', options)
         vim.keymap.set("n", "di", '"_di', options)
         vim.keymap.set({ "n", "v" }, "dd", '"_dd', options)
         vim.keymap.set({ "n", "v" }, "D", '"_D', options)
@@ -1162,6 +1189,7 @@ in
         # Status bar
         set-option -g status-right ""
         # Window
+        set-option -g renumber-windows on
         bind -n M-Right next-window
         bind -n M-Left previous-window
         bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
