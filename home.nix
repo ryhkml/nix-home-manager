@@ -337,7 +337,7 @@ in
     alacritty = {
       enable = true;
       settings = {
-        shell = {
+        terminal.shell = {
           program = "${config.home.profileDirectory}/bin/fish";
         };
         general.live_config_reload = false;
@@ -868,17 +868,17 @@ in
             })
           '';
         }
-        {
-          plugin = lsp_lines-nvim;
-          type = "lua";
-          config = ''
-            -- https://github.com/maan2003/lsp_lines.nvim
-            vim.diagnostic.config({
-              virtual_text = false,
-            })
-            require("lsp_lines").setup()
-          '';
-        }
+        # {
+        #   plugin = lsp_lines-nvim;
+        #   type = "lua";
+        #   config = ''
+        #     -- https://github.com/maan2003/lsp_lines.nvim
+        #     vim.diagnostic.config({
+        #       virtual_text = false,
+        #     })
+        #     require("lsp_lines").setup()
+        #   '';
+        # }
         {
           plugin = conform-nvim;
           type = "lua";
@@ -1188,6 +1188,7 @@ in
         set -s escape-time 0
         # Status bar
         set-option -g status-right ""
+        set-option -g message-style "bg=#615296,fg=#000000"
         # Window
         set-option -g renumber-windows on
         bind -n M-Right next-window
@@ -1197,7 +1198,7 @@ in
         bind-key , command-prompt "rename-window '%%'"
         # Pane
         set -g pane-active-border "bg=default,fg=#615296"
-        set -g pane-border-style "fg=default"
+        set -g pane-border-style fg=default
         set -g pane-border-lines simple
         # Yazi
         set -g allow-passthrough all
