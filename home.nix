@@ -137,22 +137,6 @@ let
       mv $out/LICENSE $out/share/doc/LICENSE-nodejs
     '';
   };
-  # Oh-my-posh only for x86_64-linux
-  # Oh-my-posh version in nixpkgs is outdated
-  ohMyPoshBin = pkgs.stdenv.mkDerivation rec {
-    pname = "oh-my-posh";
-    version = "23.20.3";
-    src = pkgs.fetchurl {
-      url = "https://github.com/JanDeDobbeleer/oh-my-posh/releases/download/v${version}/posh-linux-amd64";
-      sha256 = "1w9dgpww17a7gmn3gfy3jwbyvx2x3y1smc3ygssi4770p6q4n1hq";
-    };
-    phases = [ "installPhase" ];
-    installPhase = ''
-      mkdir -p $out/bin
-      cp $src $out/bin/oh-my-posh
-      chmod +x $out/bin/oh-my-posh
-    '';
-  };
   # Yazi
   # Yazi plugins is not available in nixpkgs
   yaziPlugins = builtins.fetchGit {
@@ -203,6 +187,8 @@ in
       # # P
       podman-compose
       poppler
+      # # R
+      rustup
       # # S
       sqlite
       # # T
@@ -248,10 +234,10 @@ in
 
   programs.fish = {
     enable = true;
-    plugins = with pkgs.fishPlugins; [
+    plugins = with pkgs; [
       {
         name = "autopair";
-        src = autopair.src;
+        src = fishPlugins.autopair.src;
       }
     ];
     shellAbbrs = {
@@ -297,6 +283,47 @@ in
       tree = "eza -T --color never";
     };
     shellInit = ''
+      # https://github.com/jorgebucaran/humantime.fish
+      function humantime -a ms
+        set -q ms[1] || return
+        set -l secs (math --scale=1 $ms/1000 % 60)
+        set -l mins (math --scale=0 $ms/60000 % 60)
+        set -l hours (math --scale=0 $ms/3600000)
+        test $hours -gt 0 && set -l -a out $hours"h"
+        test $mins -gt 0 && set -l -a out $mins"m"
+        test $secs -gt 0 && set -l -a out $secs"s"
+        set -q out && echo $out || echo $ms"ms"
+      end
+      # Left side prompt
+      function fish_prompt
+        set -l last_status $status
+        set -l stat
+        if test $last_status -ne 0
+          set stat (set_color red)" [$last_status]"(set_color normal)
+        end
+        # Check if the current directory is a git repository
+        set -l git_branch
+        set -l git_rev
+        if test -d .git
+          set git_branch (set_color cyan)"$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+          set git_rev (git rev-parse --short HEAD 2>/dev/null)(set_color normal)
+        end
+        if test -n "$git_branch" && test -n "$git_rev"
+          string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " $git_branch:$git_rev" " > "
+        else
+          if test -d .git
+            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " > "
+          else
+            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " > "
+          end
+        end
+      end
+      # Right side prompt
+      function fish_right_prompt
+        set -l time_d (humantime $CMD_DURATION)
+        echo -n " $time_d"
+      end
+      # Init tmux
       if status is-interactive
         and not set -q TMUX
           exec tmux new-session -A -s Main
@@ -309,21 +336,21 @@ in
       set -gx NODE_OPTIONS --max-old-space-size=8192
     '';
     functions = {
-      "screenshot_entire_screen --no-scope-shadowing" = ''
+      "screenshot_entire_screen -S" = ''
         set -l output_dir ~/Pictures/screenshot/entire-screen
         set -l timestamp (date +'%F-%T')
         set -l output_file $output_dir/ss-$timestamp.png
         grim $output_file
         notify-send "Screenshot" "Entire screen saved" -t 2000
       '';
-      "screenshot_on_window_focus --no-scope-shadowing" = ''
+      "screenshot_on_window_focus -S" = ''
         set -l output_dir ~/Pictures/screenshot/window-focus
         set -l timestamp (date +'%F-%T')
         set -l output_file $output_dir/ss-$timestamp.png
         grim -g (swaymsg -t get_tree | jq -r '.. | select(.pid? and .visible?) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | slurp) $output_file
         notify-send "Screenshot" "Focus window screen saved" -t 2000
       '';
-      "screenshot_selected_area --no-scope-shadowing" = ''
+      "screenshot_selected_area -S" = ''
         set -l output_dir ~/Pictures/screenshot/selected-area
         set -l timestamp (date +'%F-%T')
         set -l output_file $output_dir/ss-$timestamp.png
@@ -352,13 +379,16 @@ in
           primary.foreground = "#ffffff";
           primary.background = "#000000";
           normal.red = "#ff4d4f";
-          normal.blue = "#615296";
+          normal.blue = "#096dd9";
+          #normal.blue = "#615296";
           normal.green = "#52c41a";
           normal.yellow = "#faad14";
           normal.black = "#000000";
           normal.white = "#ffffff";
-          normal.cyan = "#528796";
-          normal.magenta = "#528796";
+          normal.cyan = "#08979c";
+          #normal.cyan = "#528796";
+          normal.magenta = "#c41d7f";
+          # normal.magenta = "#528796";
         };
         cursor = {
           style = {
@@ -607,6 +637,8 @@ in
             require("lspconfig").nginx_language_server.setup{}
             -- Nix
             require("lspconfig").nil_ls.setup{}
+            -- Rust
+            require("lspconfig").rust_analyzer.setup{}
             -- SQL
             require("lspconfig").sqls.setup{}
             -- Typescript
@@ -724,7 +756,7 @@ in
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
                 "bash", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
-                "nginx", "nix", "scss", "sql", "pem", "toml", "typescript", "yaml", "xml",
+                "nginx", "nix", "scss", "sql", "pem", "rust", "toml", "typescript", "yaml", "xml",
                 "gitattributes", "gitcommit", "gitignore", "git_config"
               },
               sync_install = false,
@@ -771,11 +803,11 @@ in
               tweak_color = {
                 lack = "default",
                 luster = "default",
-                orange = "default",
-                yellow = "default",
-                green = "default",
-                blue = "default",
-                read = "default",
+                orange = "#d46b08",
+                yellow = "#d4b106",
+                green = "#389e0d",
+                blue = "#096dd9",
+                red = "#cf1322",
               },
               tweak_background = {
                 normal = "#000000",
@@ -868,21 +900,11 @@ in
             })
           '';
         }
-        # {
-        #   plugin = lsp_lines-nvim;
-        #   type = "lua";
-        #   config = ''
-        #     -- https://github.com/maan2003/lsp_lines.nvim
-        #     vim.diagnostic.config({
-        #       virtual_text = false,
-        #     })
-        #     require("lsp_lines").setup()
-        #   '';
-        # }
         {
           plugin = conform-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/stevearc/conform.nvim
             require("conform").setup({
               formatters_by_ft = {
                 css = { "prettier" },
@@ -897,6 +919,7 @@ in
                 lua = { "stylua" },
                 markdown = { "prettier" },
                 nix = { "nixfmt" },
+                rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
                 sql = { "sleek" },
@@ -928,6 +951,12 @@ in
             require("conform").formatters.prettier = {
               prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" },
             }
+            require("conform").formatters.injected = {
+              options = {
+                -- The default edition of Rust to use when no Cargo.toml file is found
+                default_edition = "2021",
+              }
+            }
           '';
         }
       ];
@@ -945,6 +974,8 @@ in
         nixfmt-rfc-style
         nodePackages.prettier
         nodePackages.vls
+        rust-analyzer
+        rustfmt
         shellcheck
         sleek
         stylua
@@ -1013,11 +1044,11 @@ in
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
-        vim.keymap.set("n", "<C-z>", "<cmd>undo<CR>")
-        vim.keymap.set("n", "<C-y>", "<cmd>redo<CR>")
+        vim.keymap.set("n", "Q", "<nop>")
         vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
         vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
-        -- Yank/Paste/Delete
+        -- Yank/Paste/Change/Delete
+        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "ci", '"_ci', options)
         vim.keymap.set("n", "cw", '"_cw', options)
         vim.keymap.set("n", "caw", '"_caw', options)
@@ -1026,12 +1057,15 @@ in
         vim.keymap.set({ "n", "v" }, "dd", '"_dd', options)
         vim.keymap.set({ "n", "v" }, "D", '"_D', options)
         vim.keymap.set("n", "x", '"_x', options)
+        vim.keymap.set("n", "xi", '"_xi', options)
         vim.keymap.set("n", "X", '"_X', options)
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
         --
         vim.keymap.set("i", "<C-c>", "<Esc>")
+        vim.keymap.set("n", "<C-z>", "u", options)
+        vim.keymap.set("n", "<C-y>", "<C-r>", options)
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
         -- Undotree
@@ -1077,83 +1111,6 @@ in
       };
       package = nixglWrap pkgs.neovide;
     };
-    oh-my-posh = {
-      enable = true;
-      enableBashIntegration = false;
-      enableZshIntegration = false;
-      package = ohMyPoshBin;
-      settings = {
-        "$schema" = "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json";
-        blocks = [
-          {
-            alignment = "left";
-            segments = [
-              {
-                foreground = "#615296";
-                style = "plain";
-                template = "# ";
-                type = "root";
-              }
-              {
-                foreground = "#ffffff";
-                style = "plain";
-                template = "{{ .UserName }}-{{ .HostName }} ";
-                type = "session";
-              }
-              {
-                foreground = "#615296";
-                properties.style = "agnoster_short";
-                style = "plain";
-                template = "at {{ .Path }} ";
-                type = "path";
-              }
-              {
-                foreground = "#615296";
-                properties = {
-                  branch_icon = "";
-                  fetch_upstream_icon = false;
-                };
-                style = "plain";
-                template = " HEAD:{{ .UpstreamIcon }}{{ .HEAD }}";
-                type = "git";
-              }
-            ];
-            type = "prompt";
-          }
-          {
-            alignment = "right";
-            segments = [
-              {
-                foreground = "#615296";
-                properties = {
-                  threshold = 0;
-                };
-                style = "plain";
-                template = " {{ .FormattedMs }}";
-                type = "executiontime";
-              }
-            ];
-            type = "prompt";
-          }
-          {
-            alignment = "left";
-            newline = true;
-            segments = [
-              {
-                foreground = "#615296";
-                foreground_templates = [ "{{ if gt .Code 0 }}#ff4d4f{{ end }}" ];
-                properties.always_enabled = true;
-                style = "plain";
-                template = "> ";
-                type = "status";
-              }
-            ];
-            type = "prompt";
-          }
-        ];
-        version = 2;
-      };
-    };
     ripgrep.enable = true;
     sqls = {
       enable = true;
@@ -1187,8 +1144,9 @@ in
       extraConfig = ''
         set -s escape-time 0
         # Status bar
-        set-option -g status-right ""
-        set-option -g message-style "bg=#615296,fg=#000000"
+        set -g status-left "#[fg=black,bg=blue,nobold] #S #[fg=blue,bg=black,nobold,noitalics,nounderscore]"
+        set -g status-right ""
+        set -g message-style bg=cyan,fg=black
         # Window
         set-option -g renumber-windows on
         bind -n M-Right next-window
@@ -1197,7 +1155,7 @@ in
         bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
         bind-key , command-prompt "rename-window '%%'"
         # Pane
-        set -g pane-active-border "bg=default,fg=#615296"
+        set -g pane-active-border bg=default,fg=cyan
         set -g pane-border-style fg=default
         set -g pane-border-lines simple
         # Yazi
