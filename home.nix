@@ -35,7 +35,6 @@ let
       };
     };
   # Angular CLI
-  # Angular CLI is not available in nixpkgs
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
     version = "18.2.11";
@@ -53,13 +52,11 @@ let
       cp -r ${src}/node_modules $out/lib/
     '';
   };
-  # LSP for Angular is outdated in nixpkgs
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
     rev = "cfbc4ca8a8a34c4c5e4c8b8aefb10c0beb4cfe57";
   };
   # Bun only for x86_64-linux
-  # Bun version in nixpkgs is outdated
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
     version = "1.1.34";
@@ -86,13 +83,13 @@ let
       runHook postInstall
     '';
   };
-  # Firebase CLI
+  # Firebase CLI only for linux
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.23.1";
+    version = "13.24.2";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1v2fzpr22z2x87857hrsbvrjjy99g8bp2f9lnhryv3xh06lzypl5";
+      sha256 = "029579cgivq66bn8jp74fpzzxc0v1410yj8nfknlzbg5dwgzlzi6";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -102,13 +99,12 @@ let
     '';
   };
   # Google Cloud CLI only for x86_64-linux
-  # Google Cloud CLI version in nixpkgs is outdated
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "499.0.0";
+    version = "500.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0mgdkaskm1m938dnxhmq6wl0lcms3i4vackqd2klhfvj5idn0ybq";
+      sha256 = "04dq00w7wgf75w4p7y0vfqr5qww664zjwxbsix6qh8x1vj43wajd";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -120,7 +116,6 @@ let
     '';
   };
   # Nodejs only for x86_64-linux
-  # Nodejs version in nixpkgs is outdated
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
     version = "22.11.0";
@@ -138,12 +133,10 @@ let
     '';
   };
   # Yazi
-  # Yazi plugins is not available in nixpkgs
   yaziPlugins = builtins.fetchGit {
     url = "https://github.com/yazi-rs/plugins.git";
     rev = "4f1d0ae0862f464e08f208f1807fcafcd8778e16";
   };
-  #
   pathHome = builtins.getEnv "HOME";
 in
 {
@@ -180,7 +173,6 @@ in
       # # I
       id3v2
       imagemagick
-      inlyne
       # # N
       nix-prefetch-git
       nodejsBin
@@ -216,12 +208,6 @@ in
         telemetry = false
         [install.cache]
         disable = true
-      '';
-      ".config/inlyne/inlyne.toml".text = ''
-        theme = "Light"
-        [font-options]
-        regular-font = "FiraCode Nerd Font"
-        monospace-font = "FiraCode Nerd Font"
       '';
     };
     sessionVariables = {
@@ -302,14 +288,20 @@ in
           set stat (set_color red)" [$last_status]"(set_color normal)
         end
         # Check if the current directory is a git repository
-        set -l git_branch
         set -l git_rev
+        set -l git_branch
         if test -d .git
-          set git_branch (set_color cyan)"$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-          set git_rev (git rev-parse --short HEAD 2>/dev/null)(set_color normal)
+          set git_rev (set_color cyan)(git rev-parse --short HEAD 2>/dev/null)
+          set git_branch (git rev-parse --abbrev-ref HEAD 2>/dev/null)(set_color normal)
         end
         if test -n "$git_branch" && test -n "$git_rev"
-          string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " $git_branch:$git_rev" " > "
+          set -l git_status (git status --porcelain 2>/dev/null)
+          if test -n "$git_status"
+            set -l indicator (set_color yellow)"!"(set_color normal)
+            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " $git_rev:$git_branch " "$indicator> "
+          else
+            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " $git_rev:$git_branch" " > "
+          end
         else
           if test -d .git
             string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " > "
@@ -380,15 +372,12 @@ in
           primary.background = "#000000";
           normal.red = "#ff4d4f";
           normal.blue = "#096dd9";
-          #normal.blue = "#615296";
           normal.green = "#52c41a";
           normal.yellow = "#faad14";
           normal.black = "#000000";
           normal.white = "#ffffff";
           normal.cyan = "#08979c";
-          #normal.cyan = "#528796";
           normal.magenta = "#c41d7f";
-          # normal.magenta = "#528796";
         };
         cursor = {
           style = {
@@ -571,7 +560,7 @@ in
             require("ibl").setup{
               debounce = 100,
               indent = {
-                char = "·",
+                char = "",
               },
               scope = {
                 enabled = false,
@@ -959,6 +948,13 @@ in
             }
           '';
         }
+        {
+          plugin = markdown-preview-nvim;
+          config = ''
+            let g:mkdp_port = "10013"
+            let g:mkdp_theme = "dark"
+          '';
+        }
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
@@ -1044,9 +1040,9 @@ in
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
+        --
         vim.keymap.set("n", "Q", "<nop>")
-        vim.keymap.set("n", "<leader>ee", function() vim.cmd("Ex") end)
-        vim.keymap.set("n", "<leader>qa", function() vim.cmd("qa!") end)
+        vim.keymap.set("n", "<leader>ee", ":Ex<CR>", options)
         -- Yank/Paste/Change/Delete
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "ci", '"_ci', options)
@@ -1062,12 +1058,26 @@ in
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
-        --
+        -- CTRL
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<C-z>", "u", options)
         vim.keymap.set("n", "<C-y>", "<C-r>", options)
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
+        vim.keymap.set("n", "<S-j>", "<S-Down>", options)
+        vim.keymap.set("n", "<S-k>", "<S-Up>", options)
+        -- Markdown preview
+        function ToggleMarkdownPreview()
+          local is_running = vim.g.markdown_preview_running or false
+          if is_running then
+            vim.cmd("MarkdownPreviewStop")
+            vim.g.markdown_preview_running = false
+          else
+            vim.cmd("MarkdownPreview")
+            vim.g.markdown_preview_running = true
+          end
+        end
+        vim.keymap.set("n", "<leader>mp", ToggleMarkdownPreview, options)
         -- Undotree
         vim.keymap.set("n", "<leader><F1>", vim.cmd.UndotreeToggle)
         -- Neovide config goes here
@@ -1084,7 +1094,6 @@ in
             vim.o.guicursor = "a:ver1"
           end,
         })
-        vim.o.showcmd = false
       '';
       viAlias = true;
       vimAlias = true;
