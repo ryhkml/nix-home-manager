@@ -890,6 +890,17 @@ in
           '';
         }
         {
+          plugin = lsp_lines-nvim;
+          type = "lua";
+          config = ''
+            -- https://github.com/maan2003/lsp_lines.nvim
+            vim.diagnostic.config({
+              virtual_text = false,
+            })
+            require("lsp_lines").setup()
+          '';
+        }
+        {
           plugin = conform-nvim;
           type = "lua";
           config = ''
@@ -901,7 +912,7 @@ in
                 go = { "gofmt" },
                 html = { "prettier" },
                 java = { "astyle" },
-                javascript = { "prettier", stop_after_first = true },
+                javascript = { "prettier" },
                 json = { "prettier" },
                 jsonc = { "prettier" },
                 less = { "prettier" },
@@ -912,17 +923,12 @@ in
                 scss = { "prettier" },
                 sh = { "beautysh" },
                 sql = { "sleek" },
-                typescript = { "prettier", stop_after_first = true },
+                typescript = { "prettier" },
                 yaml = { "yamlfmt" },
-                ["*"] = { "codespell" },
                 ["_"] = { "trim_whitespace" }
-              },
-              default_format_opts = {
-                lsp_format = "fallback",
               },
               format_on_save = {
                 timeout_ms = 3000,
-                lsp_format = "fallback",
               },
               log_level = vim.log.levels.ERROR,
               notify_on_error = true,
@@ -949,6 +955,31 @@ in
           '';
         }
         {
+          plugin = hover-nvim;
+          type = "lua";
+          config = ''
+            require("hover").setup {
+              init = function()
+                require("hover.providers.lsp")
+                require("hover.providers.diagnostic")
+              end,
+              preview_opts = {
+                border = "single"
+              },
+              preview_window = false,
+              title = true,
+              mouse_providers = {
+                "LSP"
+              },
+              mouse_delay = 500
+            }
+            vim.keymap.set("n", "K", require("hover").hover, {desc = "hover.nvim"})
+            vim.keymap.set("n", "gK", require("hover").hover_select, {desc = "hover.nvim (select)"})
+            vim.keymap.set("n", "<MouseMove>", require("hover").hover_mouse)
+            vim.opt.mousemoveevent = true
+          '';
+        }
+        {
           plugin = markdown-preview-nvim;
           config = ''
             let g:mkdp_port = "10013"
@@ -961,7 +992,6 @@ in
         astyle
         bash-language-server
         beautysh
-        codespell
         dockerfile-language-server-nodejs
         gopls
         jdt-language-server
@@ -1061,6 +1091,7 @@ in
         -- CTRL
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<C-z>", "u", options)
+        vim.keymap.set({ "i", "v" }, "<C-z>", "<nop>")
         vim.keymap.set("n", "<C-y>", "<C-r>", options)
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
