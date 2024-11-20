@@ -220,6 +220,18 @@ in
     };
   };
 
+  editorconfig = {
+    enable = true;
+    settings = {
+      "*" = {
+        charset = "utf-8";
+        end_of_line = "lf";
+        trim_trailing_whitespace = true;
+        insert_final_newline = false;
+      };
+    };
+  };
+
   programs.home-manager.enable = true;
 
   programs.fish = {
@@ -948,7 +960,7 @@ in
               prepend_args = { "--width=128" },
             }
             require("conform").formatters.prettier = {
-              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none", "--end-of-line", "auto" },
+              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" },
             }
             require("conform").formatters.injected = {
               options = {
