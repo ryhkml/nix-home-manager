@@ -37,10 +37,10 @@ let
   # Angular CLI
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "18.2.11";
+    version = "18.2.12";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "bd8fb0788e6cf1beee92f3e5bb7f51a2f64af538";
+      rev = "7755fb7c3fe625ba37e43e15a27c3ec387ed1380";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -54,15 +54,16 @@ let
   };
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "cfbc4ca8a8a34c4c5e4c8b8aefb10c0beb4cfe57";
+    rev = "01da1b3a6891d0fc524920572cf81dba87b9c13d";
   };
   # Bun only for x86_64-linux
+  # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.34";
+    version = "1.1.36";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "07rgzkq0mgfpfqx2g02qm4wh08aza29xj15dcy3k9icna3zh1h2b";
+      sha256 = "0xzcn60m3666a9vah9f288lxzx4l3imp6pbaphhffbrlgr6iy9n5";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -84,12 +85,13 @@ let
     '';
   };
   # Firebase CLI only for linux
+  # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.24.2";
+    version = "13.25.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "029579cgivq66bn8jp74fpzzxc0v1410yj8nfknlzbg5dwgzlzi6";
+      sha256 = "17licqpaigm5ypmmv4h428r0r04gyn7jgpz9gk33h541h4hykkbb";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -99,12 +101,13 @@ let
     '';
   };
   # Google Cloud CLI only for x86_64-linux
+  # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "500.0.0";
+    version = "502.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "04dq00w7wgf75w4p7y0vfqr5qww664zjwxbsix6qh8x1vj43wajd";
+      sha256 = "0zwz1nmx2g1vxwqjlb605hw8hf1fcfjiznjlnj6znhw653h1iv11";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -116,6 +119,7 @@ let
     '';
   };
   # Nodejs only for x86_64-linux
+  # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
     version = "22.11.0";
@@ -135,7 +139,7 @@ let
   # Yazi
   yaziPlugins = builtins.fetchGit {
     url = "https://github.com/yazi-rs/plugins.git";
-    rev = "4f1d0ae0862f464e08f208f1807fcafcd8778e16";
+    rev = "4a6edc3349a2a9850075363965d05b9063817df4";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -944,7 +948,7 @@ in
               prepend_args = { "--width=128" },
             }
             require("conform").formatters.prettier = {
-              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" },
+              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none", "--end-of-line", "auto" },
             }
             require("conform").formatters.injected = {
               options = {
@@ -1073,6 +1077,9 @@ in
         --
         vim.keymap.set("n", "Q", "<nop>")
         vim.keymap.set("n", "<leader>ee", ":Ex<CR>", options)
+        vim.keymap.set("x", "<leader>p", [["_dP]])
+        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
+        vim.keymap.set("n", "<leader>Y", [["+Y]])
         -- Yank/Paste/Change/Delete
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "ci", '"_ci', options)
@@ -1080,8 +1087,8 @@ in
         vim.keymap.set("n", "caw", '"_caw', options)
         vim.keymap.set("n", "daw", '"_daw', options)
         vim.keymap.set("n", "di", '"_di', options)
-        vim.keymap.set({ "n", "v" }, "dd", '"_dd', options)
-        vim.keymap.set({ "n", "v" }, "D", '"_D', options)
+        vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
+        vim.keymap.set({"n", "v"}, "D", '"_D', options)
         vim.keymap.set("n", "x", '"_x', options)
         vim.keymap.set("n", "xi", '"_xi', options)
         vim.keymap.set("n", "X", '"_X', options)
@@ -1091,10 +1098,12 @@ in
         -- CTRL
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<C-z>", "u", options)
-        vim.keymap.set({ "i", "v" }, "<C-z>", "<nop>")
+        vim.keymap.set({"i", "v"}, "<C-z>", "<nop>")
         vim.keymap.set("n", "<C-y>", "<C-r>", options)
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
+        vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv", {silent = true})
+        vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv", {silent = true})
         vim.keymap.set("n", "<S-j>", "<S-Down>", options)
         vim.keymap.set("n", "<S-k>", "<S-Up>", options)
         -- Markdown preview
