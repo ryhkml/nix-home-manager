@@ -88,10 +88,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.25.0";
+    version = "13.27.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "17licqpaigm5ypmmv4h428r0r04gyn7jgpz9gk33h541h4hykkbb";
+      sha256 = "1hyiyjg2m3hsh9x4q74i9nrwpqxzmc8xk1d7yzf0qw9nh2ihaivx";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -526,6 +526,9 @@ in
     lazygit = {
       enable = true;
       settings = {
+        gui = {
+          border = "single";
+        };
         git = {
           merging = {
             args = "-S";
@@ -755,7 +758,7 @@ in
           type = "lua";
           config = ''
             -- https://github.com/nvim-treesitter/nvim-treesitter
-            local dir_parser = os.getenv("HOME") .. "/.vim/parsers" 
+            local dir_parser = os.getenv("HOME") .. "/.vim/parsers"
             vim.opt.runtimepath:append(dir_parser)
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
@@ -943,7 +946,11 @@ in
                 yaml = { "yamlfmt" },
                 ["_"] = { "trim_whitespace" }
               },
+              default_format_opts = {
+                lsp_format = "fallback",
+              },
               format_on_save = {
+                lsp_format = "fallback",
                 timeout_ms = 3000,
               },
               log_level = vim.log.levels.ERROR,
@@ -960,12 +967,23 @@ in
               prepend_args = { "--width=128" },
             }
             require("conform").formatters.prettier = {
-              prepend_args = { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" },
+              prepend_args = function(self, ctx)
+                if ctx.filename:match("%.md$") then
+                  return { "--print-width", "128", "--tab-width", "4", "--trailing-comma", "none" }
+                else
+                  return { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" }
+                end
+              end,
             }
             require("conform").formatters.injected = {
               options = {
                 -- The default edition of Rust to use when no Cargo.toml file is found
                 default_edition = "2021",
+                -- Prettier
+                ft_parsers = {
+                  markdown = "markdown",
+                  ["markdown.mdx"] = "mdx",
+                },
               }
             }
           '';
