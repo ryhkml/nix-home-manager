@@ -35,6 +35,7 @@ let
       };
     };
   # Angular CLI
+  # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
     version = "18.2.12";
@@ -52,6 +53,7 @@ let
       cp -r ${src}/node_modules $out/lib/
     '';
   };
+  # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
     rev = "01da1b3a6891d0fc524920572cf81dba87b9c13d";
@@ -60,10 +62,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.36";
+    version = "1.1.37";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0xzcn60m3666a9vah9f288lxzx4l3imp6pbaphhffbrlgr6iy9n5";
+      sha256 = "0x79423afxq3k0bdchlpyvrd3yxcx4hwmpxcidvnb6ywgs8m6ync";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -215,7 +217,9 @@ in
       '';
     };
     sessionVariables = {
+      TERM = "xterm-256color";
       EDITOR = "nvim";
+      VISUAL = "nvim";
       TERMINAL = "alacritty";
     };
   };
@@ -331,11 +335,6 @@ in
         set -l time_d (humantime $CMD_DURATION)
         echo -n " $time_d"
       end
-      # Init tmux
-      if status is-interactive
-        and not set -q TMUX
-          exec tmux new-session -A -s Main
-      end
       set -U fish_greeting
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
@@ -400,17 +399,22 @@ in
             shape = "Beam";
             blinking = "Always";
           };
+          vi_mode_style = {
+            shape = "Beam";
+            blinking = "Always";
+          };
           blink_interval = 500;
           blink_timeout = 0;
         };
         window = {
           decorations = "None";
+          decorations_theme_variant = "Dark";
           padding = {
             x = 3;
             y = 3;
           };
           dynamic_padding = true;
-          opacity = 0.96;
+          opacity = 0.93;
         };
         selection.save_to_clipboard = true;
       };
@@ -1160,9 +1164,7 @@ in
         end
         vim.api.nvim_create_autocmd("VimLeave", {
           pattern = "*",
-          callback = function()
-            vim.o.guicursor = "a:ver1"
-          end,
+          command = "set guicursor=a:ver25-Cursor/lCursor",
         })
       '';
       viAlias = true;
@@ -1221,11 +1223,15 @@ in
         }
       ];
       extraConfig = ''
+        set -g default-terminal "tmux-256color"
+        set -ga terminal-overrides ",*256col*:Tc"
+        set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
+        set-environment -g COLORTERM "truecolor"
         set -s escape-time 0
         # Status bar
         set -g status-left "#[fg=black,bg=blue,nobold] #S #[fg=blue,bg=black,nobold,noitalics,nounderscore]"
         set -g status-right ""
-        set -g message-style bg=cyan,fg=black
+        set -g message-style bg=blue,fg=black
         # Window
         set-option -g renumber-windows on
         bind -n M-Right next-window
@@ -1237,10 +1243,6 @@ in
         set -g pane-active-border bg=default,fg=cyan
         set -g pane-border-style fg=default
         set -g pane-border-lines simple
-        # Yazi
-        set -g allow-passthrough all
-        set -ag update-environment TERM
-        set -ag update-environment TERM_PROGRAM
       '';
       shell = "${config.home.profileDirectory}/bin/fish";
     };
