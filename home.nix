@@ -83,6 +83,7 @@ let
       mkdir -p $out/bin
       mv $out/bun-linux-x64/bun $out/bin/bun
       chmod +x $out/bin/bun
+      ln -s $out/bin/bun $out/bin/bunx
       runHook postInstall
     '';
   };
@@ -260,8 +261,12 @@ in
       dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 ?";
       # Git
       gitpt = "set -l TAG_NAME (jq .version package.json -r); set -l TIMESTAMP (date +'%Y/%m/%d'); git tag -s $TAG_NAME -m \"$TIMESTAMP\"; git push origin --tag";
+      # Tmux
+      t = "tmux new -s Main";
+      ta = "tmux attach";
+      tl = "tmux ls";
       # Wifi
-      getnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
+      setnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
       nmwon = "nmcli radio wifi on";
       nmwoff = "nmcli radio wifi off";
       nmwconn = "nmcli device wifi connect ?";
@@ -335,6 +340,7 @@ in
         set -l time_d (humantime $CMD_DURATION)
         echo -n " $time_d"
       end
+      #
       set -U fish_greeting
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
@@ -414,7 +420,7 @@ in
             y = 3;
           };
           dynamic_padding = true;
-          opacity = 0.93;
+          opacity = 0.95;
         };
         selection.save_to_clipboard = true;
       };
@@ -436,6 +442,8 @@ in
         temp_scale = "celsius";
         update_ms = 1000;
         clock_format = "";
+        rounded_corners = false;
+        log_level = "WARNING";
       };
     };
     bun = {
@@ -1081,12 +1089,13 @@ in
         -- Number
         vim.opt.nu = true
         vim.opt.cursorline = true
-        vim.opt.cursorlineopt = "number"
-        -- Tab
+        vim.opt.relativenumber = true
+        -- Tab indent
         vim.opt.tabstop = 4
         vim.opt.softtabstop = 4
         vim.opt.shiftwidth = 4
         vim.opt.expandtab = true
+        --
         vim.api.nvim_create_autocmd("FileType", {
           pattern = { "yaml", "nix" },
           callback = function()
@@ -1096,15 +1105,18 @@ in
           end,
         })
         vim.opt.smartindent = true
+        vim.opt.showmode = false
         vim.opt.wrap = false
         vim.opt.backup = false
+        vim.opt.swapfile = false
         vim.opt.hlsearch = false
         vim.opt.incsearch = true
         vim.opt.endofline = false
         vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
-        vim.opt.termguicolors = false
-        vim.opt.updatetime = 50
+        vim.opt.termguicolors = true
+        vim.opt.signcolumn = "yes"
+        vim.opt.updatetime = 100
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
@@ -1129,6 +1141,20 @@ in
         -- Tab
         vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
         vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
+        vim.keymap.set("n", "<leader>tf", ":tabfirst<CR>", options)
+        vim.keymap.set("n", "<leader>tl", ":tablast<CR>", options)
+        vim.keymap.set("n", "<leader>1", "1gt", options)
+        vim.keymap.set("n", "<leader>2", "2gt", options)
+        vim.keymap.set("n", "<leader>3", "3gt", options)
+        vim.keymap.set("n", "<leader>4", "4gt", options)
+        vim.keymap.set("n", "<leader>5", "5gt", options)
+        vim.keymap.set("n", "<leader>6", "6gt", options)
+        vim.keymap.set("n", "<leader>7", "7gt", options)
+        vim.keymap.set("n", "<leader>8", "8gt", options)
+        vim.keymap.set("n", "<leader>9", "9gt", options)
+        -- Diagnostic
+        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
+        vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
         -- CTRL
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<C-z>", "u", options)
