@@ -1,7 +1,7 @@
 ## Nix Home Manager Configuration
 
 ### Installation
-> [!WARNING]
+> [!NOTE]
 >
 > This is my personal best practice how to install Nix home-manager on all Linux distributions, except immutable Linux distributions.
 >
