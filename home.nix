@@ -38,10 +38,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "18.2.12";
+    version = "19.0.2";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "7755fb7c3fe625ba37e43e15a27c3ec387ed1380";
+      rev = "80702ba21ad4d273e0bd8118d455dbddc1311a01";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -56,16 +56,16 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "01da1b3a6891d0fc524920572cf81dba87b9c13d";
+    rev = "0b316609165b47d7aa20c6bf1e623d97613f60af";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.37";
+    version = "1.1.38";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0x79423afxq3k0bdchlpyvrd3yxcx4hwmpxcidvnb6ywgs8m6ync";
+      sha256 = "0cirql5winlkvp3hac456gma6kgzcbniz1flrizrgm18gqssa7d6";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
