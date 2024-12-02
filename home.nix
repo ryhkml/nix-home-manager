@@ -183,6 +183,7 @@ in
       # # N
       nix-prefetch-git
       nodejsBin
+      noisetorch # This program is mind blowing!
       # # P
       podman-compose
       poppler
@@ -653,6 +654,8 @@ in
             require("lspconfig").html.setup{}
             -- Java
             require("lspconfig").jdtls.setup{}
+            -- JSON
+            require("lspconfig").jsonls.setup{}
             -- Nginx
             require("lspconfig").nginx_language_server.setup{}
             -- Nix
@@ -1116,7 +1119,7 @@ in
         vim.opt.undofile = true
         vim.opt.termguicolors = true
         vim.opt.signcolumn = "yes"
-        vim.opt.updatetime = 100
+        vim.opt.updatetime = 250
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
@@ -1131,6 +1134,7 @@ in
         vim.keymap.set("n", "ci", '"_ci', options)
         vim.keymap.set("n", "cw", '"_cw', options)
         vim.keymap.set("n", "caw", '"_caw', options)
+        vim.keymap.set("n", "dw", '"_dw', options)
         vim.keymap.set("n", "daw", '"_daw', options)
         vim.keymap.set("n", "di", '"_di', options)
         vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
