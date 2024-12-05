@@ -139,6 +139,11 @@ let
       mv $out/LICENSE $out/share/doc/LICENSE-nodejs
     '';
   };
+  # Rofi
+  rofiTheme = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
+    sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
+  };
   # Yazi
   yaziPlugins = builtins.fetchGit {
     url = "https://github.com/yazi-rs/plugins.git";
@@ -183,13 +188,14 @@ in
       # # N
       nix-prefetch-git
       nodejsBin
-      noisetorch # This program is mind blowing!
+      noisetorch # This package is mind blowing!
       # # P
       podman-compose
       poppler
       # # R
       rustup
       # # S
+      showmethekey
       sqlite
       # # T
       tokei
@@ -216,6 +222,14 @@ in
         telemetry = false
         [install.cache]
         disable = true
+      '';
+      ".config/rofi/config.rasi".text = ''
+        configuration {
+          modes: "drun";
+          combi-modes: [drun];
+          font: "FiraCode Nerd Font 14";
+        }
+        ${builtins.readFile rofiTheme}
       '';
     };
     sessionVariables = {
@@ -263,7 +277,7 @@ in
       # Git
       gitpt = "set -l TAG_NAME (jq .version package.json -r); set -l TIMESTAMP (date +'%Y/%m/%d'); git tag -s $TAG_NAME -m \"$TIMESTAMP\"; git push origin --tag";
       # Tmux
-      t = "tmux new -s Main";
+      t = "tmux new-session -d -s Main -n Monit 'btop'; tmux new-window -n Editor; tmux attach";
       ta = "tmux attach";
       tl = "tmux ls";
       # Wifi
@@ -1168,8 +1182,6 @@ in
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
         vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv", {silent = true})
         vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv", {silent = true})
-        vim.keymap.set("n", "<S-j>", "<S-Down>", options)
-        vim.keymap.set("n", "<S-k>", "<S-Up>", options)
         -- Markdown preview
         function ToggleMarkdownPreview()
           local is_running = vim.g.markdown_preview_running or false
