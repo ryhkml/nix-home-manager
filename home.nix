@@ -231,6 +231,35 @@ in
         }
         ${builtins.readFile rofiTheme}
       '';
+      ".scripts/rofi_power.sh".text = ''
+        options="Logout\nSuspend\nReboot\nPower Off"
+        menu=$(echo -e "$options" | rofi -dmenu -no-custom -i -p "Select Action")
+        case "$menu" in
+          "Logout")
+            swaymsg exit
+            ;;
+          "Suspend")
+            systemctl suspend
+            ;;
+          "Reboot")
+            systemctl reboot
+            ;;
+          "Power Off")
+            systemctl poweroff
+            ;;
+          "*")
+            echo -n
+            ;;
+        esac
+      '';
+      ".scripts/tmux_interval.sh".text = ''
+        echo -n $$ | tee /tmp/tmux_script_pid > /dev/null
+        while true; do
+          echo -n "$(date +'%-l:%M:%S %p')" | tee /tmp/tmux_time > /dev/null
+          echo -n "$(date +'%B %-d, %Y')" | tee /tmp/tmux_date > /dev/null
+          sleep 1
+        done
+      '';
     };
     sessionVariables = {
       TERM = "xterm-256color";
@@ -276,8 +305,10 @@ in
       dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 ?";
       # Git
       gitpt = "set -l TAG_NAME (jq .version package.json -r); set -l TIMESTAMP (date +'%Y/%m/%d'); git tag -s $TAG_NAME -m \"$TIMESTAMP\"; git push origin --tag";
+      # Time
+      nhti = "nohup sh ~/.scripts/tmux_interval.sh </dev/null &>/dev/null &";
       # Tmux
-      t = "tmux new-session -d -s Main -n Monit 'btop'; tmux new-window -n Editor; tmux attach";
+      t = "tmux new-session -d -n Monit 'btop' ';' new-window -n Editor ';' attach";
       ta = "tmux attach";
       tl = "tmux ls";
       # Wifi
@@ -1271,8 +1302,8 @@ in
         set-environment -g COLORTERM "truecolor"
         set -s escape-time 0
         # Status bar
-        set -g status-left "#[fg=black,bg=blue,nobold] #S #[fg=blue,bg=black,nobold,noitalics,nounderscore]"
-        set -g status-right ""
+        set -g status-left "#[fg=black,bg=blue,bold] #S #[fg=blue,bg=black,nobold,noitalics,nounderscore]"
+        set -g status-right "#{prefix_highlight}#[fg=brightblack,bg=black,nobold,noitalics,nounderscore]#[fg=white,bg=brightblack] #(cat /tmp/tmux_time) #[fg=white,bg=brightblack,nobold,noitalics,nounderscore]#[fg=white,bg=brightblack] #(cat /tmp/tmux_date) #[fg=white,bg=brightblack,nobold,noitalics,nounderscore]#[fg=white,bg=brightblack]  "
         set -g message-style bg=blue,fg=black
         # Window
         set-option -g renumber-windows on
