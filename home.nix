@@ -144,11 +144,6 @@ let
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
   };
-  # Yazi
-  yaziPlugins = builtins.fetchGit {
-    url = "https://github.com/yazi-rs/plugins.git";
-    rev = "4a6edc3349a2a9850075363965d05b9063817df4";
-  };
   pathHome = builtins.getEnv "HOME";
 in
 {
@@ -184,25 +179,22 @@ in
       hyperfine
       # # I
       id3v2
-      imagemagick
+      # # L
+      lazydocker
       # # N
       nix-prefetch-git
       nodejsBin
       noisetorch # This package is mind blowing!
       # # P
       podman-compose
-      poppler
       # # R
       rustup
       # # S
-      showmethekey
       sqlite
       # # T
       tokei
       trash-cli
       typescript
-      # # U
-      ueberzugpp
       # # Y
       yt-dlp
     ];
@@ -231,7 +223,60 @@ in
         }
         ${builtins.readFile rofiTheme}
       '';
+      ".config/zellij/config.kdl".text = ''
+        ui {
+          pane_frames {
+            rounded_corners false
+          }
+        }
+        keybinds {
+          unbind "Ctrl b"
+          normal {
+            bind "Ctrl a" { SwitchToMode "Tmux"; }
+          }
+        }
+        themes {
+          default {
+            fg "#ffffff"
+            bg "#000000"
+            black "#000000"
+            red "#ff4d4f"
+            green "#526596"
+            blue "#096dd9"
+            yellow "#faad14"
+            magenta "#965252"
+            cyan "#08979c"
+            white "#ffffff"
+            orange "#965287"
+          }
+        }
+        default_shell "${config.home.profileDirectory}/bin/fish"
+      '';
+      ".config/zellij/layouts/default.kdl".text = ''
+        layout {
+          cwd "${pathHome}"
+          tab name="Stats" hide_floating_panes=true {
+            pane command="btop" name="Monitor resource"
+            pane size=1 borderless=true {
+              plugin location="zellij:tab-bar"
+            }
+          }
+          tab name="Editor" hide_floating_panes=true focus=true {
+            pane
+            pane size=1 borderless=true {
+              plugin location="zellij:tab-bar"
+            }
+          }
+          new_tab_template {
+            pane
+            pane size=1 borderless=true {
+              plugin location="zellij:tab-bar"
+            }
+          }
+        }
+      '';
       ".scripts/rofi_power.sh".text = ''
+        set -e
         options="Logout\nSuspend\nReboot\nPower Off"
         menu=$(echo -e "$options" | rofi -dmenu -no-custom -i -p "Select Action")
         case "$menu" in
@@ -251,14 +296,6 @@ in
             echo -n
             ;;
         esac
-      '';
-      ".scripts/tmux_interval.sh".text = ''
-        echo -n $$ | tee /tmp/tmux_script_pid > /dev/null
-        while true; do
-          echo -n "$(date +'%-l:%M:%S %p')" | tee /tmp/tmux_time > /dev/null
-          echo -n "$(date +'%B %-d, %Y')" | tee /tmp/tmux_date > /dev/null
-          sleep 1
-        done
       '';
     };
     sessionVariables = {
@@ -305,12 +342,6 @@ in
       dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 ?";
       # Git
       gitpt = "set -l TAG_NAME (jq .version package.json -r); set -l TIMESTAMP (date +'%Y/%m/%d'); git tag -s $TAG_NAME -m \"$TIMESTAMP\"; git push origin --tag";
-      # Time
-      nhti = "nohup sh ~/.scripts/tmux_interval.sh </dev/null &>/dev/null &";
-      # Tmux
-      t = "tmux new-session -d -n Monit 'btop' ';' new-window -n Editor ';' attach";
-      ta = "tmux attach";
-      tl = "tmux ls";
       # Wifi
       setnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
       nmwon = "nmcli radio wifi on";
@@ -326,8 +357,11 @@ in
       nmdnsv6-cloudflare = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
       nmdnsv4-quad9 = "nmcli connection modify $NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
       nmdnsv6-quad9 = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
+      v = "nvim";
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E node_modules | fzf --reverse | xargs -r nvim";
+      # Zellij
+      zl = "zellij -s Main";
     };
     shellAliases = {
       docker = "podman";
@@ -462,8 +496,8 @@ in
           decorations = "None";
           decorations_theme_variant = "Dark";
           padding = {
-            x = 3;
-            y = 3;
+            x = 13;
+            y = 0;
           };
           dynamic_padding = true;
           opacity = 0.95;
@@ -1227,43 +1261,25 @@ in
         vim.keymap.set("n", "<leader>mp", ToggleMarkdownPreview, options)
         -- Undotree
         vim.keymap.set("n", "<leader><F1>", vim.cmd.UndotreeToggle)
-        -- Neovide config goes here
-        if vim.g.neovide then
-          vim.g.neovide_transparency = 0.97
-          vim.g.neovide_padding_top = 0
-          vim.g.neovide_padding_bottom = 0
-          vim.g.neovide_padding_right = 0
-          vim.g.neovide_padding_left = 0
-        end
         vim.api.nvim_create_autocmd("VimLeave", {
           pattern = "*",
           command = "set guicursor=a:ver25-Cursor/lCursor",
         })
+        -- Wrap
+        function WrapWord(symbol1, symbol2)
+          local word = vim.fn.expand("<cword>")
+          local cmd = string.format("normal ciw%s%s%s", symbol1, word, symbol2)
+          vim.cmd(cmd)
+        end
+        vim.keymap.set("n", "<leader>()", ":lua WrapWord('(', ')')<CR>", options)
+        vim.keymap.set("n", "<leader>[]", ":lua WrapWord('[', ']')<CR>", options)
+        vim.keymap.set("n", "<leader>{}", ":lua WrapWord('{', '}')<CR>", options)
+        vim.keymap.set("n", "<leader>'s", ":lua WrapWord(\"'\", \"'\")<CR>", options)
+        vim.keymap.set("n", '<leader>"s', ":lua WrapWord('\"', '\"')<CR>", options)
+        vim.keymap.set("n", "<leader><>", ":lua WrapWord('<', '>')<CR>", options)
       '';
       viAlias = true;
       vimAlias = true;
-    };
-    neovide = {
-      enable = true;
-      settings = {
-        fork = false;
-        frame = "full";
-        idle = true;
-        maximized = false;
-        neovim-bin = "${config.home.profileDirectory}/bin/nvim";
-        no-multigrid = false;
-        srgb = false;
-        tabs = true;
-        theme = "dark";
-        title-hidden = true;
-        vsync = true;
-        wsl = false;
-        font = {
-          normal = [ "FiraCode Nerd Font" ];
-          size = 15.5;
-        };
-      };
-      package = nixglWrap pkgs.neovide;
     };
     ripgrep.enable = true;
     sqls = {
@@ -1278,140 +1294,7 @@ in
         ];
       };
     };
-    tmux = {
-      enable = true;
-      mouse = true;
-      shortcut = "a";
-      baseIndex = 1;
-      disableConfirmationPrompt = true;
-      plugins = with pkgs.tmuxPlugins; [
-        {
-          plugin = yank;
-          extraConfig = ''
-            set -g @yank_selection_mouse "clipboard"
-          '';
-        }
-        {
-          plugin = nord;
-        }
-      ];
-      extraConfig = ''
-        set -g default-terminal "tmux-256color"
-        set -ga terminal-overrides ",*256col*:Tc"
-        set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
-        set-environment -g COLORTERM "truecolor"
-        set -s escape-time 0
-        # Status bar
-        set -g status-left "#[fg=black,bg=blue,bold] #S #[fg=blue,bg=black,nobold,noitalics,nounderscore]"
-        set -g status-right "#{prefix_highlight}#[fg=brightblack,bg=black,nobold,noitalics,nounderscore]#[fg=white,bg=brightblack] #(cat /tmp/tmux_time) #[fg=white,bg=brightblack,nobold,noitalics,nounderscore]#[fg=white,bg=brightblack] #(cat /tmp/tmux_date) #[fg=white,bg=brightblack,nobold,noitalics,nounderscore]#[fg=white,bg=brightblack]  "
-        set -g message-style bg=blue,fg=black
-        # Window
-        set-option -g renumber-windows on
-        bind -n M-Right next-window
-        bind -n M-Left previous-window
-        bind-key -n M-S-Left swap-window -t -1\; select-window -t -1
-        bind-key -n M-S-Right swap-window -t +1\; select-window -t +1
-        bind-key , command-prompt "rename-window '%%'"
-        # Pane
-        set -g pane-active-border bg=default,fg=cyan
-        set -g pane-border-style fg=default
-        set -g pane-border-lines simple
-      '';
-      shell = "${config.home.profileDirectory}/bin/fish";
-    };
-    yazi = {
-      enable = true;
-      enableFishIntegration = true;
-      shellWrapperName = "yz";
-      settings = {
-        manager = {
-          ratio = [
-            2
-            2
-            4
-          ];
-          sort_by = "natural";
-          sort_dir_first = true;
-          show_hidden = true;
-        };
-        preview = {
-          max_width = 1000;
-          max_height = 1000;
-          image_delay = 100;
-        };
-        plugin = {
-          prepend_fetchers = [
-            {
-              id = "mime";
-              "if" = "!mime";
-              name = "*";
-              run = "mime-ext";
-              prio = "high";
-            }
-          ];
-        };
-      };
-      theme = {
-        filetype = {
-          rules = [
-            {
-              name = "*";
-              fg = "#ffffff";
-            }
-            {
-              name = "*/";
-              fg = "#526596";
-            }
-          ];
-        };
-        icon = {
-          dirs = [
-            {
-              name = "*";
-              text = "";
-            }
-          ];
-          exts = [
-            {
-              name = "*";
-              text = "";
-            }
-          ];
-          files = [
-            {
-              name = "*";
-              text = "";
-            }
-          ];
-        };
-      };
-      plugins = {
-        mime-ext = "${yaziPlugins}/mime-ext.yazi";
-        no-status = "${yaziPlugins}/no-status.yazi";
-      };
-      initLua = ''
-        -- Remove status bar
-        require("no-status"):setup()
-        -- Mime-ext
-        require("mime-ext"):setup{
-          with_files = {
-            config = "text/plain",
-            [".env"] = "text/plain",
-            [".env.development"] = "text/plain",
-            [".env.example"] = "text/plain",
-            [".env.local"] = "text/plain",
-            [".env.production"] = "text/plain",
-            [".env.test"] = "text/plain",
-            ["Dockerfile"] = "text/plain",
-            [".dockerignore"] = "text/plain",
-            [".gcloudignore"] = "text/plain",
-            [".gitattributes"] = "text/plain",
-            [".gitignore"] = "text/plain",
-          },
-          fallback_file1 = false,
-        }
-      '';
-    };
+    zellij.enable = true;
     zoxide.enable = true;
   };
 }
