@@ -161,6 +161,7 @@ in
     packages = with pkgs; [
       # # A
       angularCli
+      asciiquarium-transparent
       # # B
       brave
       # # C
@@ -255,12 +256,15 @@ in
           }
         }
         default_shell "${config.home.profileDirectory}/bin/fish"
+        layout_dir "${pathHome}/.config/zellij/layouts"
       '';
       ".config/zellij/layouts/default.kdl".text = ''
         layout {
           cwd "${pathHome}"
           tab name="Stats" hide_floating_panes=true {
-            pane command="btop" name="Monitor resource"
+            pane command="btop" name="Monitor resource" {
+              start_suspended true
+            }
             pane size=1 borderless=true {
               plugin location="zellij:tab-bar"
             }
@@ -277,7 +281,7 @@ in
               plugin location="zellij:tab-bar"
             }
           }
-          ${builtins.readFile zellijCompactLayout}
+          ${builtins.replaceStrings [ "compact-bar" ] [ "zellij:tab-bar" ] (builtins.readFile zellijCompactLayout)}
         }
       '';
       ".scripts/rofi_power.sh".text = ''
@@ -366,7 +370,11 @@ in
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E node_modules | fzf --reverse | xargs -r nvim";
       # Zellij
-      zl = "zellij -s Main";
+      za = "zellij a";
+      zd = "zellij d ?";
+      zls = "zellij ls";
+      zda = "zellij da -y";
+      zz = "zellij -s Main";
     };
     shellAliases = {
       docker = "podman";
@@ -494,18 +502,19 @@ in
             shape = "Beam";
             blinking = "Always";
           };
-          blink_interval = 500;
+          blink_interval = 400;
           blink_timeout = 0;
         };
         window = {
           decorations = "None";
           decorations_theme_variant = "Dark";
           padding = {
-            x = 13;
+            x = 12;
             y = 0;
           };
           dynamic_padding = true;
           opacity = 0.95;
+          startup_mode = "Maximized";
         };
         selection.save_to_clipboard = true;
       };
@@ -799,6 +808,7 @@ in
         }
         plenary-nvim
         telescope-fzf-native-nvim
+        (myVimPlugin "jonarrien/telescope-cmdline.nvim" "8b05928ac1b9f2b772cedde891faa6669b0ec59a")
         {
           plugin = telescope-nvim;
           type = "lua";
@@ -818,6 +828,19 @@ in
                   fuzzy = true,
                   override_file_sorter = true,
                   override_generic_sorter = true,
+                },
+                cmdline = {
+                  picker = {
+                    layout_config = {
+                      width  = 100,
+                      height = 25,
+                    }
+                  },
+                  mappings = {
+                    complete = "<Tab>",
+                    run_selection = "<C-CR>",
+                    run_input = "<CR>",
+                  },
                 }
               }
             }
@@ -1108,8 +1131,6 @@ in
             }
             vim.keymap.set("n", "K", require("hover").hover, {desc = "hover.nvim"})
             vim.keymap.set("n", "gK", require("hover").hover_select, {desc = "hover.nvim (select)"})
-            vim.keymap.set("n", "<MouseMove>", require("hover").hover_mouse)
-            vim.opt.mousemoveevent = true
           '';
         }
         {
@@ -1147,6 +1168,7 @@ in
         vim.scriptencoding = "utf-8"
         vim.opt.encoding = "utf-8"
         vim.opt.fileencoding = "utf-8"
+        vim.opt.clipboard = "unnamedplus"
         vim.opt.wildignore:append({
           "*/node_modules/*",
           "*/target/*",
@@ -1154,7 +1176,6 @@ in
           "*/.angular/*",
           "*/.git/*",
         })
-        vim.opt.clipboard = "unnamedplus"
         -- Filetype
         local function set_filetype_conf()
           vim.bo.filetype = "conf"
@@ -1204,6 +1225,8 @@ in
         vim.opt.termguicolors = true
         vim.opt.signcolumn = "yes"
         vim.opt.updatetime = 250
+        vim.opt.cmdheight = 0
+        vim.opt.showcmd = false
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
@@ -1282,6 +1305,8 @@ in
         vim.keymap.set("n", "<leader>'s", ":lua WrapWord(\"'\", \"'\")<CR>", options)
         vim.keymap.set("n", '<leader>"s', ":lua WrapWord('\"', '\"')<CR>", options)
         vim.keymap.set("n", "<leader><>", ":lua WrapWord('<', '>')<CR>", options)
+        -- Telescope cmd
+        vim.keymap.set("n", "<leader><leader>", ":Telescope cmdline<CR>", {noremap = true, desc = "Cmdline"})
       '';
       viAlias = true;
       vimAlias = true;
