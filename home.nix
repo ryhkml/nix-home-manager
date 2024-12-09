@@ -235,7 +235,7 @@ in
           }
         }
         keybinds {
-          unbind "Ctrl b"
+          unbind "Ctrl b" "Ctrl q"
           normal {
             bind "Ctrl a" { SwitchToMode "Tmux"; }
           }
@@ -351,6 +351,9 @@ in
       dlmp4 = "yt-dlp --embed-thumbnail -S res,ext:mp4:m4a --recode mp4 ?";
       # Git
       gitpt = "set -l TAG_NAME (jq .version package.json -r); set -l TIMESTAMP (date +'%Y/%m/%d'); git tag -s $TAG_NAME -m \"$TIMESTAMP\"; git push origin --tag";
+      # Lazy
+      lzd = "lazydocker";
+      lzg = "lazygit";
       # Wifi
       setnm = "set NETWORK_NAME (nmcli -t -f NAME connection show --active | head -n 1)";
       nmwon = "nmcli radio wifi on";
@@ -1140,6 +1143,7 @@ in
             let g:mkdp_theme = "dark"
           '';
         }
+        lazygit-nvim
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
@@ -1306,7 +1310,9 @@ in
         vim.keymap.set("n", '<leader>"s', ":lua WrapWord('\"', '\"')<CR>", options)
         vim.keymap.set("n", "<leader><>", ":lua WrapWord('<', '>')<CR>", options)
         -- Telescope cmd
-        vim.keymap.set("n", "<leader><leader>", ":Telescope cmdline<CR>", {noremap = true, desc = "Cmdline"})
+        vim.keymap.set("n", "<leader><leader>", ":Telescope cmdline<CR>", {noremap = true, desc = "Cmd"})
+        -- Lazygit
+        vim.keymap.set("n", "<leader>gg", ":LazyGit<CR>", options)
       '';
       viAlias = true;
       vimAlias = true;
