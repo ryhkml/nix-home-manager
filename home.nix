@@ -38,10 +38,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.0.2";
+    version = "19.0.4";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "80702ba21ad4d273e0bd8118d455dbddc1311a01";
+      rev = "ff1b5fcbc6f39f5a3c12bd0c8e3bd8979f05cbe7";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -56,7 +56,7 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "0b316609165b47d7aa20c6bf1e623d97613f60af";
+    rev = "da92de3a378cb424b3bfa06127e719b820ed71f9";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
@@ -91,10 +91,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.27.0";
+    version = "13.28.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1hyiyjg2m3hsh9x4q74i9nrwpqxzmc8xk1d7yzf0qw9nh2ihaivx";
+      sha256 = "1n70i16zbcw0ggzk2bfrp122pgaxhriak0b6fpaj8w2yrrh1a3bi";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -125,10 +125,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.11.0";
+    version = "22.12.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0whac6zl0sc18wlf0bnlm8cl4lyrm53cs7yg25ia40ih6kfhggw3";
+      sha256 = "0kqn5kpjabf7k319wjkny4nz7qz7vafd1vc21y2sh7xpw4sj5612";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -143,6 +143,11 @@ let
   rofiTheme = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
+  };
+  # Zellij
+  zellijCompactLayout = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/zellij-org/zellij/refs/heads/main/zellij-utils/assets/layouts/compact.swap.kdl";
+    sha256 = "1k1xvb1qdd8krwda80n9lb50yzb9s7i8bl6261sx4jd9b8q0l1id";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -204,7 +209,6 @@ in
         version = 1;
         cli = {
           completion.prompted = true;
-          # Disable telemetry
           analytics = false;
         };
         projects = { };
@@ -273,6 +277,7 @@ in
               plugin location="zellij:tab-bar"
             }
           }
+          ${builtins.readFile zellijCompactLayout}
         }
       '';
       ".scripts/rofi_power.sh".text = ''
