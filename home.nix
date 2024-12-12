@@ -235,7 +235,7 @@ in
           }
         }
         keybinds {
-          unbind "Ctrl b" "Ctrl q"
+          unbind "Ctrl b" "Ctrl o" "Ctrl q"
           normal {
             bind "Ctrl a" { SwitchToMode "Tmux"; }
           }
@@ -284,6 +284,12 @@ in
           ${builtins.replaceStrings [ "compact-bar" ] [ "zellij:tab-bar" ] (builtins.readFile zellijCompactLayout)}
         }
       '';
+      ".scripts/waybar/custom-clock.sh".text = ''
+        set -e
+        current_date=$(date +'%A - %B %-d, %Y')
+        current_time=$(date +'%-l:%M:%S %p')
+        echo -n "{\"text\": \"$current_time\", \"tooltip\": \"$current_date\"}"
+      '';
       ".scripts/rofi_power.sh".text = ''
         set -e
         options="Logout\nSuspend\nReboot\nPower Off"
@@ -308,7 +314,6 @@ in
       '';
     };
     sessionVariables = {
-      TERM = "xterm-256color";
       EDITOR = "nvim";
       VISUAL = "nvim";
       TERMINAL = "alacritty";
@@ -371,13 +376,13 @@ in
       nmdnsv6-quad9 = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
       v = "nvim";
       # Greatest abbreviations ever
-      fv = "fd -H -I -E .angular -E .git -E node_modules | fzf --reverse | xargs -r nvim";
+      fv = "fd -H -I -E .angular -E .git -E dist -E node_modules -E target | fzf --reverse | xargs -r nvim";
       # Zellij
-      za = "zellij a";
-      zd = "zellij d ?";
+      zla = "zellij a";
+      zld = "zellij d ?";
       zls = "zellij ls";
-      zda = "zellij da -y";
-      zz = "zellij -s Main";
+      zlda = "zellij da -y";
+      zl = "zellij -s Main";
     };
     shellAliases = {
       docker = "podman";
@@ -665,8 +670,8 @@ in
                 add          = { text = "A" },
                 change       = { text = "C" },
                 delete       = { text = "D" },
-                topdelete    = { text = "-" },
-                changedelete = { text = "~" },
+                topdelete    = { text = "TD" },
+                changedelete = { text = "CD" },
                 untracked    = { text = "U" },
               },
               signs_staged = {
@@ -811,7 +816,6 @@ in
         }
         plenary-nvim
         telescope-fzf-native-nvim
-        (myVimPlugin "jonarrien/telescope-cmdline.nvim" "8b05928ac1b9f2b772cedde891faa6669b0ec59a")
         {
           plugin = telescope-nvim;
           type = "lua";
@@ -822,7 +826,7 @@ in
                 find_files = {
                   hidden = true,
                   no_ignore = true,
-                  file_ignore_patterns = { ".angular", ".git", "node_modules" },
+                  file_ignore_patterns = { ".angular", ".git", "dist", "node_modules", "target" },
                 },
               },
               extensions = {
@@ -832,19 +836,6 @@ in
                   override_file_sorter = true,
                   override_generic_sorter = true,
                 },
-                cmdline = {
-                  picker = {
-                    layout_config = {
-                      width  = 100,
-                      height = 25,
-                    }
-                  },
-                  mappings = {
-                    complete = "<Tab>",
-                    run_selection = "<C-CR>",
-                    run_input = "<CR>",
-                  },
-                }
               }
             }
             local builtin = require("telescope.builtin")
@@ -956,12 +947,31 @@ in
           plugin = lualine-nvim;
           type = "lua";
           config = ''
+            local function SearchResultCount()
+              if vim.v.hlsearch == 0 then
+                return ""
+              end
+              local last = vim.fn.getreg("/")
+              if not last or last == "" then
+                return ""
+              end
+              local searchcount = vim.fn.searchcount { maxcount = 9000 }
+              return "" .. searchcount.current .. "/" .. searchcount.total .. ""
+            end
             require("lualine").setup({
               options = {
+                icons_enabled = false,
                 theme = "lackluster",
+                globalstatus = true,
+                component_separators = "",
+                section_separators = "",
               },
               sections = {
-                lualine_x = { "filetype" },
+                lualine_x = {
+                  SearchResultCount,
+                  "encoding",
+                  "filetype"
+                },
               },
             })
           '';
@@ -1076,7 +1086,7 @@ in
               },
               format_on_save = {
                 lsp_format = "fallback",
-                timeout_ms = 3000,
+                timeout_ms = 1000,
               },
               log_level = vim.log.levels.ERROR,
               notify_on_error = true,
@@ -1144,6 +1154,146 @@ in
           '';
         }
         lazygit-nvim
+        nui-nvim
+        {
+          plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "aec9efebf6f4606a5204d49ffa3ce2eeb7e08a3e";
+          type = "lua";
+          config = ''
+            require("fine-cmdline").setup({
+              popup = {
+                position = "50%",
+                size = {
+                  width = "30%",
+                },
+                border = {
+                  style = "single",
+                  text = {
+                    top = " Cmd ",
+                    top_align = "center",
+                  },
+                  padding = "0",
+                },
+                win_options = {
+                  winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
+                },
+              },
+            })
+          '';
+        }
+        {
+          plugin = searchbox-nvim;
+          type = "lua";
+          config = ''
+            require("searchbox").setup({
+              popup = {
+                position = "50%",
+                size = "30%",
+                border = {
+                  style = "single",
+                  text = {
+                    top = " Search ",
+                    top_align = "center",
+                  },
+                  padding = "0",
+                },
+                win_options = {
+                  winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
+                },
+              },
+            })
+          '';
+        }
+        # Explorer
+        nvim-web-devicons
+        {
+          plugin = nvim-tree-lua;
+          type = "lua";
+          config = ''
+            vim.g.loaded_netrw = 1
+            vim.g.loaded_netrwPlugin = 1
+            require("nvim-tree").setup({
+              sync_root_with_cwd = true,
+              view = {
+                signcolumn = "no",
+                width = 30,
+              },
+              renderer = {
+                group_empty = true,
+                indent_markers = {
+                  enable = true,
+                },
+                icons = {
+                  web_devicons = {
+                    file = {
+                      enable = false,
+                      color = false
+                    },
+                  },
+                  show = {
+                    file = false,
+                  }
+                },
+                symlink_destination = false,
+              },
+              filters = {
+                custom = { ".angular", "node_modules", "^\\.git" },
+              },
+              filesystem_watchers = {
+                enable = true,
+                debounce_delay = 100,
+                ignore_dirs = {
+                  "/.angular",
+                  "/.ccls-cache",
+                  "/build",
+                  "/dist",
+                  "/node_modules",
+                  "/target",
+                },
+              },
+            })
+          '';
+        }
+        # Tab
+        {
+          plugin = tabby-nvim;
+          type = "lua";
+          config = ''
+            local theme = {
+              fill = "TabLineFill",
+              head = "TabLine",
+              current_tab = { fg = "#ffffff", bg = "#526596" },
+              tab = "TabLine",
+              win = "TabLine",
+              tail = "TabLine",
+            }
+            require("tabby").setup({
+              line = function(line)
+                return {
+                  {
+                    { " N ", hl = theme.head },
+                    line.sep("", theme.head, theme.fill),
+                  },
+                  line.tabs().foreach(function(tab)
+                    local hl = tab.is_current() and theme.current_tab or theme.tab
+                    return {
+                      line.sep("", hl, theme.fill),
+                      tab.name(),
+                      line.sep("", hl, theme.fill),
+                      hl = hl,
+                      margin = " ",
+                    }
+                  end),
+                  line.spacer(),
+                  {
+                    line.sep("", theme.tail, theme.fill),
+                    { " OK ", hl = theme.tail },
+                  },
+                  hl = theme.fill,
+                }
+              end
+            })
+          '';
+        }
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
@@ -1221,26 +1371,31 @@ in
         vim.opt.wrap = false
         vim.opt.backup = false
         vim.opt.swapfile = false
-        vim.opt.hlsearch = false
+        vim.opt.hlsearch = true
         vim.opt.incsearch = true
         vim.opt.endofline = false
         vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
-        vim.opt.termguicolors = true
-        vim.opt.signcolumn = "yes"
+        vim.opt.signcolumn = "no"
         vim.opt.updatetime = 250
         vim.opt.cmdheight = 0
-        vim.opt.showcmd = false
+        vim.opt.showcmd = true
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
-        --
+        -- Noop
         vim.keymap.set("n", "Q", "<nop>")
-        vim.keymap.set("n", "<leader>ee", ":Ex<CR>", options)
+        -- Hlsearch
+        vim.keymap.set("n", "<leader>n", ":noh<CR>", options)
+        -- Explorer
+        vim.keymap.set("n", "<leader>ee", ":NvimTreeToggle<CR>", options)
+        vim.keymap.set("n", "<leader>ef", ":NvimTreeFocus<CR>", options)
+        vim.keymap.set("n", "<leader>ec", ":NvimTreeCollapse<CR>", options)
+        vim.keymap.set("n", "<leader>er", ":NvimTreeRefresh<CR>", options)
+        -- Yank/Paste/Change/Delete
         vim.keymap.set("x", "<leader>p", [["_dP]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
-        -- Yank/Paste/Change/Delete
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "ci", '"_ci', options)
         vim.keymap.set("n", "cw", '"_cw', options)
@@ -1250,14 +1405,16 @@ in
         vim.keymap.set("n", "di", '"_di', options)
         vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
         vim.keymap.set({"n", "v"}, "D", '"_D', options)
-        vim.keymap.set("n", "x", '"_x', options)
         vim.keymap.set("n", "xi", '"_xi', options)
+        vim.keymap.set("n", "x", '"_x', options)
         vim.keymap.set("n", "X", '"_X', options)
         -- Tab
-        vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", options)
-        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", options)
-        vim.keymap.set("n", "<leader>tf", ":tabfirst<CR>", options)
-        vim.keymap.set("n", "<leader>tl", ":tablast<CR>", options)
+        vim.opt.showtabline = 2
+        vim.keymap.set("n", "<leader>ta", ":$tabnew<CR>", { noremap = true })
+        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", { noremap = true })
+        vim.keymap.set("n", "<leader>to", ":tabonly<CR>", { noremap = true })
+        vim.keymap.set("n", "<leader>tn", ":tabn<CR>", { noremap = true })
+        vim.keymap.set("n", "<leader>tp", ":tabp<CR>", { noremap = true })
         vim.keymap.set("n", "<leader>1", "1gt", options)
         vim.keymap.set("n", "<leader>2", "2gt", options)
         vim.keymap.set("n", "<leader>3", "3gt", options)
@@ -1267,6 +1424,8 @@ in
         vim.keymap.set("n", "<leader>7", "7gt", options)
         vim.keymap.set("n", "<leader>8", "8gt", options)
         vim.keymap.set("n", "<leader>9", "9gt", options)
+        -- Definiton
+        --Ctrl ] and Ctrl o
         -- Diagnostic
         vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
         vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
@@ -1306,13 +1465,17 @@ in
         vim.keymap.set("n", "<leader>()", ":lua WrapWord('(', ')')<CR>", options)
         vim.keymap.set("n", "<leader>[]", ":lua WrapWord('[', ']')<CR>", options)
         vim.keymap.set("n", "<leader>{}", ":lua WrapWord('{', '}')<CR>", options)
-        vim.keymap.set("n", "<leader>'s", ":lua WrapWord(\"'\", \"'\")<CR>", options)
-        vim.keymap.set("n", '<leader>"s', ":lua WrapWord('\"', '\"')<CR>", options)
+        vim.keymap.set("n", "<leader>'w", ":lua WrapWord(\"'\", \"'\")<CR>", options)
+        vim.keymap.set("n", '<leader>"w', ":lua WrapWord('\"', '\"')<CR>", options)
         vim.keymap.set("n", "<leader><>", ":lua WrapWord('<', '>')<CR>", options)
         -- Telescope cmd
         vim.keymap.set("n", "<leader><leader>", ":Telescope cmdline<CR>", {noremap = true, desc = "Cmd"})
         -- Lazygit
         vim.keymap.set("n", "<leader>gg", ":LazyGit<CR>", options)
+        -- Nui
+        vim.keymap.set("n", ":", "<cmd>FineCmdline<CR>", {noremap = true})
+        vim.keymap.set("n", "<leader>ss", ":SearchBoxIncSearch<CR>")
+        vim.keymap.set("x", "<leader>ss", ":SearchBoxIncSearch visual_mode=true<CR>")
       '';
       viAlias = true;
       vimAlias = true;
