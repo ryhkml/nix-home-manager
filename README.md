@@ -76,7 +76,7 @@ The installed packages include the desktop application, command line interface, 
 #### C
 
 1. [cmus](https://cmus.github.io) - Console music player for Unix-like operating systems
-1. [curl](https://curl.se) - You know, right?
+1. [curl](https://curl.se) - Tool and library to transfer data (with [c-ares](https://c-ares.org) and [gsasl](https://www.gnu.org/software/gsasl) features)
 
 #### D
 
@@ -103,7 +103,7 @@ The installed packages include the desktop application, command line interface, 
 #### G
 
 1. [gnuplot](https://www.gnuplot.info) - Portable command line driven graphing utility for many platforms
-1. [go](https://go.dev) - You know, right?
+1. [go](https://go.dev) - Golang!
 1. [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud CLI
 1. [gopls](https://github.com/golang/tools/tree/master/gopls) - LSP for Go
 
@@ -157,14 +157,14 @@ The installed packages include the desktop application, command line interface, 
 1. [shellcheck](https://hackage.haskell.org/package/ShellCheck) - Shell script analysis tool
 1. [sleek](https://github.com/nrempel/sleek) - Formatter for SQL
 1. [stylua](https://github.com/johnnymorganz/stylua) - Formatter for Lua
-1. [sqlite](https://www.sqlite.org) - You know, right?
+1. [sqlite](https://www.sqlite.org) - Small and fast SQL database engine
 1. [sqls](https://github.com/sqls-server/sqls) - LSP for SQL
 
 #### T
 
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
 1. [trash-cli](https://github.com/andreafrancia/trash-cli) - Command line interface to the freedesktop.org trashcan
-1. [typescript](https://www.typescriptlang.org) - You know, right?
+1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
 
 #### V
