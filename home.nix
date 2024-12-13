@@ -1229,8 +1229,21 @@ in
                       color = false
                     },
                   },
+                  git_placement = "after",
+                  symlink_arrow = " -> ",
                   show = {
                     file = false,
+                  },
+                  glyphs = {
+                    git = {
+                      unstaged = "US",
+                      staged = "S",
+                      unmerged = "UM",
+                      renamed = "R",
+                      untracked = "UT",
+                      deleted = "D",
+                      ignored = "i",
+                    }
                   }
                 },
                 symlink_destination = false,
@@ -1250,6 +1263,9 @@ in
                   "/target",
                 },
               },
+              git = {
+                ignore = false,
+              }
             })
           '';
         }
