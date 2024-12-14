@@ -91,10 +91,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.28.0";
+    version = "13.29.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1n70i16zbcw0ggzk2bfrp122pgaxhriak0b6fpaj8w2yrrh1a3bi";
+      sha256 = "0z22z73203izlzmnz101ycpzpjhph8dcb8m8q49vnag38r8jn28k";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -107,10 +107,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "502.0.0";
+    version = "503.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0zwz1nmx2g1vxwqjlb605hw8hf1fcfjiznjlnj6znhw653h1iv11";
+      sha256 = "0idmrvd2q968vfs10h5fzp4kw6nj0v4mrd9afbb97igcspfiyg40";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -287,7 +287,7 @@ in
       ".scripts/waybar/custom-clock.sh".text = ''
         set -e
         current_date=$(date +'%A - %B %-d, %Y')
-        current_time=$(date +'%-l:%M:%S %p')
+        current_time=$(date +'%-l:%M:%S')
         echo -n "{\"text\": \"$current_time\", \"tooltip\": \"$current_date\"}"
       '';
       ".scripts/rofi_power.sh".text = ''
@@ -826,6 +826,7 @@ in
                 find_files = {
                   hidden = true,
                   no_ignore = true,
+                  disable_devicons = true,
                   file_ignore_patterns = { ".angular", ".git", "dist", "node_modules", "target" },
                 },
               },
@@ -958,6 +959,9 @@ in
               local searchcount = vim.fn.searchcount { maxcount = 9000 }
               return "" .. searchcount.current .. "/" .. searchcount.total .. ""
             end
+            local function CurrentTime()
+              return os.date("%I:%M:%S"):gsub("^0", "")
+            end
             require("lualine").setup({
               options = {
                 icons_enabled = false,
@@ -969,6 +973,7 @@ in
               sections = {
                 lualine_x = {
                   SearchResultCount,
+                  CurrentTime,
                   "encoding",
                   "filetype"
                 },
@@ -1154,7 +1159,10 @@ in
           '';
         }
         lazygit-nvim
-        nui-nvim
+        {
+          plugin = nui-nvim;
+          optional = true;
+        }
         {
           plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "aec9efebf6f4606a5204d49ffa3ce2eeb7e08a3e";
           type = "lua";
@@ -1204,7 +1212,10 @@ in
           '';
         }
         # Explorer
-        nvim-web-devicons
+        {
+          plugin = nvim-web-devicons;
+          optional = true;
+        }
         {
           plugin = nvim-tree-lua;
           type = "lua";
@@ -1249,7 +1260,7 @@ in
                 symlink_destination = false,
               },
               filters = {
-                custom = { ".angular", "node_modules", "^\\.git" },
+                custom = { ".angular", ".git" },
               },
               filesystem_watchers = {
                 enable = true,
@@ -1287,26 +1298,30 @@ in
                 return {
                   {
                     { " N ", hl = theme.head },
-                    line.sep("", theme.head, theme.fill),
+                    line.sep("", theme.head, theme.fill),
                   },
                   line.tabs().foreach(function(tab)
                     local hl = tab.is_current() and theme.current_tab or theme.tab
                     return {
-                      line.sep("", hl, theme.fill),
+                      line.sep("", hl, theme.fill),
                       tab.name(),
-                      line.sep("", hl, theme.fill),
+                      line.sep("", hl, theme.fill),
                       hl = hl,
                       margin = " ",
                     }
                   end),
                   line.spacer(),
                   {
-                    line.sep("", theme.tail, theme.fill),
+                    line.sep("", theme.tail, theme.fill),
                     { " OK ", hl = theme.tail },
                   },
                   hl = theme.fill,
                 }
-              end
+              end,
+              option = {
+                nerdfont = true,
+                lualine_theme = "lackluster"
+              }
             })
           '';
         }
@@ -1419,6 +1434,9 @@ in
         vim.keymap.set("n", "dw", '"_dw', options)
         vim.keymap.set("n", "daw", '"_daw', options)
         vim.keymap.set("n", "di", '"_di', options)
+        vim.keymap.set("n", "d<Right>", '"_dl', options)
+        vim.keymap.set("n", "d<Left>", '"_dh', options)
+        vim.keymap.set("n", "D", '"_D', options)
         vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
         vim.keymap.set({"n", "v"}, "D", '"_D', options)
         vim.keymap.set("n", "xi", '"_xi', options)
