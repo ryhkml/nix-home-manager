@@ -395,6 +395,13 @@ in
       tree = "eza -T --color never";
     };
     shellInit = ''
+      # Delete history on cmd error
+      function delete_cmd_error --on-event fish_postexec
+        if test $status = 1 || test $status = 127 && test "$argv" != "exit"
+          echo "$(date +'%-l:%M:%S') -> $argv" | tee -a /tmp/cmd_error.txt > /dev/null
+          history delete --case-sensitive --exact "$argv"
+        end
+      end
       # https://github.com/jorgebucaran/humantime.fish
       function humantime -a ms
         set -q ms[1] || return
