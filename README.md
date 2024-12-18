@@ -62,6 +62,7 @@ The installed packages include the desktop application, command line interface, 
 
 1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
 1. [angular-language-server](https://github.com/angular/vscode-ng-language-service) - LSP for Angular
+1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
 1. [astyle](https://astyle.sourceforge.net) - Formatter for C, C++, C++/CLI, Objective-C, C#, and Java
 
 #### B
@@ -167,6 +168,10 @@ The installed packages include the desktop application, command line interface, 
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
 
+### U
+
+1. [ueberzugpp](https://github.com/jstkdng/ueberzugpp) - Draw images on terminal
+
 #### V
 
 1. [vscode-langservers-extracted](https://github.com/hrsh7th/vscode-langservers-extracted) - LSP extracted from Vscode for HTML/CSS/JSON/ESLint
@@ -175,6 +180,7 @@ The installed packages include the desktop application, command line interface, 
 
 1. [yamlfmt](https://github.com/google/yamlfmt) - Formatter for YAML
 1. [yaml-language-server](https://github.com/redhat-developer/yaml-language-server) - LSP for YAML
+1. [yazi](https://yazi-rs.github.io) - Terminal file manager
 1. [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Command line tool to download videos from Youtube and other sites
 
 #### Z
