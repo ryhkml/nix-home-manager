@@ -144,6 +144,11 @@ let
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
   };
+  # Yazi
+  yaziPlugins = builtins.fetchGit {
+    url = "https://github.com/yazi-rs/plugins.git";
+    rev = "7afba3a73cdd69f346408b77ea5aac26fe09e551";
+  };
   # Zellij
   zellijCompactLayout = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/zellij-org/zellij/refs/heads/main/zellij-utils/assets/layouts/compact.swap.kdl";
@@ -201,6 +206,8 @@ in
       tokei
       trash-cli
       typescript
+      # # U
+      ueberzugpp
       # # Y
       yt-dlp
     ];
@@ -290,7 +297,7 @@ in
         current_time=$(date +'%-l:%M:%S')
         echo -n "{\"text\": \"$current_time\", \"tooltip\": \"$current_date\"}"
       '';
-      ".scripts/rofi_power.sh".text = ''
+      ".scripts/rofi/power.sh".text = ''
         set -e
         options="Logout\nSuspend\nReboot\nPower Off"
         menu=$(echo -e "$options" | rofi -dmenu -no-custom -i -p "Select Action")
@@ -700,12 +707,21 @@ in
             require("ibl").setup{
               debounce = 100,
               indent = {
-                char = "",
+                char = { "" },
               },
               scope = {
                 enabled = false,
               },
             }
+            local iblhooks = require "ibl.hooks"
+            iblhooks.register(
+              iblhooks.type.WHITESPACE,
+              iblhooks.builtin.hide_first_space_indent_level
+            )
+            iblhooks.register(
+              iblhooks.type.WHITESPACE,
+              iblhooks.builtin.hide_first_tab_indent_level
+            )
           '';
         }
         lsp-zero-nvim
@@ -715,28 +731,32 @@ in
           plugin = cmp-nvim-lsp;
           type = "lua";
           config = ''
-            -- https://github.com/neovim/nvim-lspconfig
-            local lsp_zero = require("lsp-zero")
-            local lsp_attach = function(client, bufnr)
-              local options = { buffer = bufnr }
-              vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", options)
-              vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", options)
-              vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<cr>", options)
-              vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", options)
-              vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<cr>", options)
-              vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<cr>", options)
-              vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<cr>", options)
-              vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<cr>", options)
-              vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<cr>", options)
-              vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<cr>", options)
-            end
-            lsp_zero.extend_lspconfig({
-              sign_text = true,
-              lsp_attach = lsp_attach,
-              capabilities = require("cmp_nvim_lsp").default_capabilities(),
+            -- https://github.com/VonHeikemen/lsp-zero.nvim
+            local lspconfig_defaults = require("lspconfig").util.default_config
+            lspconfig_defaults.capabilities = vim.tbl_deep_extend(
+              "force",
+              lspconfig_defaults.capabilities,
+              require("cmp_nvim_lsp").default_capabilities()
+            )
+            vim.api.nvim_create_autocmd("LspAttach", {
+              desc = "LSP actions",
+              callback = function(event)
+                local opts = { buffer = event.buf, silent = true }
+                vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+                vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+                vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+                vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+                vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+                vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+                vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+                vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+                vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<CR>", opts)
+                vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
+              end,
             })
+            -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
             -- Angular
-            local cmd = {
+            local ngcmd = {
               "${angularLanguageServer}/node_modules/.bin/ngserver",
               "--stdio",
               "--tsProbeLocations",
@@ -744,40 +764,41 @@ in
               "--ngProbeLocations",
               "${angularLanguageServer}/node_modules",
             }
-            require("lspconfig").angularls.setup{
-              cmd = cmd,
+            local lspconfig = require("lspconfig")
+            lspconfig.angularls.setup{
+              cmd = ngcmd,
               on_new_config = function(new_config, new_root_dir)
-                new_config.cmd = cmd
+                new_config.cmd = ngcmd
               end,
             }
             -- Bash
-            require("lspconfig").bashls.setup{}
+            lspconfig.bashls.setup{}
             -- CSS
-            require("lspconfig").cssls.setup{}
+            lspconfig.cssls.setup{}
             -- Dockerfile
-            require("lspconfig").dockerls.setup{}
+            lspconfig.dockerls.setup{}
             -- Go
-            require("lspconfig").gopls.setup{}
+            lspconfig.gopls.setup{}
             -- HTML
-            require("lspconfig").html.setup{}
+            lspconfig.html.setup{}
             -- Java
-            require("lspconfig").jdtls.setup{}
+            lspconfig.jdtls.setup{}
             -- JSON
-            require("lspconfig").jsonls.setup{}
+            lspconfig.jsonls.setup{}
             -- Nginx
-            require("lspconfig").nginx_language_server.setup{}
+            lspconfig.nginx_language_server.setup{}
             -- Nix
-            require("lspconfig").nil_ls.setup{}
+            lspconfig.nil_ls.setup{}
             -- Rust
-            require("lspconfig").rust_analyzer.setup{}
+            lspconfig.rust_analyzer.setup{}
             -- SQL
-            require("lspconfig").sqls.setup{}
+            lspconfig.sqls.setup{}
             -- Typescript
-            require("lspconfig").ts_ls.setup{}
+            lspconfig.ts_ls.setup{}
             -- Vue
-            require("lspconfig").vuels.setup{}
+            lspconfig.vuels.setup{}
             -- YAML
-            require("lspconfig").yamlls.setup{
+            lspconfig.yamlls.setup{
               filetypes = { "yaml" },
               settings = {
                 yaml = {
@@ -797,7 +818,6 @@ in
           config = ''
             -- https://github.com/hrsh7th/nvim-cmp
             local cmp = require("cmp")
-            local cmp_format = require("lsp-zero").cmp_format({ details = true })
             cmp.setup({
               snippet = {
                 expand = function(args)
@@ -811,7 +831,6 @@ in
                 ["<C-e>"] = cmp.mapping.abort(),
                 ["<CR>"] = cmp.mapping.confirm({ select = true }),
               }),
-              formatting = cpm_format,
               sources = cmp.config.sources({
                 { name = "nvim_lsp" },
                 { name = "vsnip" },
@@ -1136,29 +1155,6 @@ in
           '';
         }
         {
-          plugin = hover-nvim;
-          type = "lua";
-          config = ''
-            require("hover").setup {
-              init = function()
-                require("hover.providers.lsp")
-                require("hover.providers.diagnostic")
-              end,
-              preview_opts = {
-                border = "single"
-              },
-              preview_window = false,
-              title = true,
-              mouse_providers = {
-                "LSP"
-              },
-              mouse_delay = 500
-            }
-            vim.keymap.set("n", "K", require("hover").hover, {desc = "hover.nvim"})
-            vim.keymap.set("n", "gK", require("hover").hover_select, {desc = "hover.nvim (select)"})
-          '';
-        }
-        {
           plugin = markdown-preview-nvim;
           config = ''
             let g:mkdp_port = "10013"
@@ -1417,7 +1413,7 @@ in
         vim.opt.signcolumn = "no"
         vim.opt.updatetime = 250
         vim.opt.cmdheight = 0
-        vim.opt.showcmd = true
+        vim.opt.showcmd = false
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
@@ -1441,8 +1437,10 @@ in
         vim.keymap.set("n", "dw", '"_dw', options)
         vim.keymap.set("n", "daw", '"_daw', options)
         vim.keymap.set("n", "di", '"_di', options)
-        vim.keymap.set("n", "d<Right>", '"_dl', options)
         vim.keymap.set("n", "d<Left>", '"_dh', options)
+        vim.keymap.set("n", "d<Right>", '"_dl', options)
+        vim.keymap.set("n", "d<Up>", '"_d<Up>', options)
+        vim.keymap.set("n", "d<Down>", '"_d<Down>', options)
         vim.keymap.set("n", "D", '"_D', options)
         vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
         vim.keymap.set({"n", "v"}, "D", '"_D', options)
@@ -1533,6 +1531,98 @@ in
           }
         ];
       };
+    };
+    yazi = {
+      enable = true;
+      shellWrapperName = "yz";
+      settings = {
+        manager = {
+          ratio = [
+            2
+            2
+            4
+          ];
+          sort_by = "natural";
+          sort_dir_first = true;
+          show_hidden = true;
+        };
+        preview = {
+          max_width = 1000;
+          max_height = 1000;
+          image_delay = 100;
+        };
+        plugin = {
+          prepend_fetchers = [
+            {
+              id = "mime";
+              "if" = "!mime";
+              name = "*";
+              run = "mime-ext";
+              prio = "high";
+            }
+          ];
+        };
+      };
+      theme = {
+        filetype = {
+          rules = [
+            {
+              name = "*";
+              fg = "#ffffff";
+            }
+            {
+              name = "*/";
+              fg = "#526596";
+            }
+          ];
+        };
+        icon = {
+          dirs = [
+            {
+              name = "*";
+              text = "";
+            }
+          ];
+          exts = [
+            {
+              name = "*";
+              text = "";
+            }
+          ];
+          files = [
+            {
+              name = "*";
+              text = "";
+            }
+          ];
+        };
+      };
+      plugins = {
+        mime-ext = "${yaziPlugins}/mime-ext.yazi";
+        no-status = "${yaziPlugins}/no-status.yazi";
+      };
+      initLua = ''
+        -- Remove status bar
+        require("no-status"):setup()
+        -- Mime-ext
+        require("mime-ext"):setup{
+          with_files = {
+            config = "text/plain",
+            [".env"] = "text/plain",
+            [".env.development"] = "text/plain",
+            [".env.example"] = "text/plain",
+            [".env.local"] = "text/plain",
+            [".env.production"] = "text/plain",
+            [".env.test"] = "text/plain",
+            ["Dockerfile"] = "text/plain",
+            [".dockerignore"] = "text/plain",
+            [".gcloudignore"] = "text/plain",
+            [".gitattributes"] = "text/plain",
+            [".gitignore"] = "text/plain",
+          },
+          fallback_file1 = false,
+        }
+      '';
     };
     zellij.enable = true;
     zoxide.enable = true;
