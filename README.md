@@ -70,7 +70,6 @@ The installed packages include the desktop application, command line interface, 
 1. [bat](https://github.com/sharkdp/bat) - Alternative to `cat`
 1. [bash-language-server](https://github.com/bash-lsp/bash-language-server) - LSP for Bash
 1. [beautysh](https://github.com/lovesegfault/beautysh) - Formatter for Shell
-1. [brave](https://brave.com) - Brave browser
 1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
 1. [btop](https://github.com/aristocratos/btop) - A monitor of resources
 
