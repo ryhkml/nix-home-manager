@@ -38,10 +38,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.0.4";
+    version = "19.0.6";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "ff1b5fcbc6f39f5a3c12bd0c8e3bd8979f05cbe7";
+      rev = "8d8af0e625bc4bb6403ec10b89dea4df1915fca2";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -62,10 +62,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.38";
+    version = "1.1.42";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0cirql5winlkvp3hac456gma6kgzcbniz1flrizrgm18gqssa7d6";
+      sha256 = "1bxiknk4p634dywbzpyh1v2zjajclvp9w1g3cfyam3wd0g1hd0in";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -167,8 +167,6 @@ in
       # # A
       angularCli
       asciiquarium-transparent
-      # # B
-      brave
       # # C
       cmus
       (curl.override {
@@ -226,6 +224,18 @@ in
         telemetry = false
         [install.cache]
         disable = true
+      '';
+      ".config/foot/foot.ini".text = ''
+        font=FiraCode Nerd Font:size=14
+        initial-window-mode=maximized
+        [cursor]
+        style=beam
+        blink=yes
+        [colors]
+        background=000000
+        foreground=ffffff
+        [scrollback]
+        lines=9999
       '';
       ".config/rofi/config.rasi".text = ''
         configuration {
@@ -634,13 +644,13 @@ in
         "node_modules/"
         "target/"
       ];
-      extraOptions = [ "-tf" ];
+      extraOptions = [
+        "-tf"
+        "--no-require-git"
+      ];
     };
     fzf = {
       enable = true;
-      changeDirWidgetCommand = "fd -t d -L 2>/dev/null";
-      defaultCommand = "fd -L -H -I -E .git 2>/dev/null";
-      fileWidgetCommand = "fd -L -t f -t l 2>/dev/null";
     };
     go = {
       enable = true;
@@ -842,34 +852,76 @@ in
         }
         plenary-nvim
         telescope-fzf-native-nvim
+        telescope-live-grep-args-nvim
         {
           plugin = telescope-nvim;
           type = "lua";
           config = ''
             -- https://github.com/nvim-telescope/telescope.nvim
             require("telescope").setup{
+              defaults = {
+                file_ignore_patterns = {
+                  "^.angular/",
+                  "^.database/",
+                  "^.git/",
+                  "^dist/",
+                  "^node_modules/",
+                  "^target/"
+                },
+                vimgrep_arguments = {
+                  "rg",
+                  "--color=never",
+                  "--no-heading",
+                  "--line-number",
+                  "--column",
+                  "--smart-case",
+                  "--hidden",
+                  "--no-ignore-files",
+                  "--no-require-git"
+                }
+              },
               pickers = {
                 find_files = {
                   hidden = true,
                   no_ignore = true,
                   disable_devicons = true,
-                  file_ignore_patterns = { ".angular", ".git", "dist", "node_modules", "target" },
+                  file_ignore_patterns = {
+                    "^.angular/",
+                    "^.database/",
+                    "^.git/",
+                    "^dist/",
+                    "^node_modules/",
+                    "^target/"
+                  },
+                  find_command = {
+                    "fd",
+                    ".",
+                    "-tf",
+                    "--hidden",
+                    "--strip-cwd-prefix",
+                    "--no-require-git"
+                  }
                 },
               },
               extensions = {
                 fzf = {
-                  case_mode = "smart_case",
                   fuzzy = true,
+                  case_mode = "smart_case",
                   override_file_sorter = true,
                   override_generic_sorter = true,
                 },
+                live_grep_args = {
+                  auto_quoting = true,
+                }
               }
             }
             local builtin = require("telescope.builtin")
             vim.keymap.set("n", "<leader>ff", builtin.find_files)
-            vim.keymap.set("n", "<leader>fg", builtin.live_grep)
+            vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
+            vim.keymap.set("n", "<leader>fb", builtin.buffers)
             vim.keymap.set("n", "<leader>fh", builtin.help_tags)
             require("telescope").load_extension("fzf")
+            require("telescope").load_extension("live_grep_args")
           '';
         }
         {
@@ -1264,6 +1316,7 @@ in
               },
               filters = {
                 custom = { ".angular", ".git" },
+                exclude = { ".github", ".gitignore", ".gitattributes" }
               },
               filesystem_watchers = {
                 enable = true,
@@ -1277,8 +1330,11 @@ in
                   "/target",
                 },
               },
+              update_focused_file = {
+                enable = true,
+              },
               git = {
-                ignore = false,
+                enable = false,
               }
             })
           '';
@@ -1296,6 +1352,9 @@ in
               win = "TabLine",
               tail = "TabLine",
             }
+            local function PlainTabName(name)
+              return name:gsub("%[%d+%+%]", "")
+            end
             require("tabby").setup({
               line = function(line)
                 return {
@@ -1307,7 +1366,7 @@ in
                     local hl = tab.is_current() and theme.current_tab or theme.tab
                     return {
                       line.sep("", hl, theme.fill),
-                      tab.name(),
+                      PlainTabName(tab.name()),
                       line.sep("", hl, theme.fill),
                       hl = hl,
                       margin = " ",
@@ -1418,7 +1477,9 @@ in
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
         -- Noop
-        vim.keymap.set("n", "Q", "<nop>")
+        vim.keymap.set("n", "q", "<Nop>", options)
+        vim.keymap.set("v", "q", "<Nop>", options)
+        vim.keymap.set("n", "Q", "<Nop>", options)
         -- Hlsearch
         vim.keymap.set("n", "<leader>n", ":noh<CR>", options)
         -- Explorer
@@ -1471,7 +1532,7 @@ in
         -- CTRL
         vim.keymap.set("i", "<C-c>", "<Esc>")
         vim.keymap.set("n", "<C-z>", "u", options)
-        vim.keymap.set({"i", "v"}, "<C-z>", "<nop>")
+        vim.keymap.set({"i", "v"}, "<C-z>", "<Nop>")
         vim.keymap.set("n", "<C-y>", "<C-r>", options)
         vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
         vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
@@ -1519,7 +1580,17 @@ in
       viAlias = true;
       vimAlias = true;
     };
-    ripgrep.enable = true;
+    ripgrep = {
+      enable = true;
+      arguments = [
+        "--glob=!.angular/*"
+        "--glob=!.database/*"
+        "--glob=!.git/*"
+        "--glob=!dist/*"
+        "--glob=!node_modles/*"
+        "--glob=!target/*"
+      ];
+    };
     sqls = {
       enable = true;
       settings = {
