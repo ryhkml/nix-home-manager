@@ -75,6 +75,9 @@ The installed packages include the desktop application, command line interface, 
 
 #### C
 
+1. [clang-tools](https://clangd.llvm.org/installation.html) - Standalone CLI tools for C++ development
+1. [cmake-format](https://github.com/cheshirekow/cmake_format) - Source code formatter for cmake listfiles
+1. [cmake-language-server](https://github.com/regen100/cmake-language-server) - LSP for cmake
 1. [cmus](https://cmus.github.io) - Console music player for Unix-like operating systems
 1. [curl](https://curl.se) - Tool and library to transfer data (with [c-ares](https://c-ares.org) and [gsasl](https://www.gnu.org/software/gsasl) features)
 
@@ -155,10 +158,8 @@ The installed packages include the desktop application, command line interface, 
 #### S
 
 1. [shellcheck](https://hackage.haskell.org/package/ShellCheck) - Shell script analysis tool
-1. [sleek](https://github.com/nrempel/sleek) - Formatter for SQL
 1. [stylua](https://github.com/johnnymorganz/stylua) - Formatter for Lua
 1. [sqlite](https://www.sqlite.org) - Small and fast SQL database engine
-1. [sqls](https://github.com/sqls-server/sqls) - LSP for SQL
 
 #### T
 
