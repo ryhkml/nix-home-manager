@@ -152,7 +152,7 @@ let
   # Zellij
   zellijCompactLayout = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/zellij-org/zellij/refs/heads/main/zellij-utils/assets/layouts/compact.swap.kdl";
-    sha256 = "1k1xvb1qdd8krwda80n9lb50yzb9s7i8bl6261sx4jd9b8q0l1id";
+    sha256 = "1fcva0y4ppwzi0g3g7jaik9n5f8jz120w054wfssj5fcal6l162d";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -224,6 +224,11 @@ in
         telemetry = false
         [install.cache]
         disable = true
+      '';
+      ".clang-format".text = ''
+        BasedOnStyle: Google
+        IndentWidth: 4
+        ColumnLimit: 120
       '';
       ".config/foot/foot.ini".text = ''
         font=FiraCode Nerd Font:size=14
@@ -537,6 +542,7 @@ in
           blink_interval = 400;
           blink_timeout = 0;
         };
+        mouse.hide_when_typing = true;
         window = {
           decorations = "None";
           decorations_theme_variant = "Dark";
@@ -783,6 +789,10 @@ in
             }
             -- Bash
             lspconfig.bashls.setup{}
+            -- C
+            lspconfig.clangd.setup{}
+            -- cmake
+            lspconfig.cmake.setup{}
             -- CSS
             lspconfig.cssls.setup{}
             -- Dockerfile
@@ -801,8 +811,6 @@ in
             lspconfig.nil_ls.setup{}
             -- Rust
             lspconfig.rust_analyzer.setup{}
-            -- SQL
-            lspconfig.sqls.setup{}
             -- Typescript
             lspconfig.ts_ls.setup{}
             -- Vue
@@ -958,9 +966,9 @@ in
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
-                "bash", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
+                "bash", "c", "cmake", "make", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
                 "nginx", "nix", "scss", "sql", "pem", "rust", "toml", "typescript", "yaml", "xml",
-                "gitattributes", "gitcommit", "gitignore", "git_config"
+                "diff", "gitattributes", "gitcommit", "gitignore", "git_config"
               },
               sync_install = false,
               auto_install = true,
@@ -1144,6 +1152,8 @@ in
             -- https://github.com/stevearc/conform.nvim
             require("conform").setup({
               formatters_by_ft = {
+                c = { "clang-format" },
+                cmake = { "cmake_format" },
                 css = { "prettier" },
                 fish = { "fish_indent" },
                 go = { "gofmt" },
@@ -1159,7 +1169,6 @@ in
                 rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
-                sql = { "sleek" },
                 typescript = { "prettier" },
                 yaml = { "yamlfmt" },
                 ["_"] = { "trim_whitespace" }
@@ -1393,6 +1402,9 @@ in
         astyle
         bash-language-server
         beautysh
+        clang-tools
+        cmake-format
+        cmake-language-server
         dockerfile-language-server-nodejs
         gopls
         jdt-language-server
@@ -1404,7 +1416,6 @@ in
         rust-analyzer
         rustfmt
         shellcheck
-        sleek
         stylua
         typescript-language-server
         vscode-langservers-extracted
@@ -1469,7 +1480,7 @@ in
         vim.opt.endofline = false
         vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
-        vim.opt.signcolumn = "no"
+        vim.opt.signcolumn = "yes"
         vim.opt.updatetime = 250
         vim.opt.cmdheight = 0
         vim.opt.showcmd = false
@@ -1482,6 +1493,8 @@ in
         vim.keymap.set("n", "Q", "<Nop>", options)
         -- Hlsearch
         vim.keymap.set("n", "<leader>n", ":noh<CR>", options)
+        vim.keymap.set({ "n", "v" }, "<leader>h", "^", options)
+        vim.keymap.set({ "n", "v" }, "<leader>l", "$", options)
         -- Explorer
         vim.keymap.set("n", "<leader>ee", ":NvimTreeToggle<CR>", options)
         vim.keymap.set("n", "<leader>ef", ":NvimTreeFocus<CR>", options)
@@ -1590,18 +1603,6 @@ in
         "--glob=!node_modles/*"
         "--glob=!target/*"
       ];
-    };
-    sqls = {
-      enable = true;
-      settings = {
-        lowercaseKeywords = false;
-        connections = [
-          {
-            driver = "sqlite3";
-            dataSourceName = "${pathHome}/Documents/code/tasks-server/.database/tasks-test.db";
-          }
-        ];
-      };
     };
     yazi = {
       enable = true;
