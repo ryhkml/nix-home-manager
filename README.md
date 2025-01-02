@@ -1,4 +1,4 @@
-## Nix Home Manager
+## My Nix Home Manager
 
 ### Motivation
 
