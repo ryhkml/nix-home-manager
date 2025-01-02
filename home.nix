@@ -242,6 +242,14 @@ in
         [scrollback]
         lines=9999
       '';
+      ".config/lazydocker/config.yml".text = ''
+        gui:
+          border: "single"
+          language: "en"
+        logs:
+          timestamps: true
+          since: ""
+      '';
       ".config/rofi/config.rasi".text = ''
         configuration {
           modes: "drun";
@@ -647,6 +655,7 @@ in
         ".git/"
         ".angular/"
         ".database/"
+        ".firebase/"
         "node_modules/"
         "target/"
       ];
@@ -743,6 +752,8 @@ in
         lsp-zero-nvim
         nvim-lspconfig
         nvim-cmp
+        # https://github.com/b0o/SchemaStore.nvim
+        SchemaStore-nvim
         {
           plugin = cmp-nvim-lsp;
           type = "lua";
@@ -804,7 +815,25 @@ in
             -- Java
             lspconfig.jdtls.setup{}
             -- JSON
-            lspconfig.jsonls.setup{}
+            lspconfig.jsonls.setup{
+              settings = {
+                json = {
+                  schemas = require("schemastore").json.schemas {
+                    select = {
+                      "cloudbuild.json",
+                      "Firebase",
+                      "Google Cloud Workflows",
+                      "openapi.json",
+                      "package.json",
+                      "tsconfig.json"
+                    }
+                  },
+                  validate = {
+                    enable = true
+                  }
+                }
+              }
+            }
             -- Nginx
             lspconfig.nginx_language_server.setup{}
             -- Nix
@@ -817,11 +846,11 @@ in
             lspconfig.vuels.setup{}
             -- YAML
             lspconfig.yamlls.setup{
-              filetypes = { "yaml" },
               settings = {
                 yaml = {
+                  validate = true,
                   schemas = {
-                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.yaml",
+                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
                   },
                 },
               }
@@ -871,6 +900,7 @@ in
                 file_ignore_patterns = {
                   "^.angular/",
                   "^.database/",
+                  "^.firebase/",
                   "^.git/",
                   "^dist/",
                   "^node_modules/",
@@ -896,6 +926,7 @@ in
                   file_ignore_patterns = {
                     "^.angular/",
                     "^.database/",
+                    "^.firebase/",
                     "^.git/",
                     "^dist/",
                     "^node_modules/",
@@ -1598,6 +1629,7 @@ in
       arguments = [
         "--glob=!.angular/*"
         "--glob=!.database/*"
+        "--glob=!.firebase/*"
         "--glob=!.git/*"
         "--glob=!dist/*"
         "--glob=!node_modles/*"
