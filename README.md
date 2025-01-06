@@ -56,7 +56,7 @@ Visit [configuration example](https://nix-community.github.io/home-manager/index
 
 ### Packages
 
-The installed packages include the desktop application, command line interface, Language Server Protocol, and plugins of the package itself.
+The installed packages include command line interface, language server protocol, and plugins of the package itself.
 
 #### A
 
@@ -187,3 +187,4 @@ The installed packages include the desktop application, command line interface, 
 
 1. [zellij](https://zellij.dev) - A terminal workspace
 1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast `cd` that learns your habits
+
