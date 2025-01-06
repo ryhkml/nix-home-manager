@@ -230,6 +230,26 @@ in
         IndentWidth: 4
         ColumnLimit: 120
       '';
+      ".config/dunst/dunstrc".text = ''
+        [global]
+        font = FiraCode Nerd Font 12
+        width = (300, 600)
+        offset = 0x0
+        frame_width = 0
+        [urgency_low]
+        background = "#285577"
+        foreground = "#ffffff"
+        [urgency_normal]
+        background = "#526596"
+        [urgency_critical]
+        background = "#ff4d4f"
+        [ignore]
+        appname=spotify
+        skip_display = true
+        [skip-display]
+        appname=spotify
+        skip_display = yes
+      '';
       ".config/foot/foot.ini".text = ''
         font=FiraCode Nerd Font:size=14
         initial-window-mode=maximized
@@ -356,8 +376,22 @@ in
       "*" = {
         charset = "utf-8";
         end_of_line = "lf";
+        indent_style = "tab";
+        indent_size = 4;
         trim_trailing_whitespace = true;
-        insert_final_newline = false;
+        insert_final_newline = true;
+      };
+      "*.nix" = {
+        indent_style = "space";
+        indent_size = 2;
+      };
+      "*.yaml" = {
+        indent_style = "space";
+        indent_size = 2;
+      };
+      "*.yml" = {
+        indent_style = "space";
+        indent_size = 2;
       };
     };
   };
@@ -1508,7 +1542,6 @@ in
         vim.opt.swapfile = false
         vim.opt.hlsearch = true
         vim.opt.incsearch = true
-        vim.opt.endofline = false
         vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
         vim.opt.undofile = true
         vim.opt.signcolumn = "yes"
