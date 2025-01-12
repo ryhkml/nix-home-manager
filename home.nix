@@ -62,10 +62,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.42";
+    version = "1.1.43";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1bxiknk4p634dywbzpyh1v2zjajclvp9w1g3cfyam3wd0g1hd0in";
+      sha256 = "089wzb8v400jm8yj1l17iqn91vhldchc6r9wq9yn8mqm163sm64g";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -232,13 +232,15 @@ in
       '';
       ".config/dunst/dunstrc".text = ''
         [global]
-        font = FiraCode Nerd Font 12
+        font = FiraCode Nerd Font 13
         width = (300, 600)
         offset = 0x0
+        separator_height = 0
         frame_width = 0
+        sort = update
         [urgency_low]
-        background = "#285577"
-        foreground = "#ffffff"
+        background = "#ffffff"
+        foreground = "#000000"
         [urgency_normal]
         background = "#526596"
         [urgency_critical]
@@ -311,7 +313,7 @@ in
       ".config/zellij/layouts/default.kdl".text = ''
         layout {
           cwd "${pathHome}"
-          tab name="Stats" hide_floating_panes=true {
+          tab name="Sysinfo" hide_floating_panes=true {
             pane command="btop" name="Monitor resource" {
               start_suspended true
             }
@@ -519,6 +521,8 @@ in
       set -gx GOPATH $HOME/.go
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
+      set -gx LD_LIBRARY_PATH $LD_LIBRARY_PATH /usr/local/lib
+      set -gx PKG_CONFIG_PATH /usr/local/lib/pkgconfig
     '';
     functions = {
       "screenshot_entire_screen -S" = ''
@@ -1218,7 +1222,6 @@ in
             require("conform").setup({
               formatters_by_ft = {
                 c = { "clang-format" },
-                cmake = { "cmake_format" },
                 css = { "prettier" },
                 fish = { "fish_indent" },
                 go = { "gofmt" },
@@ -1467,9 +1470,6 @@ in
         astyle
         bash-language-server
         beautysh
-        clang-tools
-        cmake-format
-        cmake-language-server
         dockerfile-language-server-nodejs
         gopls
         jdt-language-server
@@ -1580,18 +1580,21 @@ in
         vim.keymap.set("n", "d<Up>", '"_d<Up>', options)
         vim.keymap.set("n", "d<Down>", '"_d<Down>', options)
         vim.keymap.set("n", "D", '"_D', options)
+        vim.keymap.set("n", "C", '"_C', options)
         vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
         vim.keymap.set({"n", "v"}, "D", '"_D', options)
         vim.keymap.set("n", "xi", '"_xi', options)
         vim.keymap.set("n", "x", '"_x', options)
         vim.keymap.set("n", "X", '"_X', options)
+        vim.keymap.set("x", "d", '"_d', options)
+        vim.keymap.set("x", "c", '"_c', options)
         -- Tab
         vim.opt.showtabline = 2
-        vim.keymap.set("n", "<leader>ta", ":$tabnew<CR>", { noremap = true })
-        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", { noremap = true })
-        vim.keymap.set("n", "<leader>to", ":tabonly<CR>", { noremap = true })
-        vim.keymap.set("n", "<leader>tn", ":tabn<CR>", { noremap = true })
-        vim.keymap.set("n", "<leader>tp", ":tabp<CR>", { noremap = true })
+        vim.keymap.set("n", "<leader>ta", ":$tabnew<CR>", {noremap = true})
+        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", {noremap = true})
+        vim.keymap.set("n", "<leader>to", ":tabonly<CR>", {noremap = true})
+        vim.keymap.set("n", "<leader>tn", ":tabn<CR>", {noremap = true})
+        vim.keymap.set("n", "<leader>tp", ":tabp<CR>", {noremap = true})
         vim.keymap.set("n", "<leader>1", "1gt", options)
         vim.keymap.set("n", "<leader>2", "2gt", options)
         vim.keymap.set("n", "<leader>3", "3gt", options)
