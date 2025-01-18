@@ -38,10 +38,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.0.6";
+    version = "19.1.2";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "8d8af0e625bc4bb6403ec10b89dea4df1915fca2";
+      rev = "da202ffab48a24bc598b204ac234a1dcda8e140c";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -56,16 +56,16 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "da92de3a378cb424b3bfa06127e719b820ed71f9";
+    rev = "cff8f460c4314a6b70a6f97e2bbacd856040d8b4";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.43";
+    version = "1.1.45";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "089wzb8v400jm8yj1l17iqn91vhldchc6r9wq9yn8mqm163sm64g";
+      sha256 = "1bw1a6r5h8q5764qnymfvbpv4l50sf56h4v4dv5705qnj8l9a2kd";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -107,10 +107,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "503.0.0";
+    version = "506.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0idmrvd2q968vfs10h5fzp4kw6nj0v4mrd9afbb97igcspfiyg40";
+      sha256 = "0mc8mbqgg3mrid7xvyhhlcmwpi35d887fad3avbbffd4xf9l6spz";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -125,10 +125,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.12.0";
+    version = "22.13.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0kqn5kpjabf7k319wjkny4nz7qz7vafd1vc21y2sh7xpw4sj5612";
+      sha256 = "1xk4f7jnyb0499lq8i9393lnpbbqqz2fpp0b7pbi6cy3cdqdbw1z";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -147,7 +147,7 @@ let
   # Yazi
   yaziPlugins = builtins.fetchGit {
     url = "https://github.com/yazi-rs/plugins.git";
-    rev = "7afba3a73cdd69f346408b77ea5aac26fe09e551";
+    rev = "e4aaf430ad7f81d2e358e3a60525c8ef3fa259fc";
   };
   # Zellij
   zellijCompactLayout = pkgs.fetchurl {
@@ -521,8 +521,6 @@ in
       set -gx GOPATH $HOME/.go
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
-      set -gx LD_LIBRARY_PATH $LD_LIBRARY_PATH /usr/local/lib
-      set -gx PKG_CONFIG_PATH /usr/local/lib/pkgconfig
     '';
     functions = {
       "screenshot_entire_screen -S" = ''
@@ -646,7 +644,6 @@ in
           color = "white";
         };
         modules = [
-          "break"
           "title"
           "separator"
           "os"
@@ -665,7 +662,6 @@ in
           }
           "break"
           "chassis"
-          "board"
           "cpu"
           "gpu"
           "memory"
@@ -1568,26 +1564,28 @@ in
         vim.keymap.set("x", "<leader>p", [["_dP]])
         vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
         vim.keymap.set("n", "<leader>Y", [["+Y]])
-        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
-        vim.keymap.set("n", "ci", '"_ci', options)
-        vim.keymap.set("n", "cw", '"_cw', options)
-        vim.keymap.set("n", "caw", '"_caw', options)
-        vim.keymap.set("n", "dw", '"_dw', options)
-        vim.keymap.set("n", "daw", '"_daw', options)
-        vim.keymap.set("n", "di", '"_di', options)
+        -- d
+        vim.keymap.set("n", "d", '"_d', { noremap = true })
+        vim.keymap.set("n", "dd", '"_dd', { noremap = true })
+        vim.keymap.set("n", "D", '"_D', { noremap = true })
+        vim.keymap.set("x", "d", '"_d', { noremap = true })
+        vim.keymap.set("n", "da", '"_da', { noremap = true })
+        vim.keymap.set("n", "di", '"_di', { noremap = true })
+        vim.keymap.set("n", "dw", '"_dw', { noremap = true })
+        vim.keymap.set("n", "D", '"_D', { noremap = true })
+        -- c
+        vim.keymap.set("n", "c", '"_c', { noremap = true })
+        vim.keymap.set("n", "C", '"_C', { noremap = true })
+        vim.keymap.set("x", "c", '"_c', { noremap = true })
+        vim.keymap.set("n", "ca", '"_ca', { noremap = true })
+        vim.keymap.set("n", "ci", '"_ci', { noremap = true })
+        vim.keymap.set("n", "cw", '"_cw', { noremap = true })
+        vim.keymap.set("n", "C", '"_C', { noremap = true })
+        --
         vim.keymap.set("n", "d<Left>", '"_dh', options)
         vim.keymap.set("n", "d<Right>", '"_dl', options)
         vim.keymap.set("n", "d<Up>", '"_d<Up>', options)
         vim.keymap.set("n", "d<Down>", '"_d<Down>', options)
-        vim.keymap.set("n", "D", '"_D', options)
-        vim.keymap.set("n", "C", '"_C', options)
-        vim.keymap.set({"n", "v"}, "dd", '"_dd', options)
-        vim.keymap.set({"n", "v"}, "D", '"_D', options)
-        vim.keymap.set("n", "xi", '"_xi', options)
-        vim.keymap.set("n", "x", '"_x', options)
-        vim.keymap.set("n", "X", '"_X', options)
-        vim.keymap.set("x", "d", '"_d', options)
-        vim.keymap.set("x", "c", '"_c', options)
         -- Tab
         vim.opt.showtabline = 2
         vim.keymap.set("n", "<leader>ta", ":$tabnew<CR>", {noremap = true})
