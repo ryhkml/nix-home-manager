@@ -1,12 +1,6 @@
-# My Nix Home Manager
+# Nix Home Manager
 
-## Motivation
-
-Nix Home Manager can be enjoyable and comfortable, even though it can be a bit tricky to learn initially, the benefits make it worthwhile.
-With Nix Home Manager, I can keep all my configuration settings in a single file instead of having many separate dotfiles.
-This makes managing my setup much easier and ensures everything works smoothly across different Linux distributions.
-I believe Nix Home Manager is a great tool for managing personal configurations. It helps me stay organized and allows me to easily share my setup.
-I invite you to try it out and see how it can make your life easier too!
+The nix home manager configuration i use.
 
 ## Installation
 
@@ -56,7 +50,7 @@ Visit [configuration example](https://nix-community.github.io/home-manager/index
 
 ## Packages
 
-The installed packages include command line interface, language server protocol, and plugins of the package itself.
+The installed packages include command line interface, language server protocol, formatter, and some plugins of the package itself.
 
 ### A
 
