@@ -177,4 +177,6 @@ The installed packages include command line interface, language server protocol,
 ### Z
 
 1. [zellij](https://zellij.dev) - A terminal workspace
+1. [zig](https://ziglang.org) - Ziglang!
+1. [zls](https://github.com/zigtools/zls) - LSP for Zig
 1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast `cd` that learns your habits
