@@ -208,6 +208,8 @@ in
       ueberzugpp
       # # Y
       yt-dlp
+      # # Z
+      zig
     ];
     file = {
       ".angular-config.json".text = builtins.toJSON {
@@ -889,6 +891,8 @@ in
                 },
               }
             }
+            -- Zig
+            lspconfig.zls.setup{}
           '';
         }
         vim-vsnip
@@ -1031,8 +1035,8 @@ in
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
-                "bash", "c", "cmake", "make", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
-                "nginx", "nix", "scss", "sql", "pem", "rust", "toml", "typescript", "yaml", "xml",
+                "angular", "bash", "c", "cmake", "make", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
+                "kdl", "nginx", "nix", "scss", "sql", "sway", "pem", "rust", "toml", "typescript", "yaml", "xml", "zig", "ziggy",
                 "diff", "gitattributes", "gitcommit", "gitignore", "git_config"
               },
               sync_install = false,
@@ -1235,6 +1239,7 @@ in
                 sh = { "beautysh" },
                 typescript = { "prettier" },
                 yaml = { "yamlfmt" },
+                zig = { "zigfmt" },
                 ["_"] = { "trim_whitespace" }
               },
               default_format_opts = {
@@ -1482,6 +1487,7 @@ in
         vscode-langservers-extracted
         yamlfmt
         yaml-language-server
+        zls
       ];
       extraLuaConfig = ''
         vim.scriptencoding = "utf-8"
