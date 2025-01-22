@@ -97,9 +97,7 @@ The installed packages include command line interface, language server protocol,
 ### G
 
 1. [gnuplot](https://www.gnuplot.info) - Portable command line driven graphing utility for many platforms
-1. [go](https://go.dev) - Golang!
 1. [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud CLI
-1. [gopls](https://github.com/golang/tools/tree/master/gopls) - LSP for Go
 
 ### H
 
