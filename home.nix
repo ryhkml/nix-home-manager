@@ -520,7 +520,6 @@ in
       set -U fish_greeting
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
-      set -gx GOPATH $HOME/.go
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
     '';
@@ -700,17 +699,8 @@ in
         "--no-require-git"
       ];
     };
-    fzf = {
-      enable = true;
-    };
-    go = {
-      enable = true;
-      goPath = ".go";
-    };
-    java = {
-      enable = true;
-      package = pkgs.jdk;
-    };
+    fzf.enable = true;
+    java.enable = true;
     jq.enable = true;
     lazygit = {
       enable = true;
@@ -844,8 +834,6 @@ in
             lspconfig.cssls.setup{}
             -- Dockerfile
             lspconfig.dockerls.setup{}
-            -- Go
-            lspconfig.gopls.setup{}
             -- HTML
             lspconfig.html.setup{}
             -- Java
@@ -878,8 +866,6 @@ in
             lspconfig.rust_analyzer.setup{}
             -- Typescript
             lspconfig.ts_ls.setup{}
-            -- Vue
-            lspconfig.vuels.setup{}
             -- YAML
             lspconfig.yamlls.setup{
               settings = {
@@ -1035,7 +1021,7 @@ in
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
-                "angular", "bash", "c", "cmake", "make", "css", "dockerfile", "go", "hcl", "html", "http", "java", "javascript",
+                "angular", "bash", "c", "cmake", "make", "css", "dockerfile", "hcl", "html", "http", "java", "javascript",
                 "kdl", "nginx", "nix", "scss", "sql", "sway", "pem", "rust", "toml", "typescript", "yaml", "xml", "zig", "ziggy",
                 "diff", "gitattributes", "gitcommit", "gitignore", "git_config"
               },
@@ -1224,7 +1210,6 @@ in
                 c = { "clang-format" },
                 css = { "prettier" },
                 fish = { "fish_indent" },
-                go = { "gofmt" },
                 html = { "prettier" },
                 java = { "astyle" },
                 javascript = { "prettier" },
@@ -1465,6 +1450,7 @@ in
             })
           '';
         }
+        vim-wakatime
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
@@ -1472,13 +1458,11 @@ in
         bash-language-server
         beautysh
         dockerfile-language-server-nodejs
-        gopls
         jdt-language-server
         nginx-language-server
         nil
         nixfmt-rfc-style
         nodePackages.prettier
-        nodePackages.vls
         rust-analyzer
         rustfmt
         shellcheck
