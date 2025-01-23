@@ -19,12 +19,12 @@ jobs:
         run: |
           sh <(curl -L https://nixos.org/nix/install) --no-daemon
           sleep 1
-          . /root/.nix-profile/etc/profile.d/nix.sh
+          . $HOME/.nix-profile/etc/profile.d/nix.sh
           nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
           nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
           nix-channel --update
           nix-shell '<home-manager>' -A install
-          echo ". /root/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
+          echo ". \"\$HOME\"/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
           source ~/.bashrc
           nix --version
           home-manager --version
