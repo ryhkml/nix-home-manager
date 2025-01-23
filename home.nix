@@ -165,6 +165,7 @@ in
     stateVersion = "24.05";
     packages = with pkgs; [
       # # A
+      act
       angularCli
       asciiquarium-transparent
       # # C
