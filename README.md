@@ -54,6 +54,7 @@ The installed packages include command line interface, language server protocol,
 
 ### A
 
+1. [act](https://nektosact.com) - Run GitHub Actions locally
 1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
 1. [angular-language-server](https://github.com/angular/vscode-ng-language-service) - LSP for Angular
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
