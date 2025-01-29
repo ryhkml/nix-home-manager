@@ -62,10 +62,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.1.45";
+    version = "1.2.1";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1bw1a6r5h8q5764qnymfvbpv4l50sf56h4v4dv5705qnj8l9a2kd";
+      sha256 = "1s2jknaxwrihwcfajpbh94mrlr15f39gbj1pyanqlk6bajcf7023";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -91,10 +91,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.29.1";
+    version = "13.29.2";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0z22z73203izlzmnz101ycpzpjhph8dcb8m8q49vnag38r8jn28k";
+      sha256 = "16pjqx9y6xnb1wlklh23ksbkv30pkxjrisaw5i8wikr7ladi3jb2";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -107,10 +107,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "506.0.0";
+    version = "508.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0mc8mbqgg3mrid7xvyhhlcmwpi35d887fad3avbbffd4xf9l6spz";
+      sha256 = "14q3zdvfc01lxmpa8l358jbsb4d8i2k0cb9x7wgwv7xfcfry8ck3";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -125,10 +125,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.13.0";
+    version = "22.13.1";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1xk4f7jnyb0499lq8i9393lnpbbqqz2fpp0b7pbi6cy3cdqdbw1z";
+      sha256 = "0frvfccz1cssjcrmiff14qazwiil6wzws2c3biavbskx7krmlahd";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -418,6 +418,8 @@ in
       C = "clear";
       q = "exit";
       Q = "exit";
+      # Act
+      acts = "act --no-cache-server --rm";
       # Update library
       cmusup = "cmus-remote -C clear; cmus-remote -C \"add ~/Music\"; cmus-remote -C \"update-cache -f\"";
       # Greatest abbreviations downloader ever
@@ -1487,6 +1489,9 @@ in
           "*/.git/*",
         })
         -- Filetype
+        local function set_filetype_c()
+          vim.bo.filetype = "c"
+        end
         local function set_filetype_conf()
           vim.bo.filetype = "conf"
         end
@@ -1494,6 +1499,11 @@ in
           vim.bo.filetype = "dotenv"
         end
         vim.api.nvim_create_augroup("FiletypeConfig", { clear = true })
+        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+          pattern = { "*.h" },
+          callback = set_filetype_c,
+          group = "FiletypeConfig",
+        })
         vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
           pattern = { "*/config", "*/conf" },
           callback = set_filetype_conf,
