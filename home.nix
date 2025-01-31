@@ -38,10 +38,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.1.2";
+    version = "19.1.5";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "da202ffab48a24bc598b204ac234a1dcda8e140c";
+      rev = "c59bb1b334e2467dc920d4d3b387e914846aa1b1";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -56,7 +56,7 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "cff8f460c4314a6b70a6f97e2bbacd856040d8b4";
+    rev = "08ae89313d07a5b9b017a132ae7db7c9e3410d9b";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
@@ -73,18 +73,14 @@ let
       "installPhase"
     ];
     unpackPhase = ''
-      runHook preUnpack
       mkdir $out
-      runHook postUnpack
       unzip $src -d $out
     '';
     installPhase = ''
-      runHook preInstall
       mkdir -p $out/bin
       mv $out/bun-linux-x64/bun $out/bin/bun
       chmod +x $out/bin/bun
       ln -s $out/bin/bun $out/bin/bunx
-      runHook postInstall
     '';
   };
   # Firebase CLI only for linux
@@ -1526,6 +1522,14 @@ in
         --
         vim.api.nvim_create_autocmd("FileType", {
           pattern = { "yaml", "nix" },
+          callback = function()
+            vim.opt_local.tabstop = 2
+            vim.opt_local.softtabstop = 2
+            vim.opt_local.shiftwidth = 2
+          end,
+        })
+        vim.api.nvim_create_autocmd("BufReadPost", {
+          pattern = "flake.lock",
           callback = function()
             vim.opt_local.tabstop = 2
             vim.opt_local.softtabstop = 2
