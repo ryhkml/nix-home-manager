@@ -1,6 +1,6 @@
 # Nix Home Manager
 
-The nix home manager configuration i use. This is my never ending journey in keeping things smooth and fun.
+The nix home manager configuration i use is my never-ending journey to keep things smooth and fun.
 
 ## Installation
 
