@@ -119,6 +119,8 @@ The installed packages include command line interface, language server protocol,
 
 1. [lazydocker](https://github.com/jesseduffield/lazydocker) - The lazier way to manage everything docker
 1. [lazygit](https://github.com/jesseduffield/lazygit) - Terminal UI for git commands
+1. [lmstudio](https://lmstudio.ai) - Run local LLMs
+1. [lua](https://www.lua.org) - Lualang!
 
 ### N
 
