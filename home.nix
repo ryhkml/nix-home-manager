@@ -62,10 +62,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.1";
+    version = "1.2.2";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1s2jknaxwrihwcfajpbh94mrlr15f39gbj1pyanqlk6bajcf7023";
+      sha256 = "0yahbz4bg68yays0q0vxa8sis7ank3462in0k0mar10zzn5gnkiz";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -115,6 +115,22 @@ let
       tar -xzf $src --strip-components=1 -C $out
       # Prevent collision between 2 LICENSE
       mv $out/LICENSE $out/share/doc/LICENSE-google-cloud-sdk
+    '';
+  };
+  # LM Studio AI for Linux
+  # https://lmstudio.ai
+  lmStudio = pkgs.stdenv.mkDerivation rec {
+    pname = "lmstudio";
+    version = "0.3.9";
+    src = pkgs.fetchurl {
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-6/LM-Studio-${version}-6-x64.AppImage";
+      sha256 = "06z67x7ranr3lggavag3diyhi1p9zcwvmgrz9xlvwl53mhr1hz1g";
+    };
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src $out/bin/LM-Studio.AppImage
+      chmod +x $out/bin/LM-Studio.AppImage
     '';
   };
   # Nodejs only for x86_64-linux
@@ -187,6 +203,7 @@ in
       id3v2
       # # L
       lazydocker
+      lua
       # # N
       nix-prefetch-git
       nodejsBin
@@ -194,6 +211,8 @@ in
       # # P
       podman-compose
       # # R
+      R
+      rPackages.languageserver
       rustup
       # # S
       sqlite
@@ -369,6 +388,18 @@ in
       VISUAL = "nvim";
       TERMINAL = "alacritty";
     };
+  };
+
+  xdg.desktopEntries.lmstudio = {
+    name = "LM Studio";
+    comment = "Discover, download, and run local LLMs";
+    exec = "${lmStudio}/bin/LM-Studio.AppImage";
+    type = "Application";
+    categories = [
+      "Utility"
+      "Development"
+    ];
+    terminal = false;
   };
 
   editorconfig = {
@@ -861,6 +892,8 @@ in
             lspconfig.nginx_language_server.setup{}
             -- Nix
             lspconfig.nil_ls.setup{}
+            -- R
+            lspconfig.r_language_server.setup{}
             -- Rust
             lspconfig.rust_analyzer.setup{}
             -- Typescript
@@ -1021,7 +1054,7 @@ in
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
                 "angular", "bash", "c", "cmake", "make", "css", "dockerfile", "hcl", "html", "http", "java", "javascript",
-                "kdl", "nginx", "nix", "scss", "sql", "sway", "pem", "rust", "toml", "typescript", "yaml", "xml", "zig", "ziggy",
+                "kdl", "nginx", "nix", "scss", "sql", "sway", "pem", "r", "rust", "toml", "typescript", "yaml", "xml", "zig", "ziggy",
                 "diff", "gitattributes", "gitcommit", "gitignore", "git_config"
               },
               sync_install = false,
@@ -1035,18 +1068,6 @@ in
                 enable = true
               }
             }
-          '';
-        }
-        {
-          plugin = vim-closetag;
-          config = ''
-            let g:closetag_filenames = "*.html,*.xhtml"
-            let g:closetag_xhtml_filenames = "*.xhtml"
-            let g:closetag_filetypes = "html,xhtml"
-            let g:closetag_xhtml_filetypes = "xhtml"
-            let g:closetag_emptyTags_caseSensitive = 1
-            let g:closetag_shortcut = ">"
-            let g:closetag_close_shortcut = "<leader>>"
           '';
         }
         {
