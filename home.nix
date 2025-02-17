@@ -212,7 +212,6 @@ in
       podman-compose
       # # R
       R
-      rPackages.languageserver
       rustup
       # # S
       sqlite
@@ -332,15 +331,19 @@ in
         layout {
           cwd "${pathHome}"
           tab name="Sysinfo" hide_floating_panes=true {
-            pane command="btop" name="Monitor resource" {
-              start_suspended true
-            }
+            pane command="btop" name="Monitor resource" {}
             pane size=1 borderless=true {
               plugin location="zellij:tab-bar"
             }
           }
           tab name="Editor" hide_floating_panes=true focus=true {
-            pane
+            pane name="Compose" {}
+            pane size=1 borderless=true {
+              plugin location="zellij:tab-bar"
+            }
+          }
+          tab name="Debug" hide_floating_panes=true {
+            pane name="Test" {}
             pane size=1 borderless=true {
               plugin location="zellij:tab-bar"
             }
@@ -422,6 +425,10 @@ in
         indent_size = 2;
       };
       "*.yml" = {
+        indent_style = "space";
+        indent_size = 2;
+      };
+      "flake.lock" = {
         indent_style = "space";
         indent_size = 2;
       };
@@ -1244,8 +1251,9 @@ in
                 sh = { "beautysh" },
                 typescript = { "prettier" },
                 yaml = { "yamlfmt" },
-                zig = { "zigfmt" },
-                ["_"] = { "trim_whitespace" }
+                -- I don't know why this works
+                zig = { "zig fmt" },
+                ["_"] = { "trim_whitespace" },
               },
               default_format_opts = {
                 lsp_format = "fallback",
