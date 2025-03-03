@@ -38,10 +38,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.1.5";
+    version = "19.1.7";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "c59bb1b334e2467dc920d4d3b387e914846aa1b1";
+      rev = "33dbaef3bcc737afb1a418753ae69954e5c3f83e";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -56,16 +56,16 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "08ae89313d07a5b9b017a132ae7db7c9e3410d9b";
+    rev = "83f2cb290ed277aebf1dfe2b3b9e00f31f03138e";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.2";
+    version = "1.2.4";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0yahbz4bg68yays0q0vxa8sis7ank3462in0k0mar10zzn5gnkiz";
+      sha256 = "11hm81f3s6416yb1b5gg38xkalsszqmy7gkyc31pvw0srxsbvp4a";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -87,10 +87,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.29.2";
+    version = "13.31.2";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "16pjqx9y6xnb1wlklh23ksbkv30pkxjrisaw5i8wikr7ladi3jb2";
+      sha256 = "0wl4ln5n6gwfl3vi8cc2cv4kp9f05rwz5mvpsp5kpv3skvdcqjq7";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -103,10 +103,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "508.0.0";
+    version = "511.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "14q3zdvfc01lxmpa8l358jbsb4d8i2k0cb9x7wgwv7xfcfry8ck3";
+      sha256 = "10ylljpr3xqf6n58gknfbhabgvhg97agbvnxbaqmi0jv4aqkqbzx";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -121,10 +121,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.9";
+    version = "0.3.10";
     src = pkgs.fetchurl {
       url = "https://installers.lmstudio.ai/linux/x64/${version}-6/LM-Studio-${version}-6-x64.AppImage";
-      sha256 = "06z67x7ranr3lggavag3diyhi1p9zcwvmgrz9xlvwl53mhr1hz1g";
+      sha256 = "1knzl1y9gwmipsm50pgfmfb56idng31hkvivwrla238s93dr80dh";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -137,10 +137,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.13.1";
+    version = "22.14.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0frvfccz1cssjcrmiff14qazwiil6wzws2c3biavbskx7krmlahd";
+      sha256 = "1v1p0kl4kcn55gdfy9rrzvman18hvd046fi7wk20bjwdbjx9vc39";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -159,12 +159,7 @@ let
   # Yazi
   yaziPlugins = builtins.fetchGit {
     url = "https://github.com/yazi-rs/plugins.git";
-    rev = "e4aaf430ad7f81d2e358e3a60525c8ef3fa259fc";
-  };
-  # Zellij
-  zellijCompactLayout = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/zellij-org/zellij/refs/heads/main/zellij-utils/assets/layouts/compact.swap.kdl";
-    sha256 = "1fcva0y4ppwzi0g3g7jaik9n5f8jz120w054wfssj5fcal6l162d";
+    rev = "781a79846415f4946d149a11666381b21dd9e820";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -204,11 +199,14 @@ in
       # # L
       lazydocker
       lua
+      # # M
+      minify
       # # N
       nix-prefetch-git
       nodejsBin
       noisetorch # This package is mind blowing!
       # # P
+      pnpm
       podman-compose
       # # R
       R
@@ -336,7 +334,7 @@ in
               plugin location="zellij:tab-bar"
             }
           }
-          tab name="Editor" hide_floating_panes=true focus=true {
+          tab name="Editor" hide_floating_panes=true {
             pane name="Compose" {}
             pane size=1 borderless=true {
               plugin location="zellij:tab-bar"
@@ -354,7 +352,6 @@ in
               plugin location="zellij:tab-bar"
             }
           }
-          ${builtins.replaceStrings [ "compact-bar" ] [ "zellij:tab-bar" ] (builtins.readFile zellijCompactLayout)}
         }
       '';
       ".scripts/waybar/custom-clock.sh".text = ''
@@ -1127,9 +1124,6 @@ in
               local searchcount = vim.fn.searchcount { maxcount = 9000 }
               return "" .. searchcount.current .. "/" .. searchcount.total .. ""
             end
-            local function CurrentTime()
-              return os.date("%I:%M:%S"):gsub("^0", "")
-            end
             require("lualine").setup({
               options = {
                 icons_enabled = false,
@@ -1141,7 +1135,6 @@ in
               sections = {
                 lualine_x = {
                   SearchResultCount,
-                  CurrentTime,
                   "encoding",
                   "filetype"
                 },
@@ -1317,7 +1310,7 @@ in
               popup = {
                 position = "50%",
                 size = {
-                  width = "30%",
+                  width = "25%",
                 },
                 border = {
                   style = "single",
@@ -1341,7 +1334,7 @@ in
             require("searchbox").setup({
               popup = {
                 position = "50%",
-                size = "30%",
+                size = "25%",
                 border = {
                   style = "single",
                   text = {
