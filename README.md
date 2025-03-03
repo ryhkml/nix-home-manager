@@ -122,6 +122,10 @@ The installed packages include command line interface, language server protocol,
 1. [lmstudio](https://lmstudio.ai) - Run local LLMs
 1. [lua](https://www.lua.org) - Lualang!
 
+### M
+
+1. [minify](https://go.tacodewolff.nl/minify) - Web formats minifier
+
 ### N
 
 1. [neovim](https://www.neovim.io) - You gotta know this, right?
@@ -138,6 +142,7 @@ The installed packages include command line interface, language server protocol,
 
 ### P
 
+1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
 
 ### R
