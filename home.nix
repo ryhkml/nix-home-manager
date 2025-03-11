@@ -6,22 +6,6 @@
 }:
 
 let
-  # A wrapper function for nix OpenGL application
-  # Big thanks from https://github.com/nix-community/nixGL/issues/44
-  nixgl = import <nixgl> { };
-  nixglWrap =
-    pkg:
-    pkgs.runCommand "${pkg.name}-nixgl-wrapper" { } ''
-      mkdir $out
-      ln -s ${pkg}/* $out
-      rm $out/bin
-      mkdir $out/bin
-      for bin in ${pkg}/bin/*; do
-        wrapped_bin=$out/bin/$(basename $bin)
-        echo "exec ${lib.getExe' nixgl.auto.nixGLDefault "nixGL"} $bin \"\$@\"" > $wrapped_bin
-        chmod +x $wrapped_bin
-      done
-    '';
   # Vim plugins
   # Some Vim plugins is not available in nixpkgs
   myVimPlugin =
@@ -62,10 +46,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.4";
+    version = "1.2.5";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "11hm81f3s6416yb1b5gg38xkalsszqmy7gkyc31pvw0srxsbvp4a";
+      sha256 = "16wps6hs57ijbvw09ii794qwaymwd7390glf6bbg83rkxvnlpxl8";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -87,10 +71,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.31.2";
+    version = "13.33.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0wl4ln5n6gwfl3vi8cc2cv4kp9f05rwz5mvpsp5kpv3skvdcqjq7";
+      sha256 = "12a7xlr7wcdz0709g2a6imbvdqmhgg1psv1p0i3d6wq2089hkzf9";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -103,10 +87,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "511.0.0";
+    version = "513.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "10ylljpr3xqf6n58gknfbhabgvhg97agbvnxbaqmi0jv4aqkqbzx";
+      sha256 = "1my76rkbj5lc5rxx8ar2kvzd05m8nrgnqcl81cdwacq05pfk3w8i";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -121,10 +105,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.10";
+    version = "0.3.12";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-6/LM-Studio-${version}-6-x64.AppImage";
-      sha256 = "1knzl1y9gwmipsm50pgfmfb56idng31hkvivwrla238s93dr80dh";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-1/LM-Studio-${version}-1-x64.AppImage";
+      sha256 = "0gw97yrafzbvq0cgn2n5gr85siaaw39zncp89l3p94h9cfsdcfhb";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -244,6 +228,7 @@ in
         BasedOnStyle: Google
         IndentWidth: 4
         ColumnLimit: 120
+        AlignArrayOfStructures: Right
       '';
       ".config/dunst/dunstrc".text = ''
         [global]
@@ -268,7 +253,10 @@ in
         skip_display = yes
       '';
       ".config/foot/foot.ini".text = ''
-        font=FiraCode Nerd Font:size=14
+        font=FiraCode Nerd Font:size=15
+        letter-spacing=0.5
+        term=xterm-256color
+        pad=6x6 center
         initial-window-mode=maximized
         [cursor]
         style=beam
@@ -276,8 +264,8 @@ in
         [colors]
         background=000000
         foreground=ffffff
-        [scrollback]
-        lines=9999
+        [mouse]
+        hide-when-typing=yes
       '';
       ".config/lazydocker/config.yml".text = ''
         gui:
@@ -386,7 +374,6 @@ in
     sessionVariables = {
       EDITOR = "nvim";
       VISUAL = "nvim";
-      TERMINAL = "alacritty";
     };
   };
 
@@ -431,6 +418,12 @@ in
       };
     };
   };
+
+  # GPU on non-NixOS systems
+  # https://nix-community.github.io/home-manager/index.xhtml#sec-usage-gpu-non-nixos
+  nixGL.packages = import <nixgl> { inherit pkgs; };
+  nixGL.defaultWrapper = "mesa";
+  nixGL.installScripts = [ "mesa" ];
 
   programs.home-manager.enable = true;
 
@@ -480,7 +473,7 @@ in
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E dist -E node_modules -E target | fzf --reverse | xargs -r nvim";
       # Zellij
-      zla = "zellij a";
+      zla = "zellij a ?";
       zld = "zellij d ?";
       zls = "zellij ls";
       zlda = "zellij da -y";
@@ -635,7 +628,7 @@ in
         };
         selection.save_to_clipboard = true;
       };
-      package = nixglWrap pkgs.alacritty;
+      package = config.lib.nixGL.wrap pkgs.alacritty;
     };
     bat = {
       enable = true;
