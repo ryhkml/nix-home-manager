@@ -3,7 +3,8 @@ on:
   push:
     paths:
       - "**/*"
-      - "!.git*"
+      - "!.gitattributes"
+      - "!.gitignore"
       - "!README.md"
 jobs:
   install:
@@ -20,16 +21,16 @@ jobs:
         run: |
           sudo mkdir /etc/nix
           echo "build-users-group = " | sudo tee /etc/nix/nix.conf > /dev/null
-      - name: Install nix and home manager
+      - name: Install nix and initialize home manager
         run: |
           sh <(curl -L https://nixos.org/nix/install) --no-daemon
           sleep 1
-          . $HOME/.nix-profile/etc/profile.d/nix.sh
+          . /home/$USER/.nix-profile/etc/profile.d/nix.sh
           nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-          nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
           nix-channel --update
           nix-shell '<home-manager>' -A install
-          echo ". \"\$HOME\"/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
+          echo ". /home/$USER/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
+          sleep 1
           source ~/.bashrc
           nix --version
           home-manager --version
