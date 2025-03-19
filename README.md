@@ -14,7 +14,7 @@ The nix home manager configuration i use is my never-ending journey to keep thin
 
     ```sh
     sh <(curl -L https://nixos.org/nix/install) --no-daemon
-    . "$HOME"/.nix-profile/etc/profile.d/nix.sh
+    . /home/$USER/.nix-profile/etc/profile.d/nix.sh
     ```
 
     For more information, visit [nixos.org/download](https://nixos.org/download/)
@@ -23,7 +23,6 @@ The nix home manager configuration i use is my never-ending journey to keep thin
 
     ```sh
     nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-    nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
     nix-channel --update
     ```
 
@@ -35,8 +34,8 @@ The nix home manager configuration i use is my never-ending journey to keep thin
 
     ```sh
     nix-shell '<home-manager>' -A install
-    echo ". \"\$HOME\"/.nix-profile/etc/profile.d/nix.sh" | tee -a $HOME/.bashrc > /dev/null
-    source $HOME/.bashrc
+    echo ". /home/$USER/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
+    source ~/.bashrc
     ```
 
 4. Check home.nix configuration, run:
