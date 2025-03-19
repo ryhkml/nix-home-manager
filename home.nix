@@ -22,10 +22,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.1.7";
+    version = "19.2.3";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "33dbaef3bcc737afb1a418753ae69954e5c3f83e";
+      rev = "08a8f80fc1965ef50db94eca919b6bc8ce729edc";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -40,7 +40,7 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "83f2cb290ed277aebf1dfe2b3b9e00f31f03138e";
+    rev = "fbdab32545aa52b98e9778f7664069e0c1b6612a";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
@@ -71,10 +71,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.33.0";
+    version = "13.34.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "12a7xlr7wcdz0709g2a6imbvdqmhgg1psv1p0i3d6wq2089hkzf9";
+      sha256 = "0j2ypmd3c32nz5c5hxqgqskbmjphsypffaxgi8xw0d8sxmgdz3fm";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -87,10 +87,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "513.0.0";
+    version = "515.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "1my76rkbj5lc5rxx8ar2kvzd05m8nrgnqcl81cdwacq05pfk3w8i";
+      sha256 = "0r7a37px6bsglpx6szhqxaz69xn2yhhypi0vaav7nncqjhsl4kmz";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -225,10 +225,23 @@ in
         disable = true
       '';
       ".clang-format".text = ''
+        ---
         BasedOnStyle: Google
         IndentWidth: 4
         ColumnLimit: 120
-        AlignArrayOfStructures: Right
+        AlignArrayOfStructures: Left
+        AlignAfterOpenBracket: Align
+        BracedInitializerIndentWidth: 4
+        InsertTrailingCommas: TCS_Wrapped
+        ---
+        Language: Proto
+        ColumnLimit: 100
+        ---
+        Language: CSharp
+        DisableFormat: true
+        ---
+        Language: JavaScript
+        DisableFormat: true
       '';
       ".config/dunst/dunstrc".text = ''
         [global]
@@ -620,7 +633,7 @@ in
           decorations_theme_variant = "Dark";
           padding = {
             x = 12;
-            y = 0;
+            y = 6;
           };
           dynamic_padding = true;
           opacity = 0.95;
