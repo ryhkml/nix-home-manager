@@ -478,10 +478,8 @@ in
       nmactive = "nmcli connection show --active";
       nmup = "nmcli connection up $NETWORK_NAME";
       nmdown = "nmcli connection down $NETWORK_NAME";
-      nmdnsv4-cloudflare = "nmcli connection modify $NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"";
-      nmdnsv6-cloudflare = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"";
-      nmdnsv4-quad9 = "nmcli connection modify $NETWORK_NAME ipv4.dns \"9.9.9.9,149.112.112.112\"";
-      nmdnsv6-quad9 = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2620:fe::fe,2620:fe::9\"";
+      nmdnsv4-cloudflare = "nmcli connection modify $NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"; nmcli connection modify $NETWORK_NAME ipv4.ignore-auto-dns yes";
+      nmdnsv6-cloudflare = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"; nmcli connection modify $NETWORK_NAME ipv6.ignore-auto-dns yes";
       v = "nvim";
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E dist -E node_modules -E target | fzf --reverse | xargs -r nvim";
@@ -510,7 +508,7 @@ in
           history delete --case-sensitive --exact "$argv"
         end
       end
-      # https://github.com/jorgebucaran/humantime.fish
+      # Source: jorgebucaran, https://github.com/jorgebucaran/humantime.fish
       function humantime -a ms
         set -q ms[1] || return
         set -l secs (math --scale=1 $ms/1000 % 60)
