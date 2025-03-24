@@ -140,11 +140,6 @@ let
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
   };
-  # Yazi
-  yaziPlugins = builtins.fetchGit {
-    url = "https://github.com/yazi-rs/plugins.git";
-    rev = "781a79846415f4946d149a11666381b21dd9e820";
-  };
   pathHome = builtins.getEnv "HOME";
 in
 {
@@ -232,7 +227,6 @@ in
         AlignArrayOfStructures: Left
         AlignAfterOpenBracket: Align
         BracedInitializerIndentWidth: 4
-        InsertTrailingCommas: TCS_Wrapped
         ---
         Language: Proto
         ColumnLimit: 100
@@ -1700,98 +1694,6 @@ in
         "--glob=!node_modles/*"
         "--glob=!target/*"
       ];
-    };
-    yazi = {
-      enable = true;
-      shellWrapperName = "yz";
-      settings = {
-        manager = {
-          ratio = [
-            2
-            2
-            4
-          ];
-          sort_by = "natural";
-          sort_dir_first = true;
-          show_hidden = true;
-        };
-        preview = {
-          max_width = 1000;
-          max_height = 1000;
-          image_delay = 100;
-        };
-        plugin = {
-          prepend_fetchers = [
-            {
-              id = "mime";
-              "if" = "!mime";
-              name = "*";
-              run = "mime-ext";
-              prio = "high";
-            }
-          ];
-        };
-      };
-      theme = {
-        filetype = {
-          rules = [
-            {
-              name = "*";
-              fg = "#ffffff";
-            }
-            {
-              name = "*/";
-              fg = "#526596";
-            }
-          ];
-        };
-        icon = {
-          dirs = [
-            {
-              name = "*";
-              text = "";
-            }
-          ];
-          exts = [
-            {
-              name = "*";
-              text = "";
-            }
-          ];
-          files = [
-            {
-              name = "*";
-              text = "";
-            }
-          ];
-        };
-      };
-      plugins = {
-        mime-ext = "${yaziPlugins}/mime-ext.yazi";
-        no-status = "${yaziPlugins}/no-status.yazi";
-      };
-      initLua = ''
-        -- Remove status bar
-        require("no-status"):setup()
-        -- Mime-ext
-        require("mime-ext"):setup{
-          with_files = {
-            config = "text/plain",
-            [".env"] = "text/plain",
-            [".env.development"] = "text/plain",
-            [".env.example"] = "text/plain",
-            [".env.local"] = "text/plain",
-            [".env.production"] = "text/plain",
-            [".env.test"] = "text/plain",
-            ["Dockerfile"] = "text/plain",
-            [".dockerignore"] = "text/plain",
-            [".gcloudignore"] = "text/plain",
-            [".gitattributes"] = "text/plain",
-            [".gitignore"] = "text/plain",
-          },
-          fallback_file1 = false,
-        }
-      '';
     };
     zellij.enable = true;
     zoxide.enable = true;
