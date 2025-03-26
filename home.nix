@@ -554,6 +554,7 @@ in
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
+      set -gx XCURSOR_THEME Bibata-Original-Ice
     '';
     functions = {
       "screenshot_entire_screen -S" = ''
@@ -924,6 +925,10 @@ in
             -- https://github.com/hrsh7th/nvim-cmp
             local cmp = require("cmp")
             cmp.setup({
+              preselect = cmp.PreselectMode.None,
+              completion = {
+                completeopt = "menu,menuone,noselect"
+              },
               snippet = {
                 expand = function(args)
                   vim.snippet.expand(args.body)
@@ -934,7 +939,17 @@ in
                 ["<C-f>"] = cmp.mapping.scroll_docs(4),
                 ["<C-Space>"] = cmp.mapping.complete(),
                 ["<C-e>"] = cmp.mapping.abort(),
-                ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                ["<CR>"] = cmp.mapping({
+                  i = function(fallback)
+                    if cmp.visible() and cmp.get_active_entry() then
+                      cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
+                    else
+                      fallback()
+                    end
+                  end,
+                  s = cmp.mapping.confirm({ select = false }),
+                  c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
+                }),
               }),
               sources = cmp.config.sources({
                 { name = "nvim_lsp" },
