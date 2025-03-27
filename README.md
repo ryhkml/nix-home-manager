@@ -96,8 +96,10 @@ The installed packages include command line interface, language server protocol,
 
 ### G
 
-1. [gnuplot](https://www.gnuplot.info) - Portable command line driven graphing utility for many platforms
 1. [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud CLI
+1. [gnuplot](https://www.gnuplot.info) - Portable command line driven graphing utility for many platforms
+1. [go](https://go.dev) - Golang!
+1. [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - LSP for Go
 
 ### H
 
@@ -164,10 +166,6 @@ The installed packages include command line interface, language server protocol,
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
 
-### U
-
-1. [ueberzugpp](https://github.com/jstkdng/ueberzugpp) - Draw images on terminal
-
 ### V
 
 1. [vscode-langservers-extracted](https://github.com/hrsh7th/vscode-langservers-extracted) - LSP extracted from Vscode for HTML/CSS/JSON/ESLint
@@ -176,7 +174,6 @@ The installed packages include command line interface, language server protocol,
 
 1. [yamlfmt](https://github.com/google/yamlfmt) - Formatter for YAML
 1. [yaml-language-server](https://github.com/redhat-developer/yaml-language-server) - LSP for YAML
-1. [yazi](https://yazi-rs.github.io) - Terminal file manager
 1. [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Command line tool to download videos from Youtube and other sites
 
 ### Z
