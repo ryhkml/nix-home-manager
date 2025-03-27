@@ -22,10 +22,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.2.3";
+    version = "19.2.5";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "08a8f80fc1965ef50db94eca919b6bc8ce729edc";
+      rev = "4ba7ff1afc1f5a307ec1e521da421bc3c1b738fb";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -40,7 +40,7 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "fbdab32545aa52b98e9778f7664069e0c1b6612a";
+    rev = "0feeda4b6b6a1bde118d8b4be0f08c48097aa73e";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
@@ -71,10 +71,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.34.0";
+    version = "13.35.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0j2ypmd3c32nz5c5hxqgqskbmjphsypffaxgi8xw0d8sxmgdz3fm";
+      sha256 = "06rcc5d1ya91q5r411ascy2mj0rpwsrasc4zpv3r7hysgkxcyriz";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -105,10 +105,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.12";
+    version = "0.3.13";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-1/LM-Studio-${version}-1-x64.AppImage";
-      sha256 = "0gw97yrafzbvq0cgn2n5gr85siaaw39zncp89l3p94h9cfsdcfhb";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-2/LM-Studio-${version}-2-x64.AppImage";
+      sha256 = "0229571pwda81xzd2y9i088lzp5c7qfxdi59d8pf52059xz221as";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -196,8 +196,6 @@ in
       tokei
       trash-cli
       typescript
-      # # U
-      ueberzugpp
       # # Y
       yt-dlp
       # # Z
@@ -236,6 +234,15 @@ in
         ---
         Language: JavaScript
         DisableFormat: true
+      '';
+      ".curlrc".text = ''
+        -s
+        -L
+        -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+        -H "Cache-Control: no-cache, no-store, must-revalidate"
+        --retry 5
+        --retry-delay 5
+        --connect-timeout 30
       '';
       ".config/dunst/dunstrc".text = ''
         [global]
@@ -723,6 +730,7 @@ in
         ".git/"
         ".angular/"
         ".database/"
+        ".db/"
         ".firebase/"
         "node_modules/"
         "target/"
@@ -733,6 +741,10 @@ in
       ];
     };
     fzf.enable = true;
+    go = {
+      enable = true;
+      goPath = ".go";
+    };
     java.enable = true;
     jq.enable = true;
     lazygit = {
@@ -869,6 +881,8 @@ in
             lspconfig.dockerls.setup{}
             -- HTML
             lspconfig.html.setup{}
+            -- Go
+            lspconfig.gopls.setup{}
             -- Java
             lspconfig.jdtls.setup{}
             -- JSON
@@ -973,6 +987,7 @@ in
                 file_ignore_patterns = {
                   "^.angular/",
                   "^.database/",
+                  "^.db/",
                   "^.firebase/",
                   "^.git/",
                   "^dist/",
@@ -999,6 +1014,7 @@ in
                   file_ignore_patterns = {
                     "^.angular/",
                     "^.database/",
+                    "^.db/",
                     "^.firebase/",
                     "^.git/",
                     "^dist/",
@@ -1244,6 +1260,7 @@ in
                 css = { "prettier" },
                 fish = { "fish_indent" },
                 html = { "prettier" },
+                go = { "gofmt" },
                 java = { "astyle" },
                 javascript = { "prettier" },
                 json = { "prettier" },
@@ -1493,6 +1510,7 @@ in
         beautysh
         dockerfile-language-server-nodejs
         jdt-language-server
+        gopls
         nginx-language-server
         nil
         nixfmt-rfc-style
@@ -1703,6 +1721,7 @@ in
       arguments = [
         "--glob=!.angular/*"
         "--glob=!.database/*"
+        "--glob=!.db/*"
         "--glob=!.firebase/*"
         "--glob=!.git/*"
         "--glob=!dist/*"
