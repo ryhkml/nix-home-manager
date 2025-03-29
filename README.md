@@ -149,6 +149,7 @@ The installed packages include command line interface, language server protocol,
 ### R
 
 1. [ripgrep](https://github.com/BurntSushi/ripgrep) - Searcher with the raw speed of grep
+1. [rlwrap](https://github.com/hanslub42/rlwrap) - A readline wrapper
 1. [rustup](https://www.rustup.rs) - Rust toolchain installer
 1. [rust-analyzer](https://rust-analyzer.github.io) - Modular compiler frontend for the Rust language
 1. [rustfmt](https://github.com/rust-lang-nursery/rustfmt) - Formatter for Rust
