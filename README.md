@@ -57,7 +57,7 @@ The installed packages include command line interface, language server protocol,
 1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
 1. [angular-language-server](https://github.com/angular/vscode-ng-language-service) - LSP for Angular
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
-1. [astyle](https://astyle.sourceforge.net) - Formatter for C, C++, C++/CLI, Objective-C, C#, and Java
+1. [astyle](https://astyle.sourceforge.net) - Formatter only for Java
 
 ### B
 
@@ -112,7 +112,7 @@ The installed packages include command line interface, language server protocol,
 
 ### J
 
-1. [java](https://openjdk.java.net) - Open-source Java Development Kit
+1. [java](https://openjdk.java.net) - Java Development Kit
 1. [jdt-language-server](https://github.com/eclipse/eclipse.jdt.ls) - LSP for Java
 1. [jq](https://jqlang.github.io/jq) - Lightweight and flexible command line JSON processor
 
@@ -129,15 +129,15 @@ The installed packages include command line interface, language server protocol,
 
 ### N
 
-1. [neovim](https://www.neovim.io) - You gotta know this, right?
+1. [neovim](https://www.neovim.io) - Hyperextensible Vim-based text editor
 1. [ng](https://angular.dev/tools/cli) - Angular CLI
 1. [nginx-language-server](https://github.com/pappasam/nginx-language-server) - LSP for nginx.conf
 1. [nil](https://github.com/oxalica/nil) - Yet another LSP for Nix
 1. [nixgl](https://github.com/nix-community/nixGL) - A wrapper tool for Nix OpenGL application
 1. [nix-prefetch-git](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/tools/package-management/nix-prefetch-scripts/default.nix) - Script used to obtain source hashes for fetchgit
 1. [nixfmt-rfc-style](https://github.com/NixOS/nixfmt) - Formatter for Nix
-1. [nodejsBin](https://nodejs.org/en) - Event-driven I/O framework for the V8 Javascript engine
-1. [nodePackages.prettier](https://prettier.io) - Prettier is an opinionated code formatter
+1. [nodejs](https://nodejs.org/en) - Event-driven I/O framework for the V8 Javascript engine
+1. [nodePackages.prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
 1. [nodePackages.vls](https://github.com/vuejs/vetur/tree/master/server) - LSP for Vue
 1. [noisetorch](https://github.com/noisetorch/NoiseTorch) - Virtual microphone device with noise supression for PulseAudio
 
@@ -163,13 +163,13 @@ The installed packages include command line interface, language server protocol,
 ### T
 
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
-1. [trash-cli](https://github.com/andreafrancia/trash-cli) - Command line interface to the freedesktop.org trashcan
+1. [trash-cli](https://github.com/andreafrancia/trash-cli) - Safety `rm` :)
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
 
 ### V
 
-1. [vscode-langservers-extracted](https://github.com/hrsh7th/vscode-langservers-extracted) - LSP extracted from Vscode for HTML/CSS/JSON/ESLint
+1. [vscode-langservers-extracted](https://github.com/hrsh7th/vscode-langservers-extracted) - LSP extracted from Vscode only for HTML/CSS/JSON/ESLint
 
 ### Y
 
