@@ -189,6 +189,7 @@ in
       podman-compose
       # # R
       R
+      rlwrap
       rustup
       # # S
       sqlite
@@ -1095,6 +1096,16 @@ in
               parser_install_dir = dir_parser,
               highlight = {
                 enable = true,
+                disable = function(lang, buf)
+                  if lang == "html" or lang == "css" or lang == "js" then
+                    local max_size = 256 * 1024
+                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+                    if ok and stats and stats.size > max_size then
+                      return true
+                    end
+                  end
+                  return false
+                end,
                 additional_vim_regex_highlighting = false,
               },
               indent = {
@@ -1336,6 +1347,7 @@ in
           plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "aec9efebf6f4606a5204d49ffa3ce2eeb7e08a3e";
           type = "lua";
           config = ''
+            -- https://github.com/VonHeikemen/fine-cmdline.nvim
             require("fine-cmdline").setup({
               popup = {
                 position = "50%",
