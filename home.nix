@@ -46,10 +46,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.5";
+    version = "1.2.8";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "16wps6hs57ijbvw09ii794qwaymwd7390glf6bbg83rkxvnlpxl8";
+      sha256 = "0cczkrwji3rfrn87fmx8744769kdf32i72va3pz8dfb0cwv8pd22";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -71,10 +71,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "13.35.1";
+    version = "14.1.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "06rcc5d1ya91q5r411ascy2mj0rpwsrasc4zpv3r7hysgkxcyriz";
+      sha256 = "0809xw6582nzfs9d5vy4pix0hdxrl1zm4l838m4qwsf5127s0nfp";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -105,10 +105,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.13";
+    version = "0.3.14";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-2/LM-Studio-${version}-2-x64.AppImage";
-      sha256 = "0229571pwda81xzd2y9i088lzp5c7qfxdi59d8pf52059xz221as";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-5/LM-Studio-${version}-5-x64.AppImage";
+      sha256 = "1f31adym8m255crh76gcggm2j99znvld9valacsg1mzwxkjvvcss";
     };
     phases = [ "installPhase" ];
     installPhase = ''
