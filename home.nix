@@ -503,13 +503,6 @@ in
       tree = "eza -T --color never";
     };
     shellInit = ''
-      # Delete history on cmd error
-      function delete_cmd_error --on-event fish_postexec
-        if test $status = 1 || test $status = 127 && test "$argv" != "exit"
-          echo "$(date +'%-l:%M:%S') -> $argv" | tee -a /tmp/cmd_error.txt > /dev/null
-          history delete --case-sensitive --exact "$argv"
-        end
-      end
       # Source: jorgebucaran, https://github.com/jorgebucaran/humantime.fish
       function humantime -a ms
         set -q ms[1] || return
@@ -940,10 +933,6 @@ in
             -- https://github.com/hrsh7th/nvim-cmp
             local cmp = require("cmp")
             cmp.setup({
-              preselect = cmp.PreselectMode.None,
-              completion = {
-                completeopt = "menu,menuone,noselect"
-              },
               snippet = {
                 expand = function(args)
                   vim.snippet.expand(args.body)
@@ -954,17 +943,7 @@ in
                 ["<C-f>"] = cmp.mapping.scroll_docs(4),
                 ["<C-Space>"] = cmp.mapping.complete(),
                 ["<C-e>"] = cmp.mapping.abort(),
-                ["<CR>"] = cmp.mapping({
-                  i = function(fallback)
-                    if cmp.visible() and cmp.get_active_entry() then
-                      cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
-                    else
-                      fallback()
-                    end
-                  end,
-                  s = cmp.mapping.confirm({ select = false }),
-                  c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }),
-                }),
+                ["<CR>"] = cmp.mapping.confirm({ select = true }),
               }),
               sources = cmp.config.sources({
                 { name = "nvim_lsp" },
