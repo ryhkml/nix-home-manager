@@ -46,10 +46,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.8";
+    version = "1.2.10";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0cczkrwji3rfrn87fmx8744769kdf32i72va3pz8dfb0cwv8pd22";
+      sha256 = "0vn36ifaw3qmhx2kvylsnw5ghzh2gwcwaz58s6s52s793gzm98b8";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -87,10 +87,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "515.0.0";
+    version = "517.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0r7a37px6bsglpx6szhqxaz69xn2yhhypi0vaav7nncqjhsl4kmz";
+      sha256 = "0i3ky92ciy37xxiz9k7n7wfhi66wa380ykk0kpya9ww427wlfh95";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -189,6 +189,8 @@ in
       podman-compose
       # # R
       R
+      rPackages.styler
+      # # -
       rlwrap
       rustup
       # # S
@@ -388,6 +390,7 @@ in
     };
     sessionVariables = {
       EDITOR = "nvim";
+      R_LIBS_USER = "~/.R/lib";
       VISUAL = "nvim";
     };
   };
@@ -555,6 +558,7 @@ in
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
+      set -gx R_LIBS_USER ~/.R/lib
       set -gx XCURSOR_THEME Bibata-Original-Ice
     '';
     functions = {
@@ -903,8 +907,6 @@ in
             lspconfig.nginx_language_server.setup{}
             -- Nix
             lspconfig.nil_ls.setup{}
-            -- R
-            lspconfig.r_language_server.setup{}
             -- Rust
             lspconfig.rust_analyzer.setup{}
             -- Typescript
@@ -1259,6 +1261,7 @@ in
                 lua = { "stylua" },
                 markdown = { "prettier" },
                 nix = { "nixfmt" },
+                r = { "styler" },
                 rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
