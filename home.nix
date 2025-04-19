@@ -140,6 +140,15 @@ let
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
   };
+  # R
+  rWrapper = pkgs.rWrapper.override {
+    packages = with pkgs.rPackages; [
+      ggplot2
+      languageserver
+      readr
+      styler
+    ];
+  };
   pathHome = builtins.getEnv "HOME";
 in
 {
@@ -188,11 +197,9 @@ in
       pnpm
       podman-compose
       # # R
-      R
-      rPackages.styler
-      # # -
       rlwrap
       rustup
+      rWrapper
       # # S
       sqlite
       # # T
@@ -390,7 +397,6 @@ in
     };
     sessionVariables = {
       EDITOR = "nvim";
-      R_LIBS_USER = "~/.R/lib";
       VISUAL = "nvim";
     };
   };
@@ -558,7 +564,6 @@ in
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
-      set -gx R_LIBS_USER ~/.R/lib
       set -gx XCURSOR_THEME Bibata-Original-Ice
     '';
     functions = {
@@ -907,6 +912,8 @@ in
             lspconfig.nginx_language_server.setup{}
             -- Nix
             lspconfig.nil_ls.setup{}
+            -- R
+            lspconfig.r_language_server.setup{}
             -- Rust
             lspconfig.rust_analyzer.setup{}
             -- Typescript
