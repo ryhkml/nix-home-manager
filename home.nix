@@ -22,10 +22,10 @@ let
   # https://www.npmjs.com/package/@angular/cli
   angularCli = pkgs.stdenv.mkDerivation rec {
     pname = "static-angular-cli";
-    version = "19.2.5";
+    version = "19.2.8";
     src = builtins.fetchGit {
       url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "4ba7ff1afc1f5a307ec1e521da421bc3c1b738fb";
+      rev = "abef3340674ada1092c4561bd4328625d75b1fac";
     };
     buildPhase = ''
       mkdir -p $out/bin
@@ -40,7 +40,7 @@ let
   # https://www.npmjs.com/package/@angular/language-server
   angularLanguageServer = builtins.fetchGit {
     url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "0feeda4b6b6a1bde118d8b4be0f08c48097aa73e";
+    rev = "4d32a0f9ee870cc142ca474e1a556721e16ac457";
   };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
