@@ -158,6 +158,7 @@ The installed packages include command line interface, language server protocol,
 ### S
 
 1. [shellcheck](https://hackage.haskell.org/package/ShellCheck) - Shell script analysis tool
+1. [speedtest-cli](https://github.com/sivel/speedtest-cli) - Testing internet bandwidth
 1. [stylua](https://github.com/johnnymorganz/stylua) - Formatter for Lua
 1. [sqlite](https://www.sqlite.org) - Small and fast SQL database engine
 
@@ -167,6 +168,10 @@ The installed packages include command line interface, language server protocol,
 1. [trash-cli](https://github.com/andreafrancia/trash-cli) - Safety `rm` :)
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
+
+### U
+
+1. [unar](https://theunarchiver.com) - Archive unpacker program
 
 ### V
 
