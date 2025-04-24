@@ -201,11 +201,14 @@ in
       rustup
       rWrapper
       # # S
+      speedtest-cli
       sqlite
       # # T
       tokei
       trash-cli
       typescript
+      # # U
+      unar
       # # Y
       yt-dlp
       # # Z
