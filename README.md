@@ -57,6 +57,8 @@ The installed packages include command line interface, language server protocol,
 1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
 1. [angular-language-server](https://github.com/angular/vscode-ng-language-service) - LSP for Angular
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
+1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP fo Assembly
+1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter fo Assembly
 1. [astyle](https://astyle.sourceforge.net) - Formatter only for Java
 
 ### B
