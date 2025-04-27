@@ -369,13 +369,35 @@ in
           }
         }
       '';
+      ".scripts/waybar/custom-wifi.sh".text = ''
+        #!/usr/bin/env bash
+        set -e
+        if ! systemctl is-active --quiet NetworkManager; then
+          notify-send -t 3000 -u critical "NetworkManager" "NetworkManager is not running"
+          exit 13
+        fi
+        if nmcli radio wifi | grep -q "disabled"; then
+          notify-send -t 3000 -u critical "WiFi" "WiFi is disabled"
+          exit 13
+        fi
+        nmcli device wifi rescan
+        networks=()
+        while IFS= read -r line; do
+          networks+=("$line")
+        done < <(nmcli -t -f SSID device wifi list | grep -v '^$' | uniq)
+        chosen=$(printf '%s\n' "''${networks[@]}" | rofi -dmenu -no-custom -i -p "Select a WiFi network")
+        [ -z "$chosen" ] && exit
+        nmcli device wifi connect "$chosen" && notify-send -t 3000 "WiFi" "Connected to $chosen"
+      '';
       ".scripts/waybar/custom-clock.sh".text = ''
+        #!/usr/bin/env bash
         set -e
         current_date=$(date +'%A - %B %-d, %Y')
         current_time=$(date +'%-l:%M:%S')
         echo -n "{\"text\": \"$current_time\", \"tooltip\": \"$current_date\"}"
       '';
       ".scripts/rofi/power.sh".text = ''
+        #!/usr/bin/env bash
         set -e
         options="Logout\nSuspend\nReboot\nPower Off"
         menu=$(echo -e "$options" | rofi -dmenu -no-custom -i -p "Select Action")
@@ -875,6 +897,8 @@ in
                 new_config.cmd = ngcmd
               end,
             }
+            -- ASM
+            lspconfig.asm_lsp.setup{}
             -- Bash
             lspconfig.bashls.setup{}
             -- C
@@ -1258,6 +1282,7 @@ in
             -- https://github.com/stevearc/conform.nvim
             require("conform").setup({
               formatters_by_ft = {
+                asm = { "asmfmt" },
                 c = { "clang-format" },
                 css = { "prettier" },
                 fish = { "fish_indent" },
@@ -1299,14 +1324,14 @@ in
               prepend_args = { "--indent-size", "4", "--tab" },
             }
             require("conform").formatters.nixfmt = {
-              prepend_args = { "--width=128" },
+              prepend_args = { "--width=100" },
             }
             require("conform").formatters.prettier = {
               prepend_args = function(self, ctx)
                 if ctx.filename:match("%.md$") then
-                  return { "--print-width", "128", "--tab-width", "4", "--trailing-comma", "none" }
+                  return { "--print-width", "100", "--tab-width", "4", "--trailing-comma", "none", "--embedded-language-formatting", "auto" }
                 else
-                  return { "--print-width", "128", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none" }
+                  return { "--print-width", "100", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none", "--embedded-language-formatting", "auto" }
                 end
               end,
             }
@@ -1509,6 +1534,8 @@ in
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
+        asm-lsp
+        asmfmt
         astyle
         bash-language-server
         beautysh
