@@ -46,10 +46,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.10";
+    version = "1.2.11";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0vn36ifaw3qmhx2kvylsnw5ghzh2gwcwaz58s6s52s793gzm98b8";
+      sha256 = "1q7rvij79qs5km62k26ivclqygdq2w3mlazmby8hm4zqj20jb0g4";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -105,10 +105,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.14";
+    version = "0.3.15";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-5/LM-Studio-${version}-5-x64.AppImage";
-      sha256 = "1f31adym8m255crh76gcggm2j99znvld9valacsg1mzwxkjvvcss";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-11/LM-Studio-${version}-11-x64.AppImage";
+      sha256 = "08yx8hw8cqh48yc1srs594lpdhn9n6q16gh27brjn6c3vqhagz0i";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -121,10 +121,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.14.0";
+    version = "22.15.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1v1p0kl4kcn55gdfy9rrzvman18hvd046fi7wk20bjwdbjx9vc39";
+      sha256 = "1m4gwx8qk4as14g9nydhi4rzbfq79knf5f8ds4dxx5ybha7jxzns";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -148,6 +148,11 @@ let
       readr
       styler
     ];
+  };
+  # Zellij statusbar plugin
+  zjstatus = pkgs.fetchurl {
+    url = "https://github.com/dj95/zjstatus/releases/download/v0.20.2/zjstatus.wasm";
+    sha256 = "1n5q5zvxj6jvw46xv6irhbaqax9rssb5h1yvcgv6sa8na11kna1r";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -343,29 +348,24 @@ in
       ".config/zellij/layouts/default.kdl".text = ''
         layout {
           cwd "${pathHome}"
-          tab name="Sysinfo" hide_floating_panes=true {
+          default_tab_template {
+            children
+            pane size=1 borderless=true {
+              plugin location="file:${zjstatus}" {
+                format_left "{tabs}"
+                hide_frame_for_single_pane "false"
+                mode_normal "#[bg=#096dd9]"
+                mode_tmux "#[bg=#faad14]"
+                tab_normal "#[fg=#ffffff] {index}->{name} "
+                tab_active "#[fg=#526596,bold] {index}->{name} "
+              }
+            }
+          }
+          tab name="Sysinfo" {
             pane command="btop" name="Monitor resource" {}
-            pane size=1 borderless=true {
-              plugin location="zellij:tab-bar"
-            }
           }
-          tab name="Editor" hide_floating_panes=true {
+          tab name="Editor" {
             pane name="Compose" {}
-            pane size=1 borderless=true {
-              plugin location="zellij:tab-bar"
-            }
-          }
-          tab name="Debug" hide_floating_panes=true {
-            pane name="Test" {}
-            pane size=1 borderless=true {
-              plugin location="zellij:tab-bar"
-            }
-          }
-          new_tab_template {
-            pane
-            pane size=1 borderless=true {
-              plugin location="zellij:tab-bar"
-            }
           }
         }
       '';
@@ -588,6 +588,8 @@ in
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
+      set -gx LANG en_US.UTF-8
+      set -gx LC_ALL en_US.UTF-8
       set -gx NODE_OPTIONS --max-old-space-size=8192
       set -gx XCURSOR_THEME Bibata-Original-Ice
     '';
@@ -660,8 +662,8 @@ in
           decorations = "None";
           decorations_theme_variant = "Dark";
           padding = {
-            x = 12;
-            y = 6;
+            x = 4;
+            y = 4;
           };
           dynamic_padding = true;
           opacity = 0.95;
@@ -1760,7 +1762,10 @@ in
         "--glob=!target/*"
       ];
     };
-    zellij.enable = true;
+    zellij = {
+      enable = true;
+      enableBashIntegration = true;
+    };
     zoxide.enable = true;
   };
 }
