@@ -191,3 +191,24 @@ The installed packages include command line interface, language server protocol,
 1. [zig](https://ziglang.org) - Ziglang!
 1. [zls](https://github.com/zigtools/zls) - LSP for Zig
 1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast `cd` that learns your habits
+
+## Uninstalling Nix and Nix Home Manager (Single-User)
+
+Just delete the files and directories containing Nix :)
+
+```sh
+rm -rf /nix ~/.cache/nix \
+  ~/.config/nix ~/.config/home-manager \
+  ~/.local/share/nix ~/.local/share/home-manager \
+  ~/.local/state/nix ~/.local/state/home-manager \
+  ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+```
+
+Finally, remove the installation script section from the `.bashrc` and `.bash_profile` files as well
+
+```sh
+# .bash_profile
+if [ -e /home/user/.nix-profile/etc/profile.d/nix.sh ]; then . /home/user/.nix-profile/etc/profile.d/nix.sh; fi
+# .bashrc
+. "$HOME"/.nix-profile/etc/profile.d/nix.sh
+```
