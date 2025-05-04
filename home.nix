@@ -342,6 +342,7 @@ in
             orange "#965287"
           }
         }
+        scroll_buffer_size 90000
         default_shell "${config.home.profileDirectory}/bin/fish"
         layout_dir "${pathHome}/.config/zellij/layouts"
       '';
@@ -525,6 +526,8 @@ in
       zls = "zellij ls";
       zlda = "zellij da -y";
       zl = "zellij -s Main";
+      # Open
+      xof = "xdg-open $(pwd)/?";
     };
     shellAliases = {
       docker = "podman";
@@ -535,6 +538,7 @@ in
       # Safety rm
       rm = "trash-put";
       tree = "eza -T --color never";
+      zigfmt = "zig fmt";
     };
     shellInit = ''
       # Source: jorgebucaran, https://github.com/jorgebucaran/humantime.fish
@@ -940,7 +944,15 @@ in
             -- Nginx
             lspconfig.nginx_language_server.setup{}
             -- Nix
-            lspconfig.nil_ls.setup{}
+            lspconfig.nil_ls.setup{
+              settings = {
+                ["nil"] = {
+                  formatting = {
+                    command = { "nixfmt" },
+                  },
+                },
+              },
+            }
             -- R
             lspconfig.r_language_server.setup{}
             -- Rust
@@ -1304,8 +1316,7 @@ in
                 sh = { "beautysh" },
                 typescript = { "prettier" },
                 yaml = { "yamlfmt" },
-                -- I don't know why this works
-                zig = { "zig fmt" },
+                zig = { "zigfmt" },
                 ["_"] = { "trim_whitespace" },
               },
               default_format_opts = {
@@ -1504,7 +1515,7 @@ in
               line = function(line)
                 return {
                   {
-                    { " N ", hl = theme.head },
+                    { " Neovim ", hl = theme.head },
                     line.sep("", theme.head, theme.fill),
                   },
                   line.tabs().foreach(function(tab)
