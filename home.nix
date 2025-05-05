@@ -916,7 +916,11 @@ in
             -- Dockerfile
             lspconfig.dockerls.setup{}
             -- HTML
-            lspconfig.html.setup{}
+            lspconfig.html.setup{
+              filetypes = { "html", "templ", "handlebars", "hbs" },
+            }
+            -- HTMX
+            lspconfig.htmx.setup{}
             -- Go
             lspconfig.gopls.setup{}
             -- Java
@@ -1302,6 +1306,7 @@ in
                 fish = { "fish_indent" },
                 html = { "prettier" },
                 go = { "gofmt" },
+                handlebars = { "djlint" },
                 java = { "astyle" },
                 javascript = { "prettier" },
                 json = { "prettier" },
@@ -1544,6 +1549,7 @@ in
           '';
         }
         vim-wakatime
+        vim-mustache-handlebars
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
@@ -1552,9 +1558,11 @@ in
         astyle
         bash-language-server
         beautysh
+        djlint
         dockerfile-language-server-nodejs
-        jdt-language-server
         gopls
+        htmx-lsp
+        jdt-language-server
         nginx-language-server
         nil
         nixfmt-rfc-style
