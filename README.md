@@ -194,14 +194,14 @@ The installed packages include command line interface, language server protocol,
 
 ## Uninstalling Nix and Nix Home Manager (Single-User)
 
-Just delete the files and directories containing Nix :)
+Just delete the files and directories containing nix and home-manager :)
 
 ```sh
 rm -rf /nix ~/.cache/nix \
-  ~/.config/nix ~/.config/home-manager \
-  ~/.local/share/nix ~/.local/share/home-manager \
-  ~/.local/state/nix ~/.local/state/home-manager \
-  ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+    ~/.config/nix ~/.config/home-manager \
+    ~/.local/share/nix ~/.local/share/home-manager \
+    ~/.local/state/nix ~/.local/state/home-manager \
+    ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
 ```
 
 Finally, remove the installation script section from the `.bashrc` and `.bash_profile` files as well
