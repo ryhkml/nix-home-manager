@@ -46,10 +46,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.11";
+    version = "1.2.12";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1q7rvij79qs5km62k26ivclqygdq2w3mlazmby8hm4zqj20jb0g4";
+      sha256 = "0cx6h1c79cchyls4mwwgp5q2xvqh0w9hh5zrk7hvrn1im97rcdrk";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -71,10 +71,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.1.0";
+    version = "14.3.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0809xw6582nzfs9d5vy4pix0hdxrl1zm4l838m4qwsf5127s0nfp";
+      sha256 = "1b7nif3kjr86klvvyby5ki7idhxiy8psmknbb060g6vvbqqllics";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -87,10 +87,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "517.0.0";
+    version = "521.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0i3ky92ciy37xxiz9k7n7wfhi66wa380ykk0kpya9ww427wlfh95";
+      sha256 = "0g6fk1kbcc9dbiyj6z5jqb4qbgq80i2iamzqclxrc5n4yrgqpbw4";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -589,6 +589,7 @@ in
       end
       #
       set -U fish_greeting
+      set -gx CGO_ENABLED 1
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
