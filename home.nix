@@ -166,6 +166,7 @@ in
     packages = with pkgs; [
       # # A
       act
+      air
       angularCli
       asciiquarium-transparent
       # # C
