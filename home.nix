@@ -18,30 +18,6 @@ let
         rev = rev;
       };
     };
-  # Angular CLI
-  # https://www.npmjs.com/package/@angular/cli
-  angularCli = pkgs.stdenv.mkDerivation rec {
-    pname = "static-angular-cli";
-    version = "19.2.8";
-    src = builtins.fetchGit {
-      url = "https://github.com/ryhkml/static-angular-cli.git";
-      rev = "abef3340674ada1092c4561bd4328625d75b1fac";
-    };
-    buildPhase = ''
-      mkdir -p $out/bin
-      ln -s ${src}/node_modules/@angular/cli/bin/ng.js $out/bin/ng
-      chmod +x $out/bin/ng
-    '';
-    installPhase = ''
-      mkdir -p $out/lib/node_modules
-      cp -r ${src}/node_modules $out/lib/
-    '';
-  };
-  # https://www.npmjs.com/package/@angular/language-server
-  angularLanguageServer = builtins.fetchGit {
-    url = "https://github.com/ryhkml/static-angular-language-server.git";
-    rev = "4d32a0f9ee870cc142ca474e1a556721e16ac457";
-  };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
@@ -167,7 +143,6 @@ in
       # # A
       act
       air
-      angularCli
       asciiquarium-transparent
       # # C
       cmus
@@ -221,15 +196,6 @@ in
       zig
     ];
     file = {
-      ".angular-config.json".text = builtins.toJSON {
-        "$schema" = "${angularCli}/lib/node_modules/@angular/cli/lib/config/schema.json";
-        version = 1;
-        cli = {
-          completion.prompted = true;
-          analytics = false;
-        };
-        projects = { };
-      };
       ".bunfig.toml".text = ''
         mosl = true
         telemetry = false
@@ -889,22 +855,6 @@ in
               end,
             })
             -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
-            -- Angular
-            local ngcmd = {
-              "${angularLanguageServer}/node_modules/.bin/ngserver",
-              "--stdio",
-              "--tsProbeLocations",
-              "${angularLanguageServer}/node_modules",
-              "--ngProbeLocations",
-              "${angularLanguageServer}/node_modules",
-            }
-            local lspconfig = require("lspconfig")
-            lspconfig.angularls.setup{
-              cmd = ngcmd,
-              on_new_config = function(new_config, new_root_dir)
-                new_config.cmd = ngcmd
-              end,
-            }
             -- ASM
             lspconfig.asm_lsp.setup{}
             -- Bash
@@ -1479,7 +1429,7 @@ in
               },
               filters = {
                 custom = { ".angular", ".git" },
-                exclude = { ".github", ".gitignore", ".gitattributes" }
+                exclude = { ".github", ".gitmodules", ".gitignore", ".gitattributes" }
               },
               filesystem_watchers = {
                 enable = true,

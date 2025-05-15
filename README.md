@@ -56,7 +56,6 @@ The installed packages include command line interface, language server protocol,
 1. [act](https://nektosact.com) - Run GitHub Actions locally
 1. [air](https://github.com/air-verse/air) - Live reload for Go apps
 1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
-1. [angular-language-server](https://github.com/angular/vscode-ng-language-service) - LSP for Angular
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
 1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP fo Assembly
 1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter fo Assembly
@@ -133,7 +132,6 @@ The installed packages include command line interface, language server protocol,
 ### N
 
 1. [neovim](https://www.neovim.io) - Hyperextensible Vim-based text editor
-1. [ng](https://angular.dev/tools/cli) - Angular CLI
 1. [nginx-language-server](https://github.com/pappasam/nginx-language-server) - LSP for nginx.conf
 1. [nil](https://github.com/oxalica/nil) - Yet another LSP for Nix
 1. [nixgl](https://github.com/nix-community/nixGL) - A wrapper tool for Nix OpenGL application
