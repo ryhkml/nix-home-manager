@@ -537,15 +537,15 @@ in
           set -l git_status (git status --porcelain 2>/dev/null)
           if test -n "$git_status"
             set -l indicator (set_color yellow)"!"(set_color normal)
-            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " $git_rev:$git_branch " "$indicator> "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch " "$indicator> "
           else
-            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " $git_rev:$git_branch" " > "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch" " -> "
           end
         else
           if test -d .git
-            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " > "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " -> "
           else
-            string join "" -- (set_color normal) "\$ " (prompt_pwd) $stat " > "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat " -> "
           end
         end
       end
@@ -855,6 +855,7 @@ in
               end,
             })
             -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+            local lspconfig = require("lspconfig")
             -- ASM
             lspconfig.asm_lsp.setup{}
             -- Bash
