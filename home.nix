@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.12";
+    version = "1.2.15";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0cx6h1c79cchyls4mwwgp5q2xvqh0w9hh5zrk7hvrn1im97rcdrk";
+      sha256 = "00br9px935brgd0ixc4611xx2kj8hkw0gbh199sv6nw3cxin4qd2";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.3.1";
+    version = "14.4.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1b7nif3kjr86klvvyby5ki7idhxiy8psmknbb060g6vvbqqllics";
+      sha256 = "1bd96qgbnyw6v8w89qzm7b246yfrizff4735hygn3f5mg4047ka6";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -63,10 +63,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "521.0.0";
+    version = "523.0.1";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0g6fk1kbcc9dbiyj6z5jqb4qbgq80i2iamzqclxrc5n4yrgqpbw4";
+      sha256 = "0sh89xqnah5aglwwv2ppxlryrp1598pmhig3xqplzcxvq7gxh9ik";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -97,10 +97,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.15.0";
+    version = "22.16.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1m4gwx8qk4as14g9nydhi4rzbfq79knf5f8ds4dxx5ybha7jxzns";
+      sha256 = "0kp8cyabwnmyi7s0p8nnrkfvkahsvyb9b7dpyvfhw3bg0fxpbjzl";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -115,15 +115,6 @@ let
   rofiTheme = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
-  };
-  # R
-  rWrapper = pkgs.rWrapper.override {
-    packages = with pkgs.rPackages; [
-      ggplot2
-      languageserver
-      readr
-      styler
-    ];
   };
   # Zellij statusbar plugin
   zjstatus = pkgs.fetchurl {
@@ -484,6 +475,8 @@ in
       nmdown = "nmcli connection down $NETWORK_NAME";
       nmdnsv4-cloudflare = "nmcli connection modify $NETWORK_NAME ipv4.dns \"1.1.1.1,1.0.0.1\"; nmcli connection modify $NETWORK_NAME ipv4.ignore-auto-dns yes";
       nmdnsv6-cloudflare = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2606:4700:4700::1111,2606:4700:4700::1001\"; nmcli connection modify $NETWORK_NAME ipv6.ignore-auto-dns yes";
+      nmdnsv4-google = "nmcli connection modify $NETWORK_NAME ipv4.dns \"8.8.8.8,8.8.4.4\"; nmcli connection modify $NETWORK_NAME ipv4.ignore-auto-dns yes";
+      nmdnsv6-google = "nmcli connection modify $NETWORK_NAME ipv6.dns \"2001:4860:4860::8888,2001:4860:4860::8844\"; nmcli connection modify $NETWORK_NAME ipv6.ignore-auto-dns yes";
       v = "nvim";
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E dist -E node_modules -E target | fzf --reverse | xargs -r nvim";
@@ -498,10 +491,10 @@ in
     };
     shellAliases = {
       docker = "podman";
-      la = "eza -ahlT --color never -L 1 --time-style relative";
-      lg = "eza -hlT --git --color never -L 1 --time-style relative";
-      ll = "eza -hlT --color never -L 1 --time-style relative";
-      ls = "eza -hT --color never -L 1";
+      la = "eza -ahlT -L 0 --color never --time-style relative";
+      lg = "eza -hlT -L 0 --git --color never --time-style relative";
+      ll = "eza -hlT -L 0 --color never --time-style relative";
+      ls = "eza -hT -L 0 --color never";
       # Safety rm
       rm = "trash-put";
       tree = "eza -T --color never";
@@ -638,7 +631,7 @@ in
             y = 4;
           };
           dynamic_padding = true;
-          opacity = 0.95;
+          opacity = 0.92;
           startup_mode = "Maximized";
         };
         selection.save_to_clipboard = true;
@@ -910,8 +903,6 @@ in
                 },
               },
             }
-            -- R
-            lspconfig.r_language_server.setup{}
             -- Rust
             lspconfig.rust_analyzer.setup{}
             -- Typescript
@@ -1259,7 +1250,6 @@ in
                 fish = { "fish_indent" },
                 html = { "prettier" },
                 go = { "gofmt" },
-                handlebars = { "djlint" },
                 java = { "astyle" },
                 javascript = { "prettier" },
                 json = { "prettier" },
@@ -1268,7 +1258,6 @@ in
                 lua = { "stylua" },
                 markdown = { "prettier" },
                 nix = { "nixfmt" },
-                r = { "styler" },
                 rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
@@ -1511,7 +1500,6 @@ in
         astyle
         bash-language-server
         beautysh
-        djlint
         dockerfile-language-server-nodejs
         gopls
         htmx-lsp
