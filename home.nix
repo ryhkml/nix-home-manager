@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.15";
+    version = "1.2.17";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "00br9px935brgd0ixc4611xx2kj8hkw0gbh199sv6nw3cxin4qd2";
+      sha256 = "14rilh3wrzqv33b1iz4y6x16yjsfcqgadm904fy4sfv5fiq20m30";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.4.0";
+    version = "14.9.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1bd96qgbnyw6v8w89qzm7b246yfrizff4735hygn3f5mg4047ka6";
+      sha256 = "0xnzmzgwh1g908ajkw0ml7acrpjn16qdmxwys7v6jj46z3gy40r6";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -63,10 +63,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "523.0.1";
+    version = "528.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0sh89xqnah5aglwwv2ppxlryrp1598pmhig3xqplzcxvq7gxh9ik";
+      sha256 = "1y97apzrhjp1y29cmbwdqs9wlx5mnj4g5ay0x8k1882kmblq77an";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -77,14 +77,14 @@ let
       mv $out/LICENSE $out/share/doc/LICENSE-google-cloud-sdk
     '';
   };
-  # LM Studio AI for Linux
+  # LM Studio AI for Linux x64
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.15";
+    version = "0.3.17";
     src = pkgs.fetchurl {
       url = "https://installers.lmstudio.ai/linux/x64/${version}-11/LM-Studio-${version}-11-x64.AppImage";
-      sha256 = "08yx8hw8cqh48yc1srs594lpdhn9n6q16gh27brjn6c3vqhagz0i";
+      sha256 = "14fhpw2sk1hv26x1jnsib774w7i20ji1r0nxr8hj0fbr3290caq8";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -97,10 +97,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.16.0";
+    version = "22.17.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0kp8cyabwnmyi7s0p8nnrkfvkahsvyb9b7dpyvfhw3bg0fxpbjzl";
+      sha256 = "04hfx3vk1rmiql95bh29g6mvgkz95102g8b9wg51pip0c490yp1j";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -149,8 +149,8 @@ in
       file
       firebaseToolsCli
       # # G
-      gnuplot
       gcloudCli
+      gnuplot
       # # H
       hey
       hyperfine
@@ -171,7 +171,6 @@ in
       # # R
       rlwrap
       rustup
-      rWrapper
       # # S
       speedtest-cli
       sqlite
@@ -1101,7 +1100,7 @@ in
         }
         vim-visual-multi
         {
-          plugin = myVimPlugin "slugbyte/lackluster.nvim" "6d206a3af7dd2e8389eecebab858e7d97813fc0c";
+          plugin = myVimPlugin "slugbyte/lackluster.nvim" "b247a6f51cb43e49f3f753f4a59553b698bf5438";
           type = "lua";
           config = ''
             -- https://github.com/slugbyte/lackluster.nvim
@@ -1118,12 +1117,12 @@ in
               },
               tweak_background = {
                 normal = "#000000",
-                popup = "#000000",
+                popup = "#191919",
                 menu = "#000000",
                 telescope = "#000000",
               }
             })
-            vim.cmd.colorscheme("lackluster-hack")
+            vim.cmd.colorscheme("lackluster")
           '';
         }
         {
@@ -1166,10 +1165,13 @@ in
             -- https://github.com/nvchad/nvim-colorizer.lua
             require("colorizer").setup {
               filetypes = {
-                "*",
-                html = {
-                  mode = "foreground",
-                },
+                "html",
+                "css",
+                "scss",
+                "sass",
+                "less",
+                "javascript",
+                "typescript",
               },
               user_default_options = {
                 RGB = true,
@@ -1321,7 +1323,7 @@ in
           optional = true;
         }
         {
-          plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "aec9efebf6f4606a5204d49ffa3ce2eeb7e08a3e";
+          plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "7db181d1cb294581b12a036eadffffde762a118f";
           type = "lua";
           config = ''
             -- https://github.com/VonHeikemen/fine-cmdline.nvim
@@ -1491,7 +1493,6 @@ in
           '';
         }
         vim-wakatime
-        vim-mustache-handlebars
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt

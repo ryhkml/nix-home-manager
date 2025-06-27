@@ -149,7 +149,6 @@ The installed packages include command line interface, language server protocol,
 
 ### R
 
-1. [R](http://www.r-project.org) - Rlang!
 1. [ripgrep](https://github.com/BurntSushi/ripgrep) - Searcher with the raw speed of grep
 1. [rlwrap](https://github.com/hanslub42/rlwrap) - A readline wrapper
 1. [rustup](https://www.rustup.rs) - Rust toolchain installer
