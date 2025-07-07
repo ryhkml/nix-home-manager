@@ -1723,6 +1723,112 @@ in
         "--glob=!target/*"
       ];
     };
+    vscode = {
+      enable = true;
+      package = pkgs.vscodium;
+      profiles.default.userSettings = {
+        breadcrumbs = {
+          enabled = false;
+        };
+        codesnap = {
+          containerPadding = "4px";
+        };
+        editor = {
+          cursorSmoothCaretAnimation = "on";
+          cursorStyle = "line";
+          detectIndentation = false;
+          fontFamily = "FiraCode Nerd Font";
+          fontSize = 14;
+          insertSpaces = false;
+          letterSpacing = 0.4;
+          lineHeight = 1.6;
+          minimap = {
+            enabled = false;
+          };
+          renderWhitespace = "none";
+          smoothScrolling = true;
+          stickyScroll = {
+            enabled = false;
+          };
+          tabSize = 4;
+        };
+        explorer = {
+          confirmDragAndDrop = false;
+          compactFolders = false;
+          confirmDelete = false;
+          fileNesting = {
+            patterns = {
+              "Cargo.toml" = "Cargo.lock";
+              "*.sqlite" = "\${capture}.\${extname}-*";
+              "*.db" = "\${capture}.\${extname}-*";
+              "*.sqlite3" = "\${capture}.\${extname}-*";
+              "*.db3" = "\${capture}.\${extname}-*";
+              "*.sdb" = "\${capture}.\${extname}-*";
+              "*.s3db" = "\${capture}.\${extname}-*";
+            };
+          };
+        };
+        extensions = {
+          autoUpdate = "onlyEnabledExtensions";
+          ignoreRecommendations = true;
+        };
+        extensions.experimental.affinity = {
+          "asvetliakov.vscode-neovim" = 1;
+        };
+        git = {
+          autofetch = true;
+          confirmSync = false;
+        };
+        security = {
+          workspace = {
+            trust = {
+              banner = "never";
+              enabled = true;
+              startupPrompt = false;
+            };
+          };
+        };
+        terminal = {
+          integrated = {
+            cursorBlinking = true;
+            cursorStyle = "line";
+            hideOnStartup = "always";
+            smoothScrolling = true;
+            tabs = {
+              enabled = false;
+            };
+          };
+        };
+        update = {
+          mode = "none";
+        };
+        window = {
+          menuBarVisibility = "toggle";
+          restoreFullscreen = true;
+          title = "Code";
+          titleBarStyle = "native";
+          zoomLevel = 2;
+        };
+        workbench = {
+          activityBar = {
+            location = "top";
+          };
+          colorTheme = "Visual Studio Dark";
+          preferredDarkColorTheme = "Visual Studio Dark";
+          iconTheme = "vscode-jetbrains-icon-theme-2023-dark";
+          list = {
+            smoothScrolling = true;
+          };
+          remoteIndicator = {
+            showExtensionRecommendations = false;
+          };
+          startupEditor = "none";
+          trustedDomains = {
+            promptInTrustedWorkspace = true;
+          };
+        };
+      };
+    };
     zellij = {
       enable = true;
       enableBashIntegration = true;
