@@ -13,7 +13,7 @@ The nix home manager configuration i use is my never-ending journey to keep thin
 1. Choose single-user installation, run:
 
     ```sh
-    sh <(curl -L https://nixos.org/nix/install) --no-daemon
+    sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
     . /home/$USER/.nix-profile/etc/profile.d/nix.sh
     ```
 
@@ -23,6 +23,7 @@ The nix home manager configuration i use is my never-ending journey to keep thin
 
     ```sh
     nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+    nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
     nix-channel --update
     ```
 
@@ -72,6 +73,7 @@ The installed packages include command line interface, language server protocol,
 ### C
 
 1. [cmus](https://cmus.github.io) - Console music player for Unix-like operating systems
+1. [ctop](https://ctop.sh) - Top-like interface for container metrics
 1. [curl](https://curl.se) - Tool and library to transfer data (with [c-ares](https://c-ares.org) and [gsasl](https://www.gnu.org/software/gsasl) features)
 
 ### D
