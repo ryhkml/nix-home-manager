@@ -195,14 +195,18 @@ The installed packages include command line interface, language server protocol,
 
 ## Uninstalling Nix and Nix Home Manager (Single-User)
 
-Just delete the files and directories containing nix and home-manager :)
+Just delete the files and directories containing nix and home-manager.
+Since i have shell aliases `rm = trash-put`, i need to first perform a cleanup by running the command home-manager switch.
 
 ```sh
-rm -rf /nix ~/.cache/nix \
+# Remove shell aliases rm = trash-put
+home-manager switch
+nix-collect-garbage -d
+rm -rf ~/.cache/nix \
     ~/.config/nix ~/.config/home-manager \
     ~/.local/share/nix ~/.local/share/home-manager \
-    ~/.local/state/nix ~/.local/state/home-manager \
-    ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+    ~/.local/state/nix ~/.local/state/home-manager
+rm -rf /nix ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
 ```
 
 Finally, remove the installation script section from the `.bashrc` and `.bash_profile` files as well
