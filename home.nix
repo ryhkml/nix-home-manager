@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.17";
+    version = "1.2.19";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "14rilh3wrzqv33b1iz4y6x16yjsfcqgadm904fy4sfv5fiq20m30";
+      sha256 = "0rhzmwn7h4rqn73rzx9lkzd0db8m8dpfgkqagpv3zj2yk97c3ly3";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.9.0";
+    version = "14.11.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0xnzmzgwh1g908ajkw0ml7acrpjn16qdmxwys7v6jj46z3gy40r6";
+      sha256 = "07p3iq4mlg8hrcqrv51vzjjv3vqxbjxw6jhnc9yz99rvzga5fd07";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -63,10 +63,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "528.0.0";
+    version = "531.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "1y97apzrhjp1y29cmbwdqs9wlx5mnj4g5ay0x8k1882kmblq77an";
+      sha256 = "0bhb9f8z0hldi8apvsghl42d7j21cris0lzvisyxvq3pk6glkgg6";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -81,10 +81,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.17";
+    version = "0.3.20";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-11/LM-Studio-${version}-11-x64.AppImage";
-      sha256 = "14fhpw2sk1hv26x1jnsib774w7i20ji1r0nxr8hj0fbr3290caq8";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-4/LM-Studio-${version}-4-x64.AppImage";
+      sha256 = "0mczk1jvh07icsyrbgl8crg22z3g141gf11m7884pi5a8naqv2nq";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -97,10 +97,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.17.0";
+    version = "22.17.1";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "04hfx3vk1rmiql95bh29g6mvgkz95102g8b9wg51pip0c490yp1j";
+      sha256 = "0jaszisam0wyjx7i25vzys5zz6fqh0sszfldf3mrqsfp7rybq17z";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -129,7 +129,7 @@ in
   home = {
     username = "ryhkml";
     homeDirectory = "/home/ryhkml";
-    stateVersion = "24.05";
+    stateVersion = "25.05";
     packages = with pkgs; [
       # # A
       act
@@ -137,6 +137,7 @@ in
       asciiquarium-transparent
       # # C
       cmus
+      ctop
       (curl.override {
         c-aresSupport = true;
         gsaslSupport = true;
@@ -151,6 +152,12 @@ in
       # # G
       gcloudCli
       gnuplot
+      (go-migrate.overrideAttrs (oldAttrs: {
+        tags = [
+          "mysql"
+          "postgres"
+        ];
+      }))
       # # H
       hey
       hyperfine
@@ -176,7 +183,6 @@ in
       sqlite
       # # T
       tokei
-      trash-cli
       typescript
       # # U
       unar
@@ -213,7 +219,7 @@ in
       ".curlrc".text = ''
         -s
         -L
-        -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+        -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
         -H "Cache-Control: no-cache, no-store, must-revalidate"
         --retry 5
         --retry-delay 5
@@ -242,7 +248,7 @@ in
         skip_display = yes
       '';
       ".config/foot/foot.ini".text = ''
-        font=FiraCode Nerd Font:size=15
+        font=MesloLGL Nerd Font:size=16
         letter-spacing=0.5
         term=xterm-256color
         pad=6x6 center
@@ -490,12 +496,10 @@ in
     };
     shellAliases = {
       docker = "podman";
-      la = "eza -ahlT -L 0 --color never --time-style relative";
-      lg = "eza -hlT -L 0 --git --color never --time-style relative";
-      ll = "eza -hlT -L 0 --color never --time-style relative";
-      ls = "eza -hT -L 0 --color never";
-      # Safety rm
-      rm = "trash-put";
+      la = "eza -ahl --color never --time-style relative";
+      lg = "eza -hl --git --color never --time-style relative";
+      ll = "eza -hl --color never --time-style relative";
+      ls = "eza -h --color never";
       tree = "eza -T --color never";
       zigfmt = "zig fmt";
     };
@@ -595,7 +599,7 @@ in
             family = "FiraCode Nerd Font";
             style = "Regular";
           };
-          size = 15;
+          size = 16;
         };
         colors = {
           primary.foreground = "#ffffff";
@@ -618,7 +622,7 @@ in
             shape = "Beam";
             blinking = "Always";
           };
-          blink_interval = 400;
+          blink_interval = 250;
           blink_timeout = 0;
         };
         mouse.hide_when_typing = true;
@@ -627,7 +631,7 @@ in
           decorations_theme_variant = "Dark";
           padding = {
             x = 4;
-            y = 4;
+            y = 2;
           };
           dynamic_padding = true;
           opacity = 0.92;
@@ -1737,7 +1741,7 @@ in
           cursorSmoothCaretAnimation = "on";
           cursorStyle = "line";
           detectIndentation = false;
-          fontFamily = "FiraCode Nerd Font";
+          fontFamily = "MesloLGL Nerd Font";
           fontSize = 14;
           insertSpaces = false;
           letterSpacing = 0.4;
