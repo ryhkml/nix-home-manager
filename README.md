@@ -101,8 +101,8 @@ The installed packages include command line interface, language server protocol,
 ### G
 
 1. [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud CLI
-1. [gnuplot](https://www.gnuplot.info) - Portable command line driven graphing utility for many platforms
 1. [go](https://go.dev) - Golang!
+1. [go-migrate](https://github.com/golang-migrate/migrate) - Database migrations. CLI and Golang library
 1. [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - LSP for Go
 
 ### H
@@ -119,6 +119,10 @@ The installed packages include command line interface, language server protocol,
 1. [java](https://openjdk.java.net) - Java Development Kit
 1. [jdt-language-server](https://github.com/eclipse/eclipse.jdt.ls) - LSP for Java
 1. [jq](https://jqlang.github.io/jq) - Lightweight and flexible command line JSON processor
+
+### K
+
+1. [k6](https://k6.io) - Modern load testing tool, using Go and JavaScript
 
 ### L
 
@@ -166,8 +170,8 @@ The installed packages include command line interface, language server protocol,
 
 ### T
 
+1. [taplo](https://taplo.tamasfe.dev) - TOML toolkit written in Rust
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
-1. [trash-cli](https://github.com/andreafrancia/trash-cli) - Safety `rm` :)
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
 
@@ -195,18 +199,16 @@ The installed packages include command line interface, language server protocol,
 
 ## Uninstalling Nix and Nix Home Manager (Single-User)
 
-Just delete the files and directories containing nix and home-manager.
-Since i have shell aliases `rm = trash-put`, i need to first perform a cleanup by running the command home-manager switch.
+Just delete the files and directories containing nix and home-manager
 
 ```sh
-# Remove shell aliases rm = trash-put
-home-manager switch
 nix-collect-garbage -d
 rm -rf ~/.cache/nix \
     ~/.config/nix ~/.config/home-manager \
     ~/.local/share/nix ~/.local/share/home-manager \
-    ~/.local/state/nix ~/.local/state/home-manager
-rm -rf /nix ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+    ~/.local/state/nix ~/.local/state/home-manager \
+    ~/.nix-channels ~/.nix-defexpr ~/.nix-profile
+sudo rm -rf /nix
 ```
 
 Finally, remove the installation script section from the `.bashrc` and `.bash_profile` files as well

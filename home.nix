@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.11.1";
+    version = "14.11.2";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "07p3iq4mlg8hrcqrv51vzjjv3vqxbjxw6jhnc9yz99rvzga5fd07";
+      sha256 = "1k44w1y3xj4k15a31my4h9yg3r7n6v09i4jwabasljrxp0s5kddr";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -151,7 +151,6 @@ in
       firebaseToolsCli
       # # G
       gcloudCli
-      gnuplot
       (go-migrate.overrideAttrs (oldAttrs: {
         tags = [
           "mysql"
@@ -163,6 +162,8 @@ in
       hyperfine
       # # I
       id3v2
+      # # K
+      k6
       # # L
       lazydocker
       lua
@@ -248,7 +249,7 @@ in
         skip_display = yes
       '';
       ".config/foot/foot.ini".text = ''
-        font=MesloLGL Nerd Font:size=16
+        font=FiraCode Nerd Font:size=16
         letter-spacing=0.5
         term=xterm-256color
         pad=6x6 center
@@ -293,8 +294,8 @@ in
         themes {
           default {
             fg "#ffffff"
-            bg "#000000"
-            black "#000000"
+            bg "#0c0c0c"
+            black "#0c0c0c"
             red "#ff4d4f"
             green "#526596"
             blue "#096dd9"
@@ -330,6 +331,9 @@ in
           }
           tab name="Editor" {
             pane name="Compose" {}
+          }
+          tab name="Debug" {
+            pane name="Air" {}
           }
         }
       '';
@@ -414,6 +418,10 @@ in
         insert_final_newline = true;
       };
       "*.nix" = {
+        indent_style = "space";
+        indent_size = 2;
+      };
+      "*.toml" = {
         indent_style = "space";
         indent_size = 2;
       };
@@ -556,8 +564,6 @@ in
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
-      set -gx LANG en_US.UTF-8
-      set -gx LC_ALL en_US.UTF-8
       set -gx NODE_OPTIONS --max-old-space-size=8192
       set -gx XCURSOR_THEME Bibata-Original-Ice
     '';
@@ -603,12 +609,12 @@ in
         };
         colors = {
           primary.foreground = "#ffffff";
-          primary.background = "#000000";
+          primary.background = "#0c0c0c";
           normal.red = "#ff4d4f";
           normal.blue = "#096dd9";
           normal.green = "#52c41a";
           normal.yellow = "#faad14";
-          normal.black = "#000000";
+          normal.black = "#0c0c0c";
           normal.white = "#ffffff";
           normal.cyan = "#08979c";
           normal.magenta = "#c41d7f";
@@ -634,7 +640,7 @@ in
             y = 2;
           };
           dynamic_padding = true;
-          opacity = 0.92;
+          opacity = 0.95;
           startup_mode = "Maximized";
         };
         selection.save_to_clipboard = true;
@@ -1268,6 +1274,7 @@ in
                 scss = { "prettier" },
                 sh = { "beautysh" },
                 typescript = { "prettier" },
+                toml = { "taplo" },
                 yaml = { "yamlfmt" },
                 zig = { "zigfmt" },
                 ["_"] = { "trim_whitespace" },
@@ -1517,6 +1524,7 @@ in
         rustfmt
         shellcheck
         stylua
+        taplo
         typescript-language-server
         vscode-langservers-extracted
         yamlfmt
@@ -1542,6 +1550,9 @@ in
         local function set_filetype_conf()
           vim.bo.filetype = "conf"
         end
+        local function set_filetype_json()
+          vim.bo.filetype = "json"
+        end
         local function set_filetype_dotenv()
           vim.bo.filetype = "dotenv"
         end
@@ -1559,6 +1570,11 @@ in
         vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
           pattern = { "*/.env*" },
           callback = set_filetype_dotenv,
+          group = "FiletypeConfig",
+        })
+        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+          pattern = { ".firebaserc" },
+          callback = set_filetype_json,
           group = "FiletypeConfig",
         })
         -- Number
@@ -1710,6 +1726,8 @@ in
         vim.keymap.set("n", ":", "<cmd>FineCmdline<CR>", {noremap = true})
         vim.keymap.set("n", "<leader>ss", ":SearchBoxIncSearch<CR>")
         vim.keymap.set("x", "<leader>ss", ":SearchBoxIncSearch visual_mode=true<CR>")
+        -- Disable lsp log
+        vim.lsp.set_log_level("off")
       '';
       viAlias = true;
       vimAlias = true;
