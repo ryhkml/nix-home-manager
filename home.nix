@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.19";
+    version = "1.2.20";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0rhzmwn7h4rqn73rzx9lkzd0db8m8dpfgkqagpv3zj2yk97c3ly3";
+      sha256 = "0j5mb1w649mhr8wz6b1z0x6imqdx7gjh3gl8l8iicz0cp96dr7jf";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.11.2";
+    version = "14.12.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1k44w1y3xj4k15a31my4h9yg3r7n6v09i4jwabasljrxp0s5kddr";
+      sha256 = "1jshm3abafdc0r0vchdz06by1hlygn05lw40mg16ynvj0jy7lba3";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -63,10 +63,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "531.0.0";
+    version = "535.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0bhb9f8z0hldi8apvsghl42d7j21cris0lzvisyxvq3pk6glkgg6";
+      sha256 = "07hi435n03d1rxkmizk0pfk70iiy4hwh4k79nyz1idkc4bzwz33g";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -97,10 +97,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.17.1";
+    version = "22.18.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0jaszisam0wyjx7i25vzys5zz6fqh0sszfldf3mrqsfp7rybq17z";
+      sha256 = "19zwzinpb5fpjjigbinc360vvv3xd4pbg7cgf9sgl13l3p7yxgy1";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -923,6 +923,7 @@ in
                   validate = true,
                   schemas = {
                     ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
+                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}",
                   },
                 },
               }
