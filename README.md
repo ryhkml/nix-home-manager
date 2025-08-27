@@ -104,6 +104,7 @@ The installed packages include command line interface, language server protocol,
 1. [go](https://go.dev) - Golang!
 1. [go-migrate](https://github.com/golang-migrate/migrate) - Database migrations. CLI and Golang library
 1. [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - LSP for Go
+1. [gping](https://github.com/orf/gping) - Ping, but with a graph
 
 ### H
 
@@ -147,6 +148,10 @@ The installed packages include command line interface, language server protocol,
 1. [nodePackages.prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
 1. [nodePackages.vls](https://github.com/vuejs/vetur/tree/master/server) - LSP for Vue
 1. [noisetorch](https://github.com/noisetorch/NoiseTorch) - Virtual microphone device with noise supression for PulseAudio
+
+### O
+
+1. [onefetch](https://github.com/o2sh/onefetch) - Git repository summary on your terminal
 
 ### P
 
