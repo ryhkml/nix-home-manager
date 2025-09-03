@@ -67,6 +67,7 @@ The installed packages include command line interface, language server protocol,
 1. [bat](https://github.com/sharkdp/bat) - Alternative to `cat`
 1. [bash-language-server](https://github.com/bash-lsp/bash-language-server) - LSP for Bash
 1. [beautysh](https://github.com/lovesegfault/beautysh) - Formatter for Shell
+1. [binsider](https://github.com/orhun/binsider) - Analyzer of executables using a terminal user interface
 1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
 1. [btop](https://github.com/aristocratos/btop) - A monitor of resources
 
@@ -129,6 +130,7 @@ The installed packages include command line interface, language server protocol,
 
 1. [lazydocker](https://github.com/jesseduffield/lazydocker) - The lazier way to manage everything docker
 1. [lazygit](https://github.com/jesseduffield/lazygit) - Terminal UI for git commands
+1. [lazysql](https://github.com/jorgerojas26/lazysql) - A cross-platform TUI database management tool written in Go
 1. [lmstudio](https://lmstudio.ai) - Run local LLMs
 1. [lua](https://www.lua.org) - Lualang!
 

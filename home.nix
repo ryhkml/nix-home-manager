@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.20";
+    version = "1.2.21";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0j5mb1w649mhr8wz6b1z0x6imqdx7gjh3gl8l8iicz0cp96dr7jf";
+      sha256 = "0yb1vazqm43cbv5fpahpxxac1sav96ymrj108ffijmyfa56laksr";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.12.1";
+    version = "14.15.1";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1jshm3abafdc0r0vchdz06by1hlygn05lw40mg16ynvj0jy7lba3";
+      sha256 = "0yylf35h8riz3i6482asj1c7bhpzwiaymnpvsds909yxzdn7vy01";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -63,10 +63,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "535.0.0";
+    version = "536.0.1";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "07hi435n03d1rxkmizk0pfk70iiy4hwh4k79nyz1idkc4bzwz33g";
+      sha256 = "1hqsm5jaz83g3azigf4g7lzr9ldq9l95a098a569rd8fiqgcsrgc";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -81,10 +81,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.20";
+    version = "0.3.24";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-4/LM-Studio-${version}-4-x64.AppImage";
-      sha256 = "0mczk1jvh07icsyrbgl8crg22z3g141gf11m7884pi5a8naqv2nq";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-6/LM-Studio-${version}-6-x64.AppImage";
+      sha256 = "00g8kp9v5m8lh7mfff3p8pzc678jr6rdlw8lk471bigwz8sfndsf";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -97,10 +97,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsBin = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.18.0";
+    version = "22.19.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "19zwzinpb5fpjjigbinc360vvv3xd4pbg7cgf9sgl13l3p7yxgy1";
+      sha256 = "1whn9y1yywz9pml8nz0if679mm0x6imyi8rmapzgc93aivqrlr60";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -135,6 +135,8 @@ in
       act
       air
       asciiquarium-transparent
+      # # B
+      binsider
       # # C
       cmus
       ctop
@@ -167,6 +169,7 @@ in
       k6
       # # L
       lazydocker
+      lazysql
       lua
       # # M
       minify
@@ -693,42 +696,127 @@ in
         };
         display = {
           color = "white";
+          separator = "";
+          size.binaryPrefix = "jedec";
         };
         modules = [
           "title"
           "separator"
-          "os"
+          {
+            type = "os";
+            key = "OS: ";
+          }
           {
             type = "host";
+            key = "Host: ";
             format = "{?2}{2}{?}{?5} ({5}){?}";
           }
-          "kernel"
+          {
+            type = "kernel";
+            key = "Kernel: ";
+          }
           {
             type = "wm";
-            key = "Window Manager";
+            key = "Window Manager: ";
           }
           {
             type = "de";
-            key = "Desktop Environment";
+            key = "Desktop Environment: ";
           }
           "break"
-          "chassis"
-          "cpu"
-          "gpu"
-          "memory"
-          "swap"
-          "disk"
+          {
+            type = "cpu";
+            key = "CPU: ";
+          }
+          {
+            type = "gpu";
+            key = "GPU: ";
+          }
+          {
+            type = "memory";
+            key = "Memory: ";
+          }
+          {
+            type = "swap";
+            key = "Swap: ";
+          }
+          {
+            type = "disk";
+            key = "Disk: ";
+          }
           "break"
-          "shell"
-          "packages"
-          "terminal"
+          {
+            type = "shell";
+            key = "Shell: ";
+          }
+          {
+            type = "packages";
+            key = "Packages: ";
+          }
+          {
+            type = "terminal";
+            key = "Terminal: ";
+          }
           "break"
-          "uptime"
+          {
+            type = "uptime";
+            key = "Uptime: ";
+          }
           {
             type = "display";
-            key = "Resolution";
+            key = "Resolution: ";
           }
-          "locale"
+          {
+            type = "locale";
+            key = "Locale: ";
+          }
+          "break"
+          {
+            type = "title";
+            format = "{#1}Development";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "bun -v";
+            format = "bun (Bun) {result}";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "gcc --version | head -n1";
+            format = "{result}";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "git --version | cut -d ' ' -f3";
+            format = "git (Git) {result}";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "go version | cut -d ' ' -f3- | cut -c3-";
+            format = "go (Go) {result}";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "nvim --version | head -n1 | cut -d ' ' -f2 | cut -c2-";
+            format = "nvim (Neovim) {result}";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "nix --version";
+            format = "{result}";
+          }
+          {
+            type = "command";
+            key = "- ";
+            text = "podman --version | cut -d ' ' -f3";
+            format = "podman (Podman) {result}";
+          }
           "break"
         ];
       };
@@ -870,8 +958,6 @@ in
             lspconfig.bashls.setup{}
             -- C
             lspconfig.clangd.setup{}
-            -- cmake
-            lspconfig.cmake.setup{}
             -- CSS
             lspconfig.cssls.setup{}
             -- Dockerfile
@@ -906,8 +992,6 @@ in
                 }
               }
             }
-            -- Nginx
-            lspconfig.nginx_language_server.setup{}
             -- Nix
             lspconfig.nil_ls.setup{
               settings = {
@@ -1079,10 +1163,22 @@ in
             vim.opt.runtimepath:append(dir_parser)
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
-                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment",
-                "angular", "bash", "c", "cmake", "make", "css", "dockerfile", "hcl", "html", "http", "java", "javascript",
-                "kdl", "nginx", "nix", "scss", "sql", "sway", "pem", "r", "rust", "toml", "typescript", "yaml", "xml", "zig", "ziggy",
-                "diff", "gitattributes", "gitcommit", "gitignore", "git_config"
+                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment", "diff",
+                "angular",
+                "bash",
+                "c", "css",
+                "dockerfile",
+                "go", "gomod", "gosum", "gitattributes", "gitcommit", "gitignore", "git_config",
+                "hcl", "html",
+                "java", "javascript",
+                "kdl",
+                "nix",
+                "scss", "sql", "sway",
+                "r", "rust",
+                "toml", "typescript",
+                "yaml",
+                "xml",
+                "zig", "ziggy",
               },
               sync_install = false,
               auto_install = true,
@@ -1291,7 +1387,7 @@ in
               },
               format_on_save = {
                 lsp_format = "fallback",
-                timeout_ms = 1000,
+                timeout_ms = 3000,
               },
               log_level = vim.log.levels.ERROR,
               notify_on_error = true,
@@ -1523,7 +1619,6 @@ in
         gopls
         htmx-lsp
         jdt-language-server
-        nginx-language-server
         nil
         nixfmt-rfc-style
         nodePackages.prettier
