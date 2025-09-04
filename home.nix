@@ -393,6 +393,35 @@ in
             ;;
         esac
       '';
+      ".personal.txt".text = ''
+        **************************************************
+        **************************************************
+        *********************@@@@@@#%*********************
+        ******************@@@@@@@@@@@#%#******************
+        *****************@@%%%%%@%%@@%%@@*****************
+        ****************@*=---====+++=-:%@****************
+        ****************#==-::-=-=+++**:=#****************
+        *****************=---:--=--=++=::*****************
+        ****************==*+###+==%@#*##:+****************
+        ****************=-=*-@*::+%=@%%#:+#-**************
+        **************=-=--::-:--==+====:-#***************
+        ***************=#-:::::-:=-#+==+=##***************
+        ****************-=-::::+++%#+++++#****************
+        *****************%*--#%**#%%@*+#%*****************
+        ******************#+=#-=+*####%%#*****************
+        *******************@#%=-=###%%%*******************
+        *******************-+@@%%@%@@@*=@*****************
+        ****************@@..--=**%%##%%.@%%***************
+        ************@@@@@@:...--=+*##::.@@@@@@@***********
+        ******#@@@@@@@@@@@@......+...::#@@@@@@@@@@@@@*****
+        ***@@@@@@@@@@@@@@@@........-..:@@@@@@@@@@@@@@@@%**
+        **@@@@@@@@@@@@@@@@@-.-....:#:.=@@@@@@@@@@@@@@@@@#*
+        **@@@@@@@@@@@@@@@@@%......:=.::@@@@@@@@@@@@@@@@@@*
+        *@@@@@@@@@@@@@@@@@@@......:-.::@@@@@@@@@@@@@@@@@@%
+        *@@@@@@@@@@@@@@@@@@@-......:=.@@@@@@@@@@@@@@@@@@@@
+        *@@@@@@@@@@@@@@@@@@@#.......#.@@@@@@@@@@@@@@@@++@@
+        @@@@@@@@@@@@@@@@@@@@@:......%.@@@@@@@@@@@@@@@@@@@@
+      '';
     };
     sessionVariables = {
       EDITOR = "nvim";
@@ -689,7 +718,7 @@ in
       enable = true;
       settings = {
         logo = {
-          type = "small";
+          source = "${pathHome}/.personal.txt";
           color = {
             "1" = "white";
           };
@@ -714,6 +743,12 @@ in
           {
             type = "kernel";
             key = "Kernel: ";
+          }
+          {
+            type = "command";
+            key = "SELinux: ";
+            text = "echo \"$(sestatus | head -n 1 | cut -d ':' -f2 | xargs | sed 's/^./\\u&/') - $(getenforce)\"";
+            format = "{result}";
           }
           {
             type = "wm";
@@ -744,24 +779,6 @@ in
             type = "disk";
             key = "Disk: ";
           }
-          "break"
-          {
-            type = "shell";
-            key = "Shell: ";
-          }
-          {
-            type = "packages";
-            key = "Packages: ";
-          }
-          {
-            type = "terminal";
-            key = "Terminal: ";
-          }
-          "break"
-          {
-            type = "uptime";
-            key = "Uptime: ";
-          }
           {
             type = "display";
             key = "Resolution: ";
@@ -772,8 +789,19 @@ in
           }
           "break"
           {
-            type = "title";
-            format = "{#1}Development";
+            type = "command";
+            key = "Terminal Workspace: ";
+            text = "echo \"alacritty $(alacritty -V | cut -d ' ' -f2) + zellij $(zellij --version | cut -d ' ' -f2)\"";
+            format = "{result}";
+          }
+          {
+            type = "shell";
+            key = "Shell: ";
+          }
+          "break"
+          {
+            type = "custom";
+            format = "{#1}Development:";
           }
           {
             type = "command";
@@ -784,13 +812,13 @@ in
           {
             type = "command";
             key = "- ";
-            text = "gcc --version | head -n1";
+            text = "(gcc --version | head -n1) 2>/dev/null || echo -n 'ERROR'";
             format = "{result}";
           }
           {
             type = "command";
             key = "- ";
-            text = "git --version | cut -d ' ' -f3";
+            text = "(git --version | cut -d ' ' -f3) 2>/dev/null || echo -n 'ERROR'";
             format = "git (Git) {result}";
           }
           {
@@ -802,20 +830,26 @@ in
           {
             type = "command";
             key = "- ";
+            text = "(nix --version) 2>/dev/null || echo -n 'ERROR'";
+            format = "{result}";
+          }
+          {
+            type = "command";
+            key = "- ";
             text = "nvim --version | head -n1 | cut -d ' ' -f2 | cut -c2-";
             format = "nvim (Neovim) {result}";
           }
           {
             type = "command";
             key = "- ";
-            text = "nix --version";
-            format = "{result}";
+            text = "(podman --version | cut -d ' ' -f3) 2>/dev/null || echo -n 'ERROR'";
+            format = "podman (Podman) {result}";
           }
           {
             type = "command";
             key = "- ";
-            text = "podman --version | cut -d ' ' -f3";
-            format = "podman (Podman) {result}";
+            text = "(wg --version | awk '{print substr($2, 2)}') 2>/dev/null || echo -n 'ERROR'";
+            format = "wg (WireGuard) {result}";
           }
           "break"
         ];

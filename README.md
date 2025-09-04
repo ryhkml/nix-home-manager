@@ -64,8 +64,8 @@ The installed packages include command line interface, language server protocol,
 
 ### B
 
-1. [bat](https://github.com/sharkdp/bat) - Alternative to `cat`
 1. [bash-language-server](https://github.com/bash-lsp/bash-language-server) - LSP for Bash
+1. [bat](https://github.com/sharkdp/bat) - Alternative to _cat_
 1. [beautysh](https://github.com/lovesegfault/beautysh) - Formatter for Shell
 1. [binsider](https://github.com/orhun/binsider) - Analyzer of executables using a terminal user interface
 1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
@@ -81,18 +81,18 @@ The installed packages include command line interface, language server protocol,
 
 1. [direnv](https://direnv.net) - Unclutter your .profile
 1. [dockerfile-language-server-nodejs](https://github.com/rcjsuen/dockerfile-language-server) - LSP for Dockerfile
-1. [duf](https://github.com/muesli/duf) - Disk usage or free utility. A better `df` alternative
+1. [duf](https://github.com/muesli/duf) - Disk usage or free utility. A better _df_ alternative
 
 ### E
 
 1. [editorconfig](https://editorconfig.org) - Enforces consistent coding styles across editors and IDEs
 1. [exiftool](https://exiftool.org) - Meta information reader or writer
-1. [eza](https://eza.rocks) - A modern alternative to `ls`
+1. [eza](https://eza.rocks) - A modern alternative to _ls_
 
 ### F
 
 1. [fastfetch](https://github.com/fastfetch-cli/fastfetch) - Neofetch like system information tool
-1. [fd](https://github.com/sharkdp/fd) - Alternative to `find`
+1. [fd](https://github.com/sharkdp/fd) - Alternative to _find_
 1. [file](https://darwinsys.com/file) - Shows the type of files
 1. [firebase](https://firebase.google.com/docs/cli) - Firebase CLI
 1. [fish](https://fishshell.com) - User friendly command line shell
@@ -141,7 +141,6 @@ The installed packages include command line interface, language server protocol,
 ### N
 
 1. [neovim](https://www.neovim.io) - Hyperextensible Vim-based text editor
-1. [nginx-language-server](https://github.com/pappasam/nginx-language-server) - LSP for nginx.conf
 1. [nil](https://github.com/oxalica/nil) - Yet another LSP for Nix
 1. [nixgl](https://github.com/nix-community/nixGL) - A wrapper tool for Nix OpenGL application
 1. [nix-prefetch-git](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/tools/package-management/nix-prefetch-scripts/default.nix) - Script used to obtain source hashes for fetchgit
@@ -202,7 +201,7 @@ The installed packages include command line interface, language server protocol,
 1. [zellij](https://zellij.dev) - A terminal workspace
 1. [zig](https://ziglang.org) - Ziglang!
 1. [zls](https://github.com/zigtools/zls) - LSP for Zig
-1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast `cd` that learns your habits
+1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast _cd_ that learns your habits
 
 ## Uninstalling Nix and Nix Home Manager (Single-User)
 
