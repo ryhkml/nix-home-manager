@@ -47,10 +47,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.15.1";
+    version = "14.16.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0yylf35h8riz3i6482asj1c7bhpzwiaymnpvsds909yxzdn7vy01";
+      sha256 = "0sn5wa9af755bh8lmzn326w5g6s16xy23647rjpcv2w65brwik3q";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -63,10 +63,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudCli = pkgs.stdenv.mkDerivation rec {
     pname = "google-cloud-sdk";
-    version = "536.0.1";
+    version = "538.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "1hqsm5jaz83g3azigf4g7lzr9ldq9l95a098a569rd8fiqgcsrgc";
+      sha256 = "0ksanm3ijqnmva204l0770jjrc439kz9s1z9dcr841h3gkm22kjk";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -118,8 +118,8 @@ let
   };
   # Zellij statusbar plugin
   zjstatus = pkgs.fetchurl {
-    url = "https://github.com/dj95/zjstatus/releases/download/v0.20.2/zjstatus.wasm";
-    sha256 = "1n5q5zvxj6jvw46xv6irhbaqax9rssb5h1yvcgv6sa8na11kna1r";
+    url = "https://github.com/dj95/zjstatus/releases/download/v0.21.1/zjstatus.wasm";
+    sha256 = "06mfcijmsmvb2gdzsql6w8axpaxizdc190b93s3nczy212i846fw";
   };
   pathHome = builtins.getEnv "HOME";
 in
