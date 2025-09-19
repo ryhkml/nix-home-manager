@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunBin = pkgs.stdenv.mkDerivation rec {
     pname = "bun";
-    version = "1.2.21";
+    version = "1.2.22";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0yb1vazqm43cbv5fpahpxxac1sav96ymrj108ffijmyfa56laksr";
+      sha256 = "0fklwb77k65msdyvjlbyi09gsawv5wsvrbhvw7hl0yqxl3qnli2c";
     };
     nativeBuildInputs = [ pkgs.unzip ];
     phases = [
@@ -61,8 +61,11 @@ let
   };
   # Google Cloud CLI only for x86_64-linux
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
-  gcloudCli = pkgs.stdenv.mkDerivation rec {
-    pname = "google-cloud-sdk";
+  pythonWithNumpy = pkgs.python3.withPackages (py: [
+    py.numpy
+  ]);
+  gcloudCliUnwrapped = pkgs.stdenv.mkDerivation rec {
+    pname = "google-cloud-sdk-unwrapped";
     version = "538.0.0";
     src = pkgs.fetchurl {
       url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
@@ -75,6 +78,18 @@ let
       tar -xzf $src --strip-components=1 -C $out
       # Prevent collision between 2 LICENSE
       mv $out/LICENSE $out/share/doc/LICENSE-google-cloud-sdk
+    '';
+  };
+  gcloudCli = pkgs.stdenv.mkDerivation {
+    pname = "google-cloud-sdk";
+    version = gcloudCliUnwrapped.version;
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    dontUnpack = true;
+    installPhase = ''
+      mkdir -p $out/bin
+      for bin in gcloud gsutil bq; do
+        makeWrapper ${gcloudCliUnwrapped}/bin/$bin $out/bin/$bin --set CLOUDSDK_PYTHON "${pythonWithNumpy}/bin/python3"
+      done
     '';
   };
   # LM Studio AI for Linux x64
@@ -598,6 +613,7 @@ in
       #
       set -U fish_greeting
       set -gx CGO_ENABLED 1
+      set -gx CLOUDSDK_PYTHON_SITEPACKAGES 1
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
       set -gx GPG_TTY (tty)
