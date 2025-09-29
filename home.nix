@@ -132,6 +132,7 @@ let
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
   };
   # Zellij statusbar plugin
+  # https://github.com/dj95/zjstatus
   zjstatus = pkgs.fetchurl {
     url = "https://github.com/dj95/zjstatus/releases/download/v0.21.1/zjstatus.wasm";
     sha256 = "06mfcijmsmvb2gdzsql6w8axpaxizdc190b93s3nczy212i846fw";
@@ -195,6 +196,7 @@ in
       # # O
       onefetch
       # # P
+      packer
       pnpm
       podman-compose
       # # R
@@ -944,134 +946,42 @@ in
           '';
         }
         {
-          plugin = indent-blankline-nvim;
+          plugin = hlchunk-nvim;
           type = "lua";
           config = ''
-            -- https://github.com/lukas-reineke/indent-blankline.nvim
-            require("ibl").setup{
-              debounce = 100,
+            -- https://github.com/shellRaining/hlchunk.nvim
+            require("hlchunk").setup({
+              chunk = {
+                enable = true,
+                use_treesitter = false,
+                chars = {
+                  horizontal_line = "─",
+                  vertical_line = "│",
+                  left_top = "╭",
+                  left_bottom = "╰",
+                  right_arrow = ">",
+                },
+                max_file_size = 2 * 1024 * 1024,
+                style = "#708090",
+                duration = 250,
+                delay = 500,
+              },
               indent = {
-                char = { "" },
-              },
-              scope = {
-                enabled = false,
-              },
-            }
-            local iblhooks = require "ibl.hooks"
-            iblhooks.register(
-              iblhooks.type.WHITESPACE,
-              iblhooks.builtin.hide_first_space_indent_level
-            )
-            iblhooks.register(
-              iblhooks.type.WHITESPACE,
-              iblhooks.builtin.hide_first_tab_indent_level
-            )
-          '';
-        }
-        lsp-zero-nvim
-        nvim-lspconfig
-        nvim-cmp
-        # https://github.com/b0o/SchemaStore.nvim
-        SchemaStore-nvim
-        {
-          plugin = cmp-nvim-lsp;
-          type = "lua";
-          config = ''
-            -- https://github.com/VonHeikemen/lsp-zero.nvim
-            local lspconfig_defaults = require("lspconfig").util.default_config
-            lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-              "force",
-              lspconfig_defaults.capabilities,
-              require("cmp_nvim_lsp").default_capabilities()
-            )
-            vim.api.nvim_create_autocmd("LspAttach", {
-              desc = "LSP actions",
-              callback = function(event)
-                local opts = { buffer = event.buf, silent = true }
-                vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-                vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-                vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-                vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-                vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
-                vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-                vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-                vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-                vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<CR>", opts)
-                vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
-              end,
+                enable = true,
+                chars = {
+                  ""
+                },
+                filter_list = {
+                  function(v)
+                    return v.level ~= 1
+                  end,
+                },
+              }
             })
-            -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
-            local lspconfig = require("lspconfig")
-            -- ASM
-            lspconfig.asm_lsp.setup{}
-            -- Bash
-            lspconfig.bashls.setup{}
-            -- C
-            lspconfig.clangd.setup{}
-            -- CSS
-            lspconfig.cssls.setup{}
-            -- Dockerfile
-            lspconfig.dockerls.setup{}
-            -- HTML
-            lspconfig.html.setup{
-              filetypes = { "html", "templ", "handlebars", "hbs" },
-            }
-            -- HTMX
-            lspconfig.htmx.setup{}
-            -- Go
-            lspconfig.gopls.setup{}
-            -- Java
-            lspconfig.jdtls.setup{}
-            -- JSON
-            lspconfig.jsonls.setup{
-              settings = {
-                json = {
-                  schemas = require("schemastore").json.schemas {
-                    select = {
-                      "cloudbuild.json",
-                      "Firebase",
-                      "Google Cloud Workflows",
-                      "openapi.json",
-                      "package.json",
-                      "tsconfig.json"
-                    }
-                  },
-                  validate = {
-                    enable = true
-                  }
-                }
-              }
-            }
-            -- Nix
-            lspconfig.nil_ls.setup{
-              settings = {
-                ["nil"] = {
-                  formatting = {
-                    command = { "nixfmt" },
-                  },
-                },
-              },
-            }
-            -- Rust
-            lspconfig.rust_analyzer.setup{}
-            -- Typescript
-            lspconfig.ts_ls.setup{}
-            -- YAML
-            lspconfig.yamlls.setup{
-              settings = {
-                yaml = {
-                  validate = true,
-                  schemas = {
-                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
-                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}",
-                  },
-                },
-              }
-            }
-            -- Zig
-            lspconfig.zls.setup{}
           '';
         }
+        # https://github.com/neovim/nvim-lspconfig
+        nvim-lspconfig
         vim-vsnip
         cmp-vsnip
         {
@@ -1100,6 +1010,70 @@ in
                 { name = "buffer" },
               })
             })
+          '';
+        }
+        {
+          plugin = cmp-nvim-lsp;
+          type = "lua";
+          config = ''
+            -- https://github.com/hrsh7th/cmp-nvim-lsp
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+            capabilities.textDocument.completion.completionItem.snippetSupport = true
+            vim.api.nvim_create_autocmd("LspAttach", {
+              desc = "LSP actions",
+              callback = function(event)
+                local opts = { buffer = event.buf, silent = true }
+                vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
+                vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
+                vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
+                vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
+                vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
+                vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
+                vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
+                vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
+                vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<CR>", opts)
+                vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
+              end,
+            })
+            -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+            -- ASM
+            vim.lsp.enable("asm_lsp")
+            -- Bash
+            vim.lsp.enable("bashls")
+            -- C
+            vim.lsp.enable("clangd")
+            -- CSS
+            vim.lsp.enable("cssls")
+            -- Dockerfile
+            vim.lsp.enable("dockerls")
+            -- HTML
+            vim.lsp.enable("html")
+            -- HTMX
+            vim.lsp.enable("htmx")
+            -- Go
+            vim.lsp.enable("gopls")
+            -- Java
+            vim.lsp.enable("jdtls")
+            -- Nix
+            vim.lsp.enable("nil_ls")
+            -- Rust
+            vim.lsp.enable("rust_analyzer")
+            -- Typescript
+            vim.lsp.enable("ts_ls")
+            -- YAML
+            vim.lsp.config("yamlls", {
+              settings = {
+                yaml = {
+                  schemas = {
+                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
+                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}",
+                  },
+                },
+              }
+            })
+            vim.lsp.enable("yamlls")
+            -- Zig
+            vim.lsp.enable("zls")
           '';
         }
         plenary-nvim
@@ -1173,35 +1147,11 @@ in
             }
             local builtin = require("telescope.builtin")
             vim.keymap.set("n", "<leader>ff", builtin.find_files)
-            vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
+            vim.keymap.set("n", "<leader>fg", ":lua require("telescope").extensions.live_grep_args.live_grep_args()<CR>")
             vim.keymap.set("n", "<leader>fb", builtin.buffers)
             vim.keymap.set("n", "<leader>fh", builtin.help_tags)
             require("telescope").load_extension("fzf")
             require("telescope").load_extension("live_grep_args")
-          '';
-        }
-        {
-          plugin = harpoon2;
-          type = "lua";
-          config = ''
-            -- https://github.com/ThePrimeagen/harpoon/tree/harpoon2
-            local harpoon = require("harpoon")
-            harpoon:setup({
-              settings = {
-                save_on_toggle = false,
-                sync_on_ui_close = true,
-              }
-            })
-            vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
-            vim.keymap.set("n", "<A-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
-            vim.keymap.set("n", "<A-1>", function() harpoon:list():select(1) end)
-            vim.keymap.set("n", "<A-2>", function() harpoon:list():select(2) end)
-            vim.keymap.set("n", "<A-3>", function() harpoon:list():select(3) end)
-            vim.keymap.set("n", "<A-4>", function() harpoon:list():select(4) end)
-            vim.keymap.set("n", "<A-5>", function() harpoon:list():select(5) end)
-            -- Toggle previous & next buffers stored within Harpoon list
-            vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
-            vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
           '';
         }
         {
@@ -1413,8 +1363,16 @@ in
                 c = { "clang-format" },
                 css = { "prettier" },
                 fish = { "fish_indent" },
-                html = { "prettier" },
                 go = { "gofmt" },
+                hcl = function(bufnr)
+                  local filename = vim.api.nvim_buf_get_name(bufnr)
+                  if filename:match("%.pkr.hcl$") or filename:match("%.pkrvars.hcl$") then
+                    return { "packer_fmt" }
+                  else
+                    return { "hcl" }
+                  end
+                end,
+                html = { "prettier" },
                 java = { "astyle" },
                 javascript = { "prettier" },
                 json = { "prettier" },
@@ -1426,8 +1384,9 @@ in
                 rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
-                typescript = { "prettier" },
+                tf = { "terraform_fmt" },
                 toml = { "taplo" },
+                typescript = { "prettier" },
                 yaml = { "yamlfmt" },
                 zig = { "zigfmt" },
                 ["_"] = { "trim_whitespace" },
@@ -1667,6 +1626,7 @@ in
         beautysh
         dockerfile-language-server-nodejs
         gopls
+        hclfmt
         htmx-lsp
         jdt-language-server
         nil
