@@ -20,37 +20,22 @@ let
     };
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
-  bunBin = pkgs.stdenv.mkDerivation rec {
+  bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.2.22";
+    version = "1.2.23";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0fklwb77k65msdyvjlbyi09gsawv5wsvrbhvw7hl0yqxl3qnli2c";
+      sha256 = "03hzzvgk2y4wylk7yh1h4lyg4avkdpkcmq74zmpmg7br42lx03ng";
     };
-    nativeBuildInputs = [ pkgs.unzip ];
-    phases = [
-      "unpackPhase"
-      "installPhase"
-    ];
-    unpackPhase = ''
-      mkdir $out
-      unzip $src -d $out
-    '';
-    installPhase = ''
-      mkdir -p $out/bin
-      mv $out/bun-linux-x64/bun $out/bin/bun
-      chmod +x $out/bin/bun
-      ln -s $out/bin/bun $out/bin/bunx
-    '';
-  };
+  });
   # Firebase CLI only for linux
   # https://github.com/firebase/firebase-tools/releases
-  firebaseToolsCli = pkgs.stdenv.mkDerivation rec {
+  firebaseToolsLatest = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.16.0";
+    version = "14.17.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0sn5wa9af755bh8lmzn326w5g6s16xy23647rjpcv2w65brwik3q";
+      sha256 = "0j5k2w3wpm9cw0g1swxv4jy6xsfgldx6a7dn6cn13l6wacjx94jm";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -61,37 +46,17 @@ let
   };
   # Google Cloud CLI only for x86_64-linux
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
-  pythonWithNumpy = pkgs.python3.withPackages (py: [
-    py.numpy
-  ]);
-  gcloudCliUnwrapped = pkgs.stdenv.mkDerivation rec {
-    pname = "google-cloud-sdk-unwrapped";
-    version = "538.0.0";
-    src = pkgs.fetchurl {
-      url = "https://storage.googleapis.com/cloud-sdk-release/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0ksanm3ijqnmva204l0770jjrc439kz9s1z9dcr841h3gkm22kjk";
-    };
-    nativeBuildInputs = [ pkgs.gnutar ];
-    installPhase = ''
-      mkdir -p $out
-      mkdir -p $out/share/doc
-      tar -xzf $src --strip-components=1 -C $out
-      # Prevent collision between 2 LICENSE
-      mv $out/LICENSE $out/share/doc/LICENSE-google-cloud-sdk
-    '';
-  };
-  gcloudCli = pkgs.stdenv.mkDerivation {
+  gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = gcloudCliUnwrapped.version;
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    dontUnpack = true;
-    installPhase = ''
-      mkdir -p $out/bin
-      for bin in gcloud gsutil bq; do
-        makeWrapper ${gcloudCliUnwrapped}/bin/$bin $out/bin/$bin --set CLOUDSDK_PYTHON "${pythonWithNumpy}/bin/python3"
-      done
+    version = "540.0.0";
+    src = pkgs.fetchurl {
+      url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
+      sha256 = "053hsk628pch8kjvrskdx346krwj165629mkmakx3k584rprj17y";
+    };
+    installCheckPhase = ''
+      echo "Skip installCheckPhase"
     '';
-  };
+  });
   # LM Studio AI for Linux x64
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
@@ -106,24 +71,6 @@ let
       mkdir -p $out/bin
       cp $src $out/bin/LM-Studio.AppImage
       chmod +x $out/bin/LM-Studio.AppImage
-    '';
-  };
-  # Nodejs only for x86_64-linux
-  # https://nodejs.org/en/download/prebuilt-binaries
-  nodejsBin = pkgs.stdenv.mkDerivation rec {
-    pname = "nodejs";
-    version = "22.19.0";
-    src = pkgs.fetchurl {
-      url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1whn9y1yywz9pml8nz0if679mm0x6imyi8rmapzgc93aivqrlr60";
-    };
-    nativeBuildInputs = [ pkgs.gnutar ];
-    installPhase = ''
-      mkdir -p $out
-      mkdir -p $out/share/doc
-      tar -xJf $src --strip-components=1 -C $out
-      # Prevent collision between 2 LICENSE
-      mv $out/LICENSE $out/share/doc/LICENSE-nodejs
     '';
   };
   # Rofi
@@ -166,9 +113,9 @@ in
       exiftool
       # # F
       file
-      firebaseToolsCli
+      firebaseToolsLatest
       # # G
-      gcloudCli
+      gcloudLatest
       (go-migrate.overrideAttrs (oldAttrs: {
         tags = [
           "mysql"
@@ -191,8 +138,7 @@ in
       minify
       # # N
       nix-prefetch-git
-      nodejsBin
-      noisetorch # This package is mind blowing!
+      nodejs_22
       # # O
       onefetch
       # # P
@@ -725,7 +671,7 @@ in
     };
     bun = {
       enable = true;
-      package = bunBin;
+      package = bunLatest;
     };
     direnv = {
       enable = true;
@@ -1147,7 +1093,7 @@ in
             }
             local builtin = require("telescope.builtin")
             vim.keymap.set("n", "<leader>ff", builtin.find_files)
-            vim.keymap.set("n", "<leader>fg", ":lua require("telescope").extensions.live_grep_args.live_grep_args()<CR>")
+            vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
             vim.keymap.set("n", "<leader>fb", builtin.buffers)
             vim.keymap.set("n", "<leader>fh", builtin.help_tags)
             require("telescope").load_extension("fzf")

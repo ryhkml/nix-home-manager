@@ -148,7 +148,6 @@ The installed packages include command line interface, language server protocol,
 1. [nodejs](https://nodejs.org/en) - Event-driven I/O framework for the V8 Javascript engine
 1. [nodePackages.prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
 1. [nodePackages.vls](https://github.com/vuejs/vetur/tree/master/server) - LSP for Vue
-1. [noisetorch](https://github.com/noisetorch/NoiseTorch) - Virtual microphone device with noise supression for PulseAudio
 
 ### O
 
