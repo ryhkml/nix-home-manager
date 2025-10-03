@@ -109,6 +109,7 @@ The installed packages include command line interface, language server protocol,
 
 ### H
 
+1. [hclfmt](https://github.com/hashicorp/hcl/tree/main/cmd/hclfmt) - Formatter for HCL
 1. [hey](https://github.com/rakyll/hey) - HTTP load generator, ApacheBench (ab) replacement
 1. [hyperfine](https://github.com/sharkdp/hyperfine) - Command line benchmarking tool
 
@@ -155,6 +156,7 @@ The installed packages include command line interface, language server protocol,
 
 ### P
 
+1. [packer](https://www.packer.io) - Tool for creating identical machine images
 1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
 
@@ -176,6 +178,8 @@ The installed packages include command line interface, language server protocol,
 ### T
 
 1. [taplo](https://taplo.tamasfe.dev) - TOML toolkit written in Rust
+1. [terraform](https://www.terraform.io) - Tool for building, changing, and versioning infrastructure
+1. [terraform-ls](https://github.com/hashicorp/terraform-ls) - LSP for Terraform
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
