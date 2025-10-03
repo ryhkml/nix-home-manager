@@ -169,6 +169,7 @@ in
       speedtest-cli
       sqlite
       # # T
+      terraform
       tokei
       typescript
       # # U
@@ -1023,6 +1024,8 @@ in
             vim.lsp.enable("nil_ls")
             -- Rust
             vim.lsp.enable("rust_analyzer")
+            -- Terraform
+            vim.lsp.enable("terraformls")
             -- Typescript
             vim.lsp.enable("ts_ls")
             -- YAML
@@ -1337,9 +1340,8 @@ in
                   local filename = vim.api.nvim_buf_get_name(bufnr)
                   if filename:match("%.pkr.hcl$") or filename:match("%.pkrvars.hcl$") then
                     return { "packer_fmt" }
-                  else
-                    return { "hcl" }
                   end
+                  return { "hcl" }
                 end,
                 html = { "prettier" },
                 java = { "astyle" },
@@ -1348,7 +1350,6 @@ in
                 jsonc = { "prettier" },
                 less = { "prettier" },
                 lua = { "stylua" },
-                markdown = { "prettier" },
                 nix = { "nixfmt" },
                 rust = { "rustfmt" },
                 scss = { "prettier" },
@@ -1365,41 +1366,52 @@ in
               },
               format_on_save = {
                 lsp_format = "fallback",
-                timeout_ms = 3000,
+                timeout_ms = 1000,
               },
               log_level = vim.log.levels.ERROR,
               notify_on_error = true,
-              notify_no_formatters = true,
-            })
-            require("conform").formatters.astyle = {
-              prepend_args = { "--style=java", "-t4", "--add-braces" },
-            }
-            require("conform").formatters.beautysh = {
-              prepend_args = { "--indent-size", "4", "--tab" },
-            }
-            require("conform").formatters.nixfmt = {
-              prepend_args = { "--width=100" },
-            }
-            require("conform").formatters.prettier = {
-              prepend_args = function(self, ctx)
-                if ctx.filename:match("%.md$") then
-                  return { "--print-width", "100", "--tab-width", "4", "--trailing-comma", "none", "--embedded-language-formatting", "auto" }
-                else
-                  return { "--print-width", "100", "--use-tabs", "--tab-width", "4", "--trailing-comma", "none", "--embedded-language-formatting", "auto" }
-                end
-              end,
-            }
-            require("conform").formatters.injected = {
-              options = {
-                -- The default edition of Rust to use when no Cargo.toml file is found
-                default_edition = "2021",
-                -- Prettier
-                ft_parsers = {
-                  markdown = "markdown",
-                  ["markdown.mdx"] = "mdx",
+              notify_no_formatters = false,
+              -- Custom formatters and overrides for built-in formatters
+              formatters = {
+                astyle = {
+                  prepend_args = {
+                    "--style=java",
+                    "-t4",
+                    "--add-braces"
+                  }
+                },
+                beautysh = {
+                  prepend_args = {
+                    "--indent-size", "4",
+                    "--tab"
+                  }
+                },
+                nixfmt = {
+                  prepend_args = {
+                    "--width=100"
+                  }
+                },
+                prettier = {
+                  prepend_args = function(self, ctx)
+                    if ctx.filename:match("%.md$") then
+                      return {
+                        "--print-width", "100",
+                        "--tab-width", "4",
+                        "--trailing-comma", "none",
+                        "--embedded-language-formatting", "auto"
+                      }
+                    end
+                    return {
+                      "--print-width", "100",
+                      "--use-tabs",
+                      "--tab-width", "4",
+                      "--trailing-comma", "none",
+                      "--embedded-language-formatting", "auto"
+                    }
+                  end
                 },
               }
-            }
+            })
           '';
         }
         {
@@ -1606,6 +1618,7 @@ in
         shellcheck
         stylua
         taplo
+        terraform-ls
         typescript-language-server
         vscode-langservers-extracted
         yamlfmt
