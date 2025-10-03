@@ -73,6 +73,23 @@ let
       chmod +x $out/bin/LM-Studio.AppImage
     '';
   };
+  # Nodejs only for x86_64-linux
+  # https://nodejs.org/en/download/prebuilt-binaries
+  nodejsLts = pkgs.stdenv.mkDerivation rec {
+    pname = "nodejs";
+    version = "22.20.0";
+    src = pkgs.fetchurl {
+      url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
+      sha256 = "1g1hfm1zfvr9qjhzxwlmxy9v907nwb860wz12dp8p9kf61gd1fq0";
+    };
+    nativeBuildInputs = [ pkgs.gnutar ];
+    installPhase = ''
+      mkdir -p $out
+      mkdir -p $out/share/doc
+      tar -xJf $src --strip-components=1 -C $out
+      mv $out/LICENSE $out/share/doc/LICENSE_nodejs
+    '';
+  };
   # Rofi
   rofiTheme = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
@@ -80,7 +97,7 @@ let
   };
   # Zellij statusbar plugin
   # https://github.com/dj95/zjstatus
-  zjstatus = pkgs.fetchurl {
+  zjstatusPlugin = pkgs.fetchurl {
     url = "https://github.com/dj95/zjstatus/releases/download/v0.21.1/zjstatus.wasm";
     sha256 = "06mfcijmsmvb2gdzsql6w8axpaxizdc190b93s3nczy212i846fw";
   };
@@ -138,7 +155,7 @@ in
       minify
       # # N
       nix-prefetch-git
-      nodejs_22
+      nodejsLts
       # # O
       onefetch
       # # P
@@ -285,7 +302,7 @@ in
           default_tab_template {
             children
             pane size=1 borderless=true {
-              plugin location="file:${zjstatus}" {
+              plugin location="file:${zjstatusPlugin}" {
                 format_left "{tabs}"
                 hide_frame_for_single_pane "false"
                 mode_normal "#[bg=#096dd9]"
@@ -830,6 +847,8 @@ in
         ".firebase/"
         "node_modules/"
         "target/"
+        "*.min.css"
+        "*.min.js"
       ];
       extraOptions = [
         "-tf"
@@ -1040,7 +1059,9 @@ in
                   "^.git/",
                   "^dist/",
                   "^node_modules/",
-                  "^target/"
+                  "^target/",
+                  "%.min%.css$",
+                  "%.min%.js$"
                 },
                 vimgrep_arguments = {
                   "rg",
@@ -1067,7 +1088,9 @@ in
                     "^.git/",
                     "^dist/",
                     "^node_modules/",
-                    "^target/"
+                    "^target/",
+                    "%.min%.css$",
+                    "%.min%.js$"
                   },
                   find_command = {
                     "fd",
@@ -1533,7 +1556,7 @@ in
               line = function(line)
                 return {
                   {
-                    { " Neovim ", hl = theme.head },
+                    { " I use Neovim BTW ", hl = theme.head },
                     line.sep("", theme.head, theme.fill),
                   },
                   line.tabs().foreach(function(tab)
@@ -1549,7 +1572,7 @@ in
                   line.spacer(),
                   {
                     line.sep("", theme.tail, theme.fill),
-                    { " OK ", hl = theme.tail },
+                    { "", hl = theme.tail },
                   },
                   hl = theme.fill,
                 }
@@ -1600,6 +1623,8 @@ in
           "*/dist/*",
           "*/.angular/*",
           "*/.git/*",
+          "*.min.css",
+          "*.min.js"
         })
         -- Filetype
         local function set_filetype_c()
@@ -1799,8 +1824,10 @@ in
         "--glob=!.firebase/*"
         "--glob=!.git/*"
         "--glob=!dist/*"
-        "--glob=!node_modles/*"
+        "--glob=!node_modules/*"
         "--glob=!target/*"
+        "--glob=!*.min.css"
+        "--glob=!*.min.js"
       ];
     };
     vscode = {
@@ -1817,7 +1844,7 @@ in
           cursorSmoothCaretAnimation = "on";
           cursorStyle = "line";
           detectIndentation = false;
-          fontFamily = "MesloLGL Nerd Font";
+          fontFamily = "FiraCode Nerd Font";
           fontSize = 14;
           insertSpaces = false;
           letterSpacing = 0.4;
@@ -1843,6 +1870,8 @@ in
               "*.db" = "\${capture}.\${extname}-*";
               "*.sqlite3" = "\${capture}.\${extname}-*";
               "*.db3" = "\${capture}.\${extname}-*";
+              "*.min.css" = "\${capture}.\${extname}-*";
+              "*.min.js" = "\${capture}.\${extname}-*";
               "*.sdb" = "\${capture}.\${extname}-*";
               "*.s3db" = "\${capture}.\${extname}-*";
             };
