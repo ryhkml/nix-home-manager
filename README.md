@@ -74,13 +74,12 @@ The installed packages include command line interface, language server protocol,
 ### C
 
 1. [cmus](https://cmus.github.io) - Console music player for Unix-like operating systems
-1. [ctop](https://ctop.sh) - Top-like interface for container metrics
 1. [curl](https://curl.se) - Tool and library to transfer data (with [c-ares](https://c-ares.org) and [gsasl](https://www.gnu.org/software/gsasl) features)
 
 ### D
 
 1. [direnv](https://direnv.net) - Unclutter your .profile
-1. [dockerfile-language-server-nodejs](https://github.com/rcjsuen/dockerfile-language-server) - LSP for Dockerfile
+1. [dockerfile-language-server](https://github.com/rcjsuen/dockerfile-language-server) - LSP for Dockerfile
 1. [duf](https://github.com/muesli/duf) - Disk usage or free utility. A better _df_ alternative
 
 ### E
