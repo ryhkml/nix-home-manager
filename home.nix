@@ -35,7 +35,7 @@ let
     version = "14.17.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "0j5k2w3wpm9cw0g1swxv4jy6xsfgldx6a7dn6cn13l6wacjx94jm";
+      sha256 = "1vrs70jm4y5ynn8ahkghyn6a7mq1pra38v1c69z4ps7z9xq43gad";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -119,7 +119,6 @@ in
       binsider
       # # C
       cmus
-      ctop
       (curl.override {
         c-aresSupport = true;
         gsaslSupport = true;
@@ -859,7 +858,7 @@ in
     fzf.enable = true;
     go = {
       enable = true;
-      goPath = ".go";
+      env.GOPATH = ".go";
     };
     java.enable = true;
     jq.enable = true;
@@ -948,8 +947,16 @@ in
         }
         # https://github.com/neovim/nvim-lspconfig
         nvim-lspconfig
-        vim-vsnip
-        cmp-vsnip
+        {
+          plugin = luasnip;
+          type = "lua";
+          config = ''
+            -- https://github.com/L3MON4D3/LuaSnip
+            require("luasnip.loaders.from_vscode").lazy_load()
+          '';
+        }
+        # https://github.com/b0o/SchemaStore.nvim
+        SchemaStore-nvim
         {
           plugin = nvim-cmp;
           type = "lua";
@@ -959,7 +966,7 @@ in
             cmp.setup({
               snippet = {
                 expand = function(args)
-                  vim.snippet.expand(args.body)
+                  require("luasnip").lsp_expand(args.body)
                 end,
               },
               mapping = cmp.mapping.preset.insert({
@@ -971,7 +978,7 @@ in
               }),
               sources = cmp.config.sources({
                 { name = "nvim_lsp" },
-                { name = "vsnip" },
+                { name = "luasnip" },
               }, {
                 { name = "buffer" },
               })
@@ -983,8 +990,6 @@ in
           type = "lua";
           config = ''
             -- https://github.com/hrsh7th/cmp-nvim-lsp
-            local capabilities = require("cmp_nvim_lsp").default_capabilities()
-            capabilities.textDocument.completion.completionItem.snippetSupport = true
             vim.api.nvim_create_autocmd("LspAttach", {
               desc = "LSP actions",
               callback = function(event)
@@ -1002,6 +1007,8 @@ in
               end,
             })
             -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+            local capabilities = vim.lsp.protocol.make_client_capabilities()
+            capabilities.textDocument.completion.completionItem.snippetSupport = true
             -- ASM
             vim.lsp.enable("asm_lsp")
             -- Bash
@@ -1009,10 +1016,27 @@ in
             -- C
             vim.lsp.enable("clangd")
             -- CSS
+            vim.lsp.config("cssls", {
+              capabilities = capabilities
+            })
             vim.lsp.enable("cssls")
             -- Dockerfile
+            vim.lsp.config("dockerls", {
+              settings = {
+                docker = {
+                  languageserver = {
+                    formatter = {
+                      ignoreMultilineInstructions = true
+                    }
+                  }
+                }
+              }
+            })
             vim.lsp.enable("dockerls")
             -- HTML
+            vim.lsp.config("html", {
+              capabilities = capabilities
+            })
             vim.lsp.enable("html")
             -- HTMX
             vim.lsp.enable("htmx")
@@ -1020,10 +1044,54 @@ in
             vim.lsp.enable("gopls")
             -- Java
             vim.lsp.enable("jdtls")
+            -- JSON
+            vim.lsp.config("jsonls", {
+              settings = {
+                json = {
+                  schemas = require("schemastore").json.schemas {
+                    select = {
+                      "angular.json",
+                      "Firebase",
+                      "openapi.json",
+                      "package.json",
+                      "tsconfig.json"
+                    }
+                  },
+                  validate = {
+                    enable = true
+                  }
+                }
+              }
+            })
+            vim.lsp.enable("jsonls")
+            -- Lua
+            vim.lsp.enable("stylua")
             -- Nix
+            vim.lsp.config("nil_ls", {
+              settings = {
+                ["nil"] = {
+                  formatting = {
+                    command = { "nixfmt" }
+                  }
+                }
+              }
+            })
             vim.lsp.enable("nil_ls")
+            -- PHP :)
+            vim.lsp.enable("phpactor")
             -- Rust
+            vim.lsp.config("rust_analyzer", {
+              settings = {
+                ["rust-analyzer"] = {
+                  diagnostics = {
+                    enable = false
+                  }
+                }
+              }
+            })
             vim.lsp.enable("rust_analyzer")
+            -- Tailwindcss
+            vim.lsp.enable("tailwindcss")
             -- Terraform
             vim.lsp.enable("terraformls")
             -- Typescript
@@ -1034,14 +1102,16 @@ in
                 yaml = {
                   schemas = {
                     ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
-                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}",
-                  },
-                },
+                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}"
+                  }
+                }
               }
             })
             vim.lsp.enable("yamlls")
             -- Zig
             vim.lsp.enable("zls")
+            -- Disable log
+            vim.lsp.set_log_level("off")
           '';
         }
         plenary-nvim
@@ -1136,18 +1206,19 @@ in
             require("nvim-treesitter.configs").setup{
               ensure_installed = {
                 "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment", "diff",
-                "angular",
+                "asm", "angular",
                 "bash",
                 "c", "css",
                 "dockerfile",
                 "go", "gomod", "gosum", "gitattributes", "gitcommit", "gitignore", "git_config",
                 "hcl", "html",
-                "java", "javascript",
+                "java", "javascript", "json",
                 "kdl",
                 "nix",
-                "scss", "sql", "sway",
+                "php",
+                "scss", "ssh_config", "sql", "sway",
                 "r", "rust",
-                "toml", "typescript",
+                "terraform", "toml", "typescript",
                 "yaml",
                 "xml",
                 "zig", "ziggy",
@@ -1605,7 +1676,7 @@ in
         astyle
         bash-language-server
         beautysh
-        dockerfile-language-server-nodejs
+        docker-language-server
         gopls
         hclfmt
         htmx-lsp
@@ -1613,10 +1684,12 @@ in
         nil
         nixfmt-rfc-style
         nodePackages.prettier
+        phpactor
         rust-analyzer
         rustfmt
         shellcheck
         stylua
+        tailwindcss-language-server
         taplo
         terraform-ls
         typescript-language-server
@@ -1822,8 +1895,6 @@ in
         vim.keymap.set("n", ":", "<cmd>FineCmdline<CR>", {noremap = true})
         vim.keymap.set("n", "<leader>ss", ":SearchBoxIncSearch<CR>")
         vim.keymap.set("x", "<leader>ss", ":SearchBoxIncSearch visual_mode=true<CR>")
-        -- Disable lsp log
-        vim.lsp.set_log_level("off")
       '';
       viAlias = true;
       vimAlias = true;
@@ -1893,9 +1964,6 @@ in
         extensions = {
           autoUpdate = "onlyEnabledExtensions";
           ignoreRecommendations = true;
-        };
-        extensions.experimental.affinity = {
-          "asvetliakov.vscode-neovim" = 1;
         };
         git = {
           autofetch = true;
