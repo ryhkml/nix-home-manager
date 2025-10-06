@@ -61,10 +61,10 @@ let
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.24";
+    version = "0.3.28";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-6/LM-Studio-${version}-6-x64.AppImage";
-      sha256 = "00g8kp9v5m8lh7mfff3p8pzc678jr6rdlw8lk471bigwz8sfndsf";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-2/LM-Studio-${version}-2-x64.AppImage";
+      sha256 = "1hrvwsfv8xga7c0g5g61zl11yw1a21w7xrfvyqgrrrdj8hkn61bv";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -119,10 +119,6 @@ in
       binsider
       # # C
       cmus
-      (curl.override {
-        c-aresSupport = true;
-        gsaslSupport = true;
-      })
       # # D
       duf
       # # E
@@ -164,9 +160,6 @@ in
       # # R
       rlwrap
       rustup
-      # # S
-      speedtest-cli
-      sqlite
       # # T
       terraform
       tokei
