@@ -74,7 +74,6 @@ The installed packages include command line interface, language server protocol,
 ### C
 
 1. [cmus](https://cmus.github.io) - Console music player for Unix-like operating systems
-1. [curl](https://curl.se) - Tool and library to transfer data (with [c-ares](https://c-ares.org) and [gsasl](https://www.gnu.org/software/gsasl) features)
 
 ### D
 
@@ -170,9 +169,7 @@ The installed packages include command line interface, language server protocol,
 ### S
 
 1. [shellcheck](https://hackage.haskell.org/package/ShellCheck) - Shell script analysis tool
-1. [speedtest-cli](https://github.com/sivel/speedtest-cli) - Testing internet bandwidth
 1. [stylua](https://github.com/johnnymorganz/stylua) - Formatter for Lua
-1. [sqlite](https://www.sqlite.org) - Small and fast SQL database engine
 
 ### T
 
