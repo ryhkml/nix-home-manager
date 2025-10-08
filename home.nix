@@ -32,10 +32,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsLatest = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.17.0";
+    version = "14.19.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1vrs70jm4y5ynn8ahkghyn6a7mq1pra38v1c69z4ps7z9xq43gad";
+      sha256 = "1xrahsaizvh5dbcdhqswxy06lizxzmckdbd7y2nxiz2kdh1qr786";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -48,10 +48,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "540.0.0";
+    version = "542.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "053hsk628pch8kjvrskdx346krwj165629mkmakx3k584rprj17y";
+      sha256 = "1mfzryjdhb6kl3lmrfdk5hswkvcpgsz659381g7n2zjh1xjk5h3a";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -75,7 +75,7 @@ let
   };
   # Nodejs only for x86_64-linux
   # https://nodejs.org/en/download/prebuilt-binaries
-  nodejsLts = pkgs.stdenv.mkDerivation rec {
+  nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
     version = "22.20.0";
     src = pkgs.fetchurl {
@@ -90,7 +90,7 @@ let
       mv $out/LICENSE $out/share/doc/LICENSE_nodejs
     '';
   };
-  # Rofi
+  # Rofi Arc-Dark theme
   rofiTheme = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
@@ -128,7 +128,7 @@ in
       firebaseToolsLatest
       # # G
       gcloudLatest
-      (go-migrate.overrideAttrs (oldAttrs: {
+      (go-migrate.overrideAttrs (old: {
         tags = [
           "mysql"
           "postgres"
@@ -150,7 +150,7 @@ in
       minify
       # # N
       nix-prefetch-git
-      nodejsLts
+      nodejsLatestLts
       # # O
       onefetch
       # # P
@@ -199,7 +199,7 @@ in
       ".curlrc".text = ''
         -s
         -L
-        -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36"
+        -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
         -H "Cache-Control: no-cache, no-store, must-revalidate"
         --retry 5
         --retry-delay 5
@@ -450,6 +450,7 @@ in
 
   # GPU on non-NixOS systems
   # https://nix-community.github.io/home-manager/index.xhtml#sec-usage-gpu-non-nixos
+  # https://github.com/nix-community/nixGL
   nixGL.packages = import <nixgl> { inherit pkgs; };
   nixGL.defaultWrapper = "mesa";
   nixGL.installScripts = [ "mesa" ];
@@ -786,12 +787,6 @@ in
           {
             type = "command";
             key = "- ";
-            text = "(gcc --version | head -n1) 2>/dev/null || echo -n 'ERROR'";
-            format = "{result}";
-          }
-          {
-            type = "command";
-            key = "- ";
             text = "(git --version | cut -d ' ' -f3) 2>/dev/null || echo -n 'ERROR'";
             format = "git (Git) {result}";
           }
@@ -851,9 +846,12 @@ in
     fzf.enable = true;
     go = {
       enable = true;
-      env.GOPATH = ".go";
+      env.GOPATH = "${pathHome}/.go";
     };
-    java.enable = true;
+    java = {
+      enable = true;
+      package = pkgs.jdk24;
+    };
     jq.enable = true;
     lazygit = {
       enable = true;
