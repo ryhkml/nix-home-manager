@@ -146,7 +146,6 @@ The installed packages include command line interface, language server protocol,
 1. [nixfmt-rfc-style](https://github.com/NixOS/nixfmt) - Formatter for Nix
 1. [nodejs](https://nodejs.org/en) - Event-driven I/O framework for the V8 Javascript engine
 1. [nodePackages.prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
-1. [nodePackages.vls](https://github.com/vuejs/vetur/tree/master/server) - LSP for Vue
 
 ### O
 
@@ -207,6 +206,7 @@ The installed packages include command line interface, language server protocol,
 Just delete the files and directories containing nix and home-manager
 
 ```sh
+nix-collect-garbage
 nix-collect-garbage -d
 rm -rf ~/.cache/nix \
     ~/.config/nix ~/.config/home-manager \
