@@ -165,6 +165,7 @@ in
       tokei
       typescript
       # # U
+      ueberzugpp
       unar
       # # Y
       yt-dlp
@@ -285,7 +286,7 @@ in
             orange "#965287"
           }
         }
-        scroll_buffer_size 90000
+        simplified_ui true
         default_shell "${config.home.profileDirectory}/bin/fish"
         layout_dir "${pathHome}/.config/zellij/layouts"
       '';
@@ -309,10 +310,10 @@ in
             pane command="btop" name="Monitor resource" {}
           }
           tab name="Editor" {
-            pane name="Compose" {}
+            pane name="Neovim btw" {}
           }
           tab name="Debug" {
-            pane name="Air" {}
+            pane name="Any" {}
           }
         }
       '';
@@ -572,6 +573,7 @@ in
       #
       set -U fish_greeting
       set -gx CGO_ENABLED 1
+      set -gx GOTELEMETRY off
       set -gx CLOUDSDK_PYTHON_SITEPACKAGES 1
       set -gx DOCKER_BUILDKIT 1
       set -gx DOCKER_HOST unix:///run/user/1000/podman/podman.sock
@@ -647,10 +649,6 @@ in
         window = {
           decorations = "None";
           decorations_theme_variant = "Dark";
-          padding = {
-            x = 4;
-            y = 2;
-          };
           dynamic_padding = true;
           opacity = 0.95;
           startup_mode = "Maximized";
@@ -921,6 +919,13 @@ in
                 style = "#708090",
                 duration = 250,
                 delay = 500,
+                exclude_filetypes = {
+                  aerial = true,
+                  dashboard = true,
+                  Dockerfile = true,
+                  conf = true,
+                  txt = true
+                }
               },
               indent = {
                 enable = true,
@@ -930,8 +935,12 @@ in
                 filter_list = {
                   function(v)
                     return v.level ~= 1
-                  end,
+                  end
                 },
+                exclude_filetypes = {
+                  aerial = true,
+                  dashboard = true
+                }
               }
             })
           '';
@@ -1630,7 +1639,7 @@ in
               line = function(line)
                 return {
                   {
-                    { " I use Neovim BTW ", hl = theme.head },
+                    { "", hl = theme.head },
                     line.sep("", theme.head, theme.fill),
                   },
                   line.tabs().foreach(function(tab)
@@ -1646,7 +1655,7 @@ in
                   line.spacer(),
                   {
                     line.sep("", theme.tail, theme.fill),
-                    { "", hl = theme.tail },
+                    { " EMBRACE TRADITION ", hl = theme.tail },
                   },
                   hl = theme.fill,
                 }
@@ -1776,6 +1785,7 @@ in
         vim.opt.updatetime = 250
         vim.opt.cmdheight = 0
         vim.opt.showcmd = false
+        vim.opt.scrolloff = 10
         --
         local options = { noremap = true, silent = true }
         vim.g.mapleader = " "
