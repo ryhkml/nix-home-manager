@@ -23,11 +23,14 @@ jobs:
           echo "build-users-group = " | sudo tee /etc/nix/nix.conf > /dev/null
       - name: Install nix and initialize home manager
         run: |
-          sh <(curl -L https://nixos.org/nix/install) --no-daemon
+          sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
           sleep 1
           . /home/$USER/.nix-profile/etc/profile.d/nix.sh
+          sleep 1
           nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+          nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
           nix-channel --update
+          sleep 1
           nix-shell '<home-manager>' -A install
           echo ". /home/$USER/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
           sleep 1
