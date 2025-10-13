@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.2.23";
+    version = "1.3.0";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "03hzzvgk2y4wylk7yh1h4lyg4avkdpkcmq74zmpmg7br42lx03ng";
+      sha256 = "0xlk6pa5zjwqkiyamzac0a4xq20c5w0v762ca8khc2dxp299vhv0";
     };
   });
   # Firebase CLI only for linux
@@ -669,6 +669,7 @@ in
     btop = {
       enable = true;
       settings = {
+        color_theme = "adwaita-dark";
         show_battery = false;
         base_10_sizes = true;
         temp_scale = "celsius";
@@ -1668,6 +1669,18 @@ in
           '';
         }
         vim-wakatime
+        {
+          plugin = myVimPlugin "nvzone/showkeys" "cb0a50296f11f1e585acffba8c253b9e8afc1f84";
+          type = "lua";
+          config = ''
+            -- https://github.com/nvzone/showkeys
+            require("showkeys").setup({
+              timeout = 2,
+              maxkeys = 6,
+              show_count = true
+            })
+          '';
+        }
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
