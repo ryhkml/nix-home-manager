@@ -32,10 +32,10 @@ let
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsLatest = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.19.0";
+    version = "14.20.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "1xrahsaizvh5dbcdhqswxy06lizxzmckdbd7y2nxiz2kdh1qr786";
+      sha256 = "11168yix3p1870ykcqda3mhf1z1j8w02fg0121hjdk6wq99y8xf9";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -48,23 +48,33 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "542.0.0";
+    version = "543.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "1mfzryjdhb6kl3lmrfdk5hswkvcpgsz659381g7n2zjh1xjk5h3a";
+      sha256 = "0xd32fb91nbx69qw19skphgaq788ld4zrx91246gc85f26r2chqh";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
     '';
   });
+  # Go only for Linux x86_64
+  # https://go.dev/dl
+  goLatest = pkgs.go.overrideAttrs (old: rec {
+    pname = "go";
+    version = "1.25.3";
+    src = pkgs.fetchurl {
+      url = "https://go.dev/dl/go${version}.src.tar.gz";
+      sha256 = "15bp14bra0kxa7ckg87w9n8sriq7zzips9hyql85w0fhjfjln6m8";
+    };
+  });
   # LM Studio AI for Linux x64
   # https://lmstudio.ai
   lmStudio = pkgs.stdenv.mkDerivation rec {
     pname = "lmstudio";
-    version = "0.3.28";
+    version = "0.3.30";
     src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-2/LM-Studio-${version}-2-x64.AppImage";
-      sha256 = "1hrvwsfv8xga7c0g5g61zl11yw1a21w7xrfvyqgrrrdj8hkn61bv";
+      url = "https://installers.lmstudio.ai/linux/x64/${version}-1/LM-Studio-${version}-1-x64.AppImage";
+      sha256 = "1qa4grcfd97v1h12jmm5m8f10b3zsmygw4nsffhm57ib2kmidlmm";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -543,6 +553,7 @@ in
           set stat (set_color red)" [$last_status]"(set_color normal)
         end
         # Check if the current directory is a git repository
+        set -l arrow ">>"
         set -l git_rev
         set -l git_branch
         if test -d .git
@@ -553,15 +564,15 @@ in
           set -l git_status (git status --porcelain 2>/dev/null)
           if test -n "$git_status"
             set -l indicator (set_color yellow)"!"(set_color normal)
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch " "$indicator> "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch " "$indicator $arrow "
           else
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch" " -> "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch" " $arrow "
           end
         else
           if test -d .git
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " -> "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " $arrow "
           else
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat " -> "
+            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $arrow "
           end
         end
       end
@@ -845,6 +856,8 @@ in
     fzf.enable = true;
     go = {
       enable = true;
+      package = goLatest;
+      telemetry.mode = "off";
       env.GOPATH = "${pathHome}/.go";
     };
     java = {
@@ -1078,8 +1091,6 @@ in
               }
             })
             vim.lsp.enable("nil_ls")
-            -- PHP :)
-            vim.lsp.enable("phpactor")
             -- Rust
             vim.lsp.config("rust_analyzer", {
               settings = {
@@ -1216,7 +1227,6 @@ in
                 "java", "javascript", "json",
                 "kdl",
                 "nix",
-                "php",
                 "scss", "ssh_config", "sql", "sway",
                 "r", "rust",
                 "terraform", "toml", "typescript",
@@ -1697,7 +1707,6 @@ in
         nil
         nixfmt-rfc-style
         nodePackages.prettier
-        phpactor
         rust-analyzer
         rustfmt
         shellcheck
