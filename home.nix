@@ -183,12 +183,6 @@ in
       zig
     ];
     file = {
-      ".bunfig.toml".text = ''
-        mosl = true
-        telemetry = false
-        [install.cache]
-        disable = true
-      '';
       ".clang-format".text = ''
         ---
         BasedOnStyle: Google
@@ -692,6 +686,10 @@ in
     };
     bun = {
       enable = true;
+      settings = {
+        smol = true;
+        telemetry = false;
+      };
       package = bunLatest;
     };
     direnv = {
@@ -895,18 +893,18 @@ in
             -- https://github.com/lewis6991/gitsigns.nvim
             require("gitsigns").setup({
               signs = {
-                add          = { text = "A" },
-                change       = { text = "C" },
-                delete       = { text = "D" },
-                topdelete    = { text = "TD" },
-                changedelete = { text = "CD" },
-                untracked    = { text = "U" },
+                add          = { text = "+" },
+                change       = { text = "|" },
+                delete       = { text = "x" },
+                topdelete    = { text = "^" },
+                changedelete = { text = "~" },
+                untracked    = { text = "!" },
               },
               signs_staged = {
                 add          = { text = "SA" },
                 change       = { text = "SC" },
-                delete       = { text = "SD" },
-                topdelete    = { text = "S-" },
+                delete       = { text = "SX" },
+                topdelete    = { text = "S^" },
                 changedelete = { text = "S~" },
                 untracked    = { text = "SU" },
               },
@@ -1650,15 +1648,15 @@ in
               line = function(line)
                 return {
                   {
-                    { "", hl = theme.head },
-                    line.sep("", theme.head, theme.fill),
+                    { " Freedom ", hl = theme.head },
+                    line.sep("", theme.head, theme.fill),
                   },
                   line.tabs().foreach(function(tab)
                     local hl = tab.is_current() and theme.current_tab or theme.tab
                     return {
-                      line.sep("", hl, theme.fill),
+                      line.sep("", hl, theme.fill),
                       PlainTabName(tab.name()),
-                      line.sep("", hl, theme.fill),
+                      line.sep("", hl, theme.fill),
                       hl = hl,
                       margin = " ",
                     }
