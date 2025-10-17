@@ -224,3 +224,17 @@ if [ -e /home/user/.nix-profile/etc/profile.d/nix.sh ]; then . /home/user/.nix-p
 # .bashrc
 . "$HOME"/.nix-profile/etc/profile.d/nix.sh
 ```
+
+## Screenshot
+
+#### fastfetch
+![fastfetch](./screenshot/1.png)
+
+#### btop
+![btop](./screenshot/2.png)
+
+#### nvim
+![neovim](./screenshot/3.png)
+
+#### zellij
+![zellij](./screenshot/4.png)
