@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.0";
+    version = "1.3.1";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0xlk6pa5zjwqkiyamzac0a4xq20c5w0v762ca8khc2dxp299vhv0";
+      sha256 = "0aangm96lb0a5h7dmhz2n7n88wrxylfa3bdwcm1qbh7w5g428220";
     };
   });
   # Firebase CLI only for linux
@@ -48,10 +48,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "543.0.0";
+    version = "544.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0xd32fb91nbx69qw19skphgaq788ld4zrx91246gc85f26r2chqh";
+      sha256 = "0pfwg2a8j03dmpwpsp50n6xhx1ammxmld1v3n7zmlxxx7lzqg966";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -87,10 +87,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.20.0";
+    version = "22.21.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1g1hfm1zfvr9qjhzxwlmxy9v907nwb860wz12dp8p9kf61gd1fq0";
+      sha256 = "0p82x743mvgdc9l71g260bjjjhji2blry0dq0ya0r1s4j55lz83i";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -99,6 +99,15 @@ let
       tar -xJf $src --strip-components=1 -C $out
       mv $out/LICENSE $out/share/doc/LICENSE_nodejs
     '';
+  };
+  # R lang
+  rWrapper = pkgs.rWrapper.override {
+    packages = with pkgs.rPackages; [
+      ggplot2
+      languageserver
+      readr
+      styler
+    ];
   };
   # Rofi Arc-Dark theme
   rofiTheme = pkgs.fetchurl {
@@ -170,6 +179,7 @@ in
       # # R
       rlwrap
       rustup
+      rWrapper
       # # T
       terraform
       tokei
@@ -314,10 +324,10 @@ in
             pane command="btop" name="Monitor resource" {}
           }
           tab name="Editor" {
-            pane name="Neovim btw" {}
+            pane name="Task" {}
           }
           tab name="Debug" {
-            pane name="Any" {}
+            pane name="Test" {}
           }
         }
       '';
@@ -1089,6 +1099,8 @@ in
               }
             })
             vim.lsp.enable("nil_ls")
+            -- R
+            vim.lsp.enable("r_language_server")
             -- Rust
             vim.lsp.config("rust_analyzer", {
               settings = {
@@ -1431,6 +1443,7 @@ in
                 less = { "prettier" },
                 lua = { "stylua" },
                 nix = { "nixfmt" },
+                r = { "styler" },
                 rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
@@ -1633,6 +1646,7 @@ in
           plugin = tabby-nvim;
           type = "lua";
           config = ''
+            -- https://github.com/nanozuki/tabby.nvim
             local theme = {
               fill = "TabLineFill",
               head = "TabLine",
@@ -1648,7 +1662,7 @@ in
               line = function(line)
                 return {
                   {
-                    { " Freedom ", hl = theme.head },
+                    { " Nvim ", hl = theme.head },
                     line.sep("", theme.head, theme.fill),
                   },
                   line.tabs().foreach(function(tab)
@@ -1663,7 +1677,7 @@ in
                   end),
                   line.spacer(),
                   {
-                    line.sep("", theme.tail, theme.fill),
+                    line.sep("", theme.tail, theme.fill),
                     { " EMBRACE TRADITION ", hl = theme.tail },
                   },
                   hl = theme.fill,
