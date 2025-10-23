@@ -18,6 +18,16 @@ let
         rev = rev;
       };
     };
+  # Angular language server
+  # https://www.npmjs.com/package/@angular/language-server
+  angularLanguageServerLatest = pkgs.angular-language-server.overrideAttrs (old: rec {
+    version = "20.3.0";
+    src = pkgs.fetchurl {
+      url = "https://github.com/angular/vscode-ng-language-service/releases/download/v${version}/ng-template.vsix";
+      name = "angular-language-server-${version}.zip";
+      sha256 = "0rlfb1wv5046ar53sb2a3l9j7m87cpa1vivn2kkwgzmhaalvcxx3";
+    };
+  });
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
@@ -133,6 +143,7 @@ in
       # # A
       act
       air
+      angularLanguageServerLatest
       asciiquarium-transparent
       # # B
       binsider
@@ -1031,6 +1042,8 @@ in
             -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities.textDocument.completion.completionItem.snippetSupport = true
+            -- Angular
+            vim.lsp.enable("angularls")
             -- ASM
             vim.lsp.enable("asm_lsp")
             -- Bash
