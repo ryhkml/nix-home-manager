@@ -193,6 +193,9 @@ in
       rWrapper
       # # T
       terraform
+      texliveFull
+      tree-sitter
+      tree-sitter-grammars.tree-sitter-latex
       tokei
       typescript
       # # U
@@ -1249,6 +1252,7 @@ in
                 "hcl", "html",
                 "java", "javascript", "json",
                 "kdl",
+                "latex",
                 "nix",
                 "scss", "ssh_config", "sql", "sway",
                 "r", "rust",
@@ -1716,6 +1720,7 @@ in
             })
           '';
         }
+        vimtex
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
