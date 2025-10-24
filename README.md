@@ -127,6 +127,7 @@ The installed packages include command line interface, language server protocol,
 
 ### L
 
+1. [latexmk](https://mgeier.github.io/latexmk.html) - TeX Live environment
 1. [lazydocker](https://github.com/jesseduffield/lazydocker) - The lazier way to manage everything docker
 1. [lazygit](https://github.com/jesseduffield/lazygit) - Terminal UI for git commands
 1. [lazysql](https://github.com/jorgerojas26/lazysql) - A cross-platform TUI database management tool written in Go
@@ -177,6 +178,7 @@ The installed packages include command line interface, language server protocol,
 1. [terraform](https://www.terraform.io) - Tool for building, changing, and versioning infrastructure
 1. [terraform-ls](https://github.com/hashicorp/terraform-ls) - LSP for Terraform
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
+1. [tree-sitter](https://github.com/tree-sitter/tree-sitter) - Parser generator tool and an incremental parsing library
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
 1. [typescript-language-server](https://github.com/typescript-language-server/typescript-language-server) - LSP for Typescript using tsserver
 
