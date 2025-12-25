@@ -16,7 +16,10 @@ The nix home manager configuration i use is my never-ending journey to keep thin
     sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
     . /home/$USER/.nix-profile/etc/profile.d/nix.sh
     ```
-
+	Nix version:
+	```sh
+	nix (Nix) 2.31.2+1
+	```
     For more information, visit [nixos.org/download](https://nixos.org/download/)
 
 2. Add Home Manager channel, run:
