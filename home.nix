@@ -18,34 +18,24 @@ let
         rev = rev;
       };
     };
-  # Angular language server
-  # https://www.npmjs.com/package/@angular/language-server
-  angularLanguageServerLatest = pkgs.angular-language-server.overrideAttrs (old: rec {
-    version = "20.3.0";
-    src = pkgs.fetchurl {
-      url = "https://github.com/angular/vscode-ng-language-service/releases/download/v${version}/ng-template.vsix";
-      name = "angular-language-server-${version}.zip";
-      sha256 = "0rlfb1wv5046ar53sb2a3l9j7m87cpa1vivn2kkwgzmhaalvcxx3";
-    };
-  });
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.1";
+    version = "1.3.5";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0aangm96lb0a5h7dmhz2n7n88wrxylfa3bdwcm1qbh7w5g428220";
+      sha256 = "0sa6vg1ya9z66d157rnaz69hg77pv1gkn8cn1czfmvsaj9mdhlbh";
     };
   });
   # Firebase CLI only for linux
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsLatest = pkgs.stdenv.mkDerivation rec {
     pname = "firebase-tools";
-    version = "14.20.0";
+    version = "14.27.0";
     src = pkgs.fetchurl {
       url = "https://github.com/firebase/firebase-tools/releases/download/v${version}/firebase-tools-linux";
-      sha256 = "11168yix3p1870ykcqda3mhf1z1j8w02fg0121hjdk6wq99y8xf9";
+      sha256 = "1j1gqsxcwxnkszhbh85bn2jss030sj4lj0lvrp7pss5r3096vz4s";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -58,10 +48,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "544.0.0";
+    version = "548.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0pfwg2a8j03dmpwpsp50n6xhx1ammxmld1v3n7zmlxxx7lzqg966";
+      sha256 = "15d0hnw8ihff75ppciilmhvjidsgma4pyr1hi3bd1bgyrqm86m8b";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -71,10 +61,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.25.3";
+    version = "1.25.5";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "15bp14bra0kxa7ckg87w9n8sriq7zzips9hyql85w0fhjfjln6m8";
+      sha256 = "0kwm3af45rg8a65pbhsr3yv08a4vjnwhcwakn2hjikggj45gv992";
     };
   });
   # LM Studio AI for Linux x64
@@ -97,10 +87,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.21.0";
+    version = "22.21.1";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0p82x743mvgdc9l71g260bjjjhji2blry0dq0ya0r1s4j55lz83i";
+      sha256 = "121whz4vkqdwl66nbpvqj27hy1y0jkr9cpnvk15z4zsan8q3y3b8";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -113,10 +103,26 @@ let
   # R lang
   rWrapper = pkgs.rWrapper.override {
     packages = with pkgs.rPackages; [
+      argparse
+      cowplot
+      DT
+      dplyr
+      dplyrAssist
+      GGally
       ggplot2
+      ggrepel
+      gridExtra
+      jsonlite
       languageserver
+      lubridate
+      magick
       readr
+      readxl
+      rmarkdown
+      scales
       styler
+      tidyr
+      tidyverse
     ];
   };
   # Rofi Arc-Dark theme
@@ -143,7 +149,6 @@ in
       # # A
       act
       air
-      angularLanguageServerLatest
       asciiquarium-transparent
       # # B
       binsider
@@ -458,6 +463,9 @@ in
         indent_style = "space";
         indent_size = 2;
       };
+      "*.tex" = {
+        indent_size = 2;
+      };
       "*.toml" = {
         indent_style = "space";
         indent_size = 2;
@@ -480,9 +488,9 @@ in
   # GPU on non-NixOS systems
   # https://nix-community.github.io/home-manager/index.xhtml#sec-usage-gpu-non-nixos
   # https://github.com/nix-community/nixGL
-  nixGL.packages = import <nixgl> { inherit pkgs; };
-  nixGL.defaultWrapper = "mesa";
-  nixGL.installScripts = [ "mesa" ];
+  targets.genericLinux.nixGL.packages = import <nixgl> { inherit pkgs; };
+  targets.genericLinux.nixGL.defaultWrapper = "mesa";
+  targets.genericLinux.nixGL.installScripts = [ "mesa" ];
 
   programs.home-manager.enable = true;
 
@@ -676,6 +684,9 @@ in
         };
         mouse.hide_when_typing = true;
         window = {
+          padding = {
+            y = 4;
+          };
           decorations = "None";
           decorations_theme_variant = "Dark";
           dynamic_padding = true;
@@ -831,7 +842,7 @@ in
           {
             type = "command";
             key = "- ";
-            text = "(nix --version) 2>/dev/null || echo -n 'ERROR'";
+            text = "nix --version 2>/dev/null";
             format = "{result}";
           }
           {
@@ -882,11 +893,6 @@ in
       telemetry.mode = "off";
       env.GOPATH = "${pathHome}/.go";
     };
-    java = {
-      enable = true;
-      package = pkgs.jdk24;
-    };
-    jq.enable = true;
     lazygit = {
       enable = true;
       settings = {
@@ -1045,8 +1051,6 @@ in
             -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
             local capabilities = vim.lsp.protocol.make_client_capabilities()
             capabilities.textDocument.completion.completionItem.snippetSupport = true
-            -- Angular
-            vim.lsp.enable("angularls")
             -- ASM
             vim.lsp.enable("asm_lsp")
             -- Bash
@@ -1077,24 +1081,30 @@ in
             })
             vim.lsp.enable("html")
             -- HTMX
-            vim.lsp.enable("htmx")
+            --vim.lsp.enable("htmx")
             -- Go
             vim.lsp.enable("gopls")
             -- Java
-            vim.lsp.enable("jdtls")
+            --vim.lsp.enable("jdtls")
             -- JSON
+            local json_schemas = require("schemastore").json.schemas {
+              select = {
+                "angular.json",
+                "Firebase",
+                "package.json",
+                "tsconfig.json"
+              }
+            }
+            table.insert(json_schemas, {
+              name = "OpenAPI 3.0",
+              description = "OpenAPI 3.0 Specification",
+              fileMatch = { "**/openapi/*.json", "openapi.json" },
+              url = "https://spec.openapis.org/oas/3.0/schema/2021-09-28"
+            })
             vim.lsp.config("jsonls", {
               settings = {
                 json = {
-                  schemas = require("schemastore").json.schemas {
-                    select = {
-                      "angular.json",
-                      "Firebase",
-                      "openapi.json",
-                      "package.json",
-                      "tsconfig.json"
-                    }
-                  },
+                  schemas = json_schemas,
                   validate = {
                     enable = true
                   }
@@ -1102,6 +1112,8 @@ in
               }
             })
             vim.lsp.enable("jsonls")
+            -- LaTeX
+            vim.lsp.enable("texlab")
             -- Lua
             vim.lsp.enable("stylua")
             -- Nix
@@ -1464,6 +1476,7 @@ in
                 rust = { "rustfmt" },
                 scss = { "prettier" },
                 sh = { "beautysh" },
+                tex = { "tex-fmt" },
                 tf = { "terraform_fmt" },
                 toml = { "taplo" },
                 typescript = { "prettier" },
@@ -1520,6 +1533,13 @@ in
                     }
                   end
                 },
+                ["tex-fmt"] = {
+                  prepend_args = {
+                    "--wraplen", "100",
+                    "--usetabs",
+                    "--nowrap"
+                  }
+                }
               }
             })
           '';
@@ -1730,6 +1750,7 @@ in
         bash-language-server
         beautysh
         docker-language-server
+        dockerfile-language-server
         gopls
         hclfmt
         htmx-lsp
@@ -1744,6 +1765,8 @@ in
         tailwindcss-language-server
         taplo
         terraform-ls
+        tex-fmt
+        texlab
         typescript-language-server
         vscode-langservers-extracted
         yamlfmt
