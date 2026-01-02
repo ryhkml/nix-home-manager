@@ -192,7 +192,6 @@ The installed packages include command line interface, language server protocol,
 ### V
 
 1. [vscode-langservers-extracted](https://github.com/hrsh7th/vscode-langservers-extracted) - LSP extracted from Vscode only for HTML/CSS/JSON/ESLint
-1. [vscodium](https://vscodium.com) - VSCode without MS branding, telemetry, or licensing
 
 ### Y
 
