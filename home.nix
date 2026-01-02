@@ -919,250 +919,31 @@ in
         {
           plugin = gitsigns-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/lewis6991/gitsigns.nvim
-            require("gitsigns").setup({
-              signs = {
-                add          = { text = "+" },
-                change       = { text = "|" },
-                delete       = { text = "x" },
-                topdelete    = { text = "^" },
-                changedelete = { text = "~" },
-                untracked    = { text = "!" },
-              },
-              signs_staged = {
-                add          = { text = "SA" },
-                change       = { text = "SC" },
-                delete       = { text = "SX" },
-                topdelete    = { text = "S^" },
-                changedelete = { text = "S~" },
-                untracked    = { text = "SU" },
-              },
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/gitsigns.lua;
         }
         {
           plugin = hlchunk-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/shellRaining/hlchunk.nvim
-            require("hlchunk").setup({
-              chunk = {
-                enable = true,
-                use_treesitter = false,
-                chars = {
-                  horizontal_line = "─",
-                  vertical_line = "│",
-                  left_top = "╭",
-                  left_bottom = "╰",
-                  right_arrow = ">",
-                },
-                max_file_size = 2 * 1024 * 1024,
-                style = "#708090",
-                duration = 250,
-                delay = 500,
-                exclude_filetypes = {
-                  aerial = true,
-                  dashboard = true,
-                  Dockerfile = true,
-                  conf = true,
-                  txt = true
-                }
-              },
-              indent = {
-                enable = true,
-                chars = {
-                  ""
-                },
-                filter_list = {
-                  function(v)
-                    return v.level ~= 1
-                  end
-                },
-                exclude_filetypes = {
-                  aerial = true,
-                  dashboard = true
-                }
-              }
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/hlchunk.lua;
         }
         # https://github.com/neovim/nvim-lspconfig
         nvim-lspconfig
         {
           plugin = luasnip;
           type = "lua";
-          config = ''
-            -- https://github.com/L3MON4D3/LuaSnip
-            require("luasnip.loaders.from_vscode").lazy_load()
-          '';
+          config = builtins.readFile ./nvim/plugins/luasnip.lua;
         }
         # https://github.com/b0o/SchemaStore.nvim
         SchemaStore-nvim
         {
           plugin = nvim-cmp;
           type = "lua";
-          config = ''
-            -- https://github.com/hrsh7th/nvim-cmp
-            local cmp = require("cmp")
-            cmp.setup({
-              snippet = {
-                expand = function(args)
-                  require("luasnip").lsp_expand(args.body)
-                end,
-              },
-              mapping = cmp.mapping.preset.insert({
-                ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-                ["<C-f>"] = cmp.mapping.scroll_docs(4),
-                ["<C-Space>"] = cmp.mapping.complete(),
-                ["<C-e>"] = cmp.mapping.abort(),
-                ["<CR>"] = cmp.mapping.confirm({ select = true }),
-              }),
-              sources = cmp.config.sources({
-                { name = "nvim_lsp" },
-                { name = "luasnip" },
-              }, {
-                { name = "buffer" },
-              })
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/cmp.lua;
         }
         {
           plugin = cmp-nvim-lsp;
           type = "lua";
-          config = ''
-            -- https://github.com/hrsh7th/cmp-nvim-lsp
-            vim.api.nvim_create_autocmd("LspAttach", {
-              desc = "LSP actions",
-              callback = function(event)
-                local opts = { buffer = event.buf, silent = true }
-                vim.keymap.set("n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-                vim.keymap.set("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opts)
-                vim.keymap.set("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opts)
-                vim.keymap.set("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opts)
-                vim.keymap.set("n", "go", "<cmd>lua vim.lsp.buf.type_definition()<CR>", opts)
-                vim.keymap.set("n", "gr", "<cmd>lua vim.lsp.buf.references()<CR>", opts)
-                vim.keymap.set("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<CR>", opts)
-                vim.keymap.set("n", "<F2>", "<cmd>lua vim.lsp.buf.rename()<CR>", opts)
-                vim.keymap.set({"n", "x"}, "<F3>", "<cmd>lua vim.lsp.buf.format({async = true})<CR>", opts)
-                vim.keymap.set("n", "<F4>", "<cmd>lua vim.lsp.buf.code_action()<CR>", opts)
-              end,
-            })
-            -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
-            local capabilities = vim.lsp.protocol.make_client_capabilities()
-            capabilities.textDocument.completion.completionItem.snippetSupport = true
-            -- ASM
-            vim.lsp.enable("asm_lsp")
-            -- Bash
-            vim.lsp.enable("bashls")
-            -- C
-            vim.lsp.enable("clangd")
-            -- CSS
-            vim.lsp.config("cssls", {
-              capabilities = capabilities
-            })
-            vim.lsp.enable("cssls")
-            -- Dockerfile
-            vim.lsp.config("dockerls", {
-              settings = {
-                docker = {
-                  languageserver = {
-                    formatter = {
-                      ignoreMultilineInstructions = true
-                    }
-                  }
-                }
-              }
-            })
-            vim.lsp.enable("dockerls")
-            -- HTML
-            vim.lsp.config("html", {
-              capabilities = capabilities
-            })
-            vim.lsp.enable("html")
-            -- HTMX
-            --vim.lsp.enable("htmx")
-            -- Go
-            vim.lsp.enable("gopls")
-            -- Java
-            --vim.lsp.enable("jdtls")
-            -- JSON
-            local json_schemas = require("schemastore").json.schemas {
-              select = {
-                "angular.json",
-                "Firebase",
-                "package.json",
-                "tsconfig.json"
-              }
-            }
-            table.insert(json_schemas, {
-              name = "OpenAPI 3.0",
-              description = "OpenAPI 3.0 Specification",
-              fileMatch = { "**/openapi/*.json", "openapi.json" },
-              url = "https://spec.openapis.org/oas/3.0/schema/2021-09-28"
-            })
-            vim.lsp.config("jsonls", {
-              settings = {
-                json = {
-                  schemas = json_schemas,
-                  validate = {
-                    enable = true
-                  }
-                }
-              }
-            })
-            vim.lsp.enable("jsonls")
-            -- LaTeX
-            vim.lsp.enable("texlab")
-            -- Lua
-            vim.lsp.enable("stylua")
-            -- Nix
-            vim.lsp.config("nil_ls", {
-              settings = {
-                ["nil"] = {
-                  formatting = {
-                    command = { "nixfmt" }
-                  }
-                }
-              }
-            })
-            vim.lsp.enable("nil_ls")
-            -- R
-            vim.lsp.enable("r_language_server")
-            -- Rust
-            vim.lsp.config("rust_analyzer", {
-              settings = {
-                ["rust-analyzer"] = {
-                  diagnostics = {
-                    enable = false
-                  }
-                }
-              }
-            })
-            vim.lsp.enable("rust_analyzer")
-            -- Tailwindcss
-            vim.lsp.enable("tailwindcss")
-            -- Terraform
-            vim.lsp.enable("terraformls")
-            -- Typescript
-            vim.lsp.enable("ts_ls")
-            -- YAML
-            vim.lsp.config("yamlls", {
-              settings = {
-                yaml = {
-                  schemas = {
-                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
-                    ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}"
-                  }
-                }
-              }
-            })
-            vim.lsp.enable("yamlls")
-            -- Zig
-            vim.lsp.enable("zls")
-            -- Disable log
-            vim.lsp.set_log_level("off")
-          '';
+          config = builtins.readFile ./nvim/plugins/lsp.lua;
         }
         plenary-nvim
         telescope-fzf-native-nvim
@@ -1170,379 +951,58 @@ in
         {
           plugin = telescope-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/nvim-telescope/telescope.nvim
-            require("telescope").setup{
-              defaults = {
-                file_ignore_patterns = {
-                  "^.angular/",
-                  "^.database/",
-                  "^.db/",
-                  "^.firebase/",
-                  "^.git/",
-                  "^dist/",
-                  "^node_modules/",
-                  "^target/",
-                  "%.min%.css$",
-                  "%.min%.js$"
-                },
-                vimgrep_arguments = {
-                  "rg",
-                  "--color=never",
-                  "--no-heading",
-                  "--line-number",
-                  "--column",
-                  "--smart-case",
-                  "--hidden",
-                  "--no-ignore-files",
-                  "--no-require-git"
-                }
-              },
-              pickers = {
-                find_files = {
-                  hidden = true,
-                  no_ignore = true,
-                  disable_devicons = true,
-                  file_ignore_patterns = {
-                    "^.angular/",
-                    "^.database/",
-                    "^.db/",
-                    "^.firebase/",
-                    "^.git/",
-                    "^dist/",
-                    "^node_modules/",
-                    "^target/",
-                    "%.min%.css$",
-                    "%.min%.js$"
-                  },
-                  find_command = {
-                    "fd",
-                    ".",
-                    "-tf",
-                    "--hidden",
-                    "--strip-cwd-prefix",
-                    "--no-require-git"
-                  }
-                },
-              },
-              extensions = {
-                fzf = {
-                  fuzzy = true,
-                  case_mode = "smart_case",
-                  override_file_sorter = true,
-                  override_generic_sorter = true,
-                },
-                live_grep_args = {
-                  auto_quoting = true,
-                }
-              }
-            }
-            local builtin = require("telescope.builtin")
-            vim.keymap.set("n", "<leader>ff", builtin.find_files)
-            vim.keymap.set("n", "<leader>fg", ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>")
-            vim.keymap.set("n", "<leader>fb", builtin.buffers)
-            vim.keymap.set("n", "<leader>fh", builtin.help_tags)
-            require("telescope").load_extension("fzf")
-            require("telescope").load_extension("live_grep_args")
-          '';
+          config = builtins.readFile ./nvim/plugins/telescope.lua;
         }
         {
           plugin = nvim-treesitter;
           type = "lua";
-          config = ''
-            -- https://github.com/nvim-treesitter/nvim-treesitter
-            local dir_parser = os.getenv("HOME") .. "/.vim/parsers"
-            vim.opt.runtimepath:append(dir_parser)
-            require("nvim-treesitter.configs").setup{
-              ensure_installed = {
-                "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "comment", "diff",
-                "asm", "angular",
-                "bash",
-                "c", "css",
-                "dockerfile",
-                "go", "gomod", "gosum", "gitattributes", "gitcommit", "gitignore", "git_config",
-                "hcl", "html",
-                "java", "javascript", "json",
-                "kdl",
-                "latex",
-                "nix",
-                "scss", "ssh_config", "sql", "sway",
-                "r", "rust",
-                "terraform", "toml", "typescript",
-                "yaml",
-                "xml",
-                "zig", "ziggy",
-              },
-              sync_install = false,
-              auto_install = true,
-              parser_install_dir = dir_parser,
-              highlight = {
-                enable = true,
-                disable = function(lang, buf)
-                  if lang == "html" or lang == "css" or lang == "js" then
-                    local max_size = 256 * 1024
-                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-                    if ok and stats and stats.size > max_size then
-                      return true
-                    end
-                  end
-                  return false
-                end,
-                additional_vim_regex_highlighting = false,
-              },
-              indent = {
-                enable = true
-              }
-            }
-          '';
+          config = builtins.readFile ./nvim/plugins/treesitter.lua;
         }
         {
           plugin = nvim-autopairs;
           type = "lua";
-          config = ''
-            -- https://github.com/windwp/nvim-autopairs
-            require("nvim-autopairs").setup()
-          '';
+          config = builtins.readFile ./nvim/plugins/autopairs.lua;
         }
         vim-visual-multi
         {
           plugin = myVimPlugin "slugbyte/lackluster.nvim" "b247a6f51cb43e49f3f753f4a59553b698bf5438";
           type = "lua";
-          config = ''
-            -- https://github.com/slugbyte/lackluster.nvim
-            local lackluster = require("lackluster")
-            lackluster.setup({
-              tweak_color = {
-                lack = "default",
-                luster = "default",
-                orange = "#d46b08",
-                yellow = "#d4b106",
-                green = "#389e0d",
-                blue = "#096dd9",
-                red = "#cf1322",
-              },
-              tweak_background = {
-                normal = "#000000",
-                popup = "#191919",
-                menu = "#000000",
-                telescope = "#000000",
-              }
-            })
-            vim.cmd.colorscheme("lackluster")
-          '';
+          config = builtins.readFile ./nvim/plugins/lackluster.lua;
         }
         {
           plugin = lualine-nvim;
           type = "lua";
-          config = ''
-            local function SearchResultCount()
-              if vim.v.hlsearch == 0 then
-                return ""
-              end
-              local last = vim.fn.getreg("/")
-              if not last or last == "" then
-                return ""
-              end
-              local searchcount = vim.fn.searchcount { maxcount = 9000 }
-              return "" .. searchcount.current .. "/" .. searchcount.total .. ""
-            end
-            require("lualine").setup({
-              options = {
-                icons_enabled = false,
-                theme = "lackluster",
-                globalstatus = true,
-                component_separators = "",
-                section_separators = "",
-              },
-              sections = {
-                lualine_x = {
-                  SearchResultCount,
-                  "encoding",
-                  "filetype"
-                },
-              },
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/lualine.lua;
         }
         {
           plugin = nvim-colorizer-lua;
           type = "lua";
-          config = ''
-            -- https://github.com/nvchad/nvim-colorizer.lua
-            require("colorizer").setup {
-              filetypes = {
-                "html",
-                "css",
-                "scss",
-                "sass",
-                "less",
-                "javascript",
-                "typescript",
-              },
-              user_default_options = {
-                RGB = true,
-                RRGGBB = true,
-                names = false,
-                RRGGBBAA = true,
-                AARRGGBB = true,
-                rgb_fn = false,
-                hsl_fn = false,
-                css = false,
-                css_fn = false,
-                mode = "background",
-                tailwind = false,
-                sass = { enable = false, parsers = { "css" }, },
-                virtualtext = "^",
-                always_update = false
-              },
-              buftypes = {},
-            }
-          '';
+          config = builtins.readFile ./nvim/plugins/colorizer.lua;
         }
         {
           plugin = comment-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/numToStr/Comment.nvim
-            require("Comment").setup()
-          '';
+          config = builtins.readFile ./nvim/plugins/comment.lua;
         }
         {
           plugin = treesj;
           type = "lua";
-          config = ''
-            -- https://github.com/Wansmer/treesj
-            require("treesj").setup({})
-          '';
+          config = builtins.readFile ./nvim/plugins/treesj.lua;
         }
         {
           plugin = nvim-surround;
           type = "lua";
-          config = ''
-            -- https://github.com/kylechui/nvim-surround
-            require("nvim-surround").setup({
-              surrounds = {
-                ["("] = false,
-                ["["] = false,
-                ["{"] = false,
-              },
-              aliases = {
-                ["("] = ")",
-                ["["] = "]",
-                ["{"] = "}",
-              }
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/surround.lua;
         }
         {
           plugin = lsp_lines-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/maan2003/lsp_lines.nvim
-            vim.diagnostic.config({
-              virtual_text = false,
-            })
-            require("lsp_lines").setup()
-          '';
+          config = builtins.readFile ./nvim/plugins/lsp_lines.lua;
         }
         {
           plugin = conform-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/stevearc/conform.nvim
-            require("conform").setup({
-              formatters_by_ft = {
-                asm = { "asmfmt" },
-                c = { "clang-format" },
-                css = { "prettier" },
-                fish = { "fish_indent" },
-                go = { "gofmt" },
-                hcl = function(bufnr)
-                  local filename = vim.api.nvim_buf_get_name(bufnr)
-                  if filename:match("%.pkr.hcl$") or filename:match("%.pkrvars.hcl$") then
-                    return { "packer_fmt" }
-                  end
-                  return { "hcl" }
-                end,
-                html = { "prettier" },
-                java = { "astyle" },
-                javascript = { "prettier" },
-                json = { "prettier" },
-                jsonc = { "prettier" },
-                less = { "prettier" },
-                lua = { "stylua" },
-                nix = { "nixfmt" },
-                r = { "styler" },
-                rust = { "rustfmt" },
-                scss = { "prettier" },
-                sh = { "beautysh" },
-                tex = { "tex-fmt" },
-                tf = { "terraform_fmt" },
-                toml = { "taplo" },
-                typescript = { "prettier" },
-                yaml = { "yamlfmt" },
-                zig = { "zigfmt" },
-                ["_"] = { "trim_whitespace" },
-              },
-              default_format_opts = {
-                lsp_format = "fallback",
-              },
-              format_on_save = {
-                lsp_format = "fallback",
-                timeout_ms = 1000,
-              },
-              log_level = vim.log.levels.ERROR,
-              notify_on_error = true,
-              notify_no_formatters = false,
-              -- Custom formatters and overrides for built-in formatters
-              formatters = {
-                astyle = {
-                  prepend_args = {
-                    "--style=java",
-                    "-t4",
-                    "--add-braces"
-                  }
-                },
-                beautysh = {
-                  prepend_args = {
-                    "--indent-size", "4",
-                    "--tab"
-                  }
-                },
-                nixfmt = {
-                  prepend_args = {
-                    "--width=100"
-                  }
-                },
-                prettier = {
-                  prepend_args = function(self, ctx)
-                    if ctx.filename:match("%.md$") then
-                      return {
-                        "--print-width", "100",
-                        "--tab-width", "4",
-                        "--trailing-comma", "none",
-                        "--embedded-language-formatting", "auto"
-                      }
-                    end
-                    return {
-                      "--print-width", "100",
-                      "--use-tabs",
-                      "--tab-width", "4",
-                      "--trailing-comma", "none",
-                      "--embedded-language-formatting", "auto"
-                    }
-                  end
-                },
-                ["tex-fmt"] = {
-                  prepend_args = {
-                    "--wraplen", "100",
-                    "--usetabs",
-                    "--nowrap"
-                  }
-                }
-              }
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/conform.lua;
         }
         {
           plugin = markdown-preview-nvim;
@@ -1559,51 +1019,12 @@ in
         {
           plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "7db181d1cb294581b12a036eadffffde762a118f";
           type = "lua";
-          config = ''
-            -- https://github.com/VonHeikemen/fine-cmdline.nvim
-            require("fine-cmdline").setup({
-              popup = {
-                position = "50%",
-                size = {
-                  width = "25%",
-                },
-                border = {
-                  style = "single",
-                  text = {
-                    top = " Cmd ",
-                    top_align = "center",
-                  },
-                  padding = "0",
-                },
-                win_options = {
-                  winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
-                },
-              },
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/fine-cmdline.lua;
         }
         {
           plugin = searchbox-nvim;
           type = "lua";
-          config = ''
-            require("searchbox").setup({
-              popup = {
-                position = "50%",
-                size = "25%",
-                border = {
-                  style = "single",
-                  text = {
-                    top = " Search ",
-                    top_align = "center",
-                  },
-                  padding = "0",
-                },
-                win_options = {
-                  winhighlight = "Normal:Normal,FloatBorder:FloatBorder",
-                },
-              },
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/searchbox.lua;
         }
         # Explorer
         {
@@ -1613,132 +1034,19 @@ in
         {
           plugin = nvim-tree-lua;
           type = "lua";
-          config = ''
-            vim.g.loaded_netrw = 1
-            vim.g.loaded_netrwPlugin = 1
-            require("nvim-tree").setup({
-              sync_root_with_cwd = true,
-              view = {
-                signcolumn = "no",
-                width = 30,
-              },
-              renderer = {
-                group_empty = true,
-                indent_markers = {
-                  enable = true,
-                },
-                icons = {
-                  web_devicons = {
-                    file = {
-                      enable = false,
-                      color = false
-                    },
-                  },
-                  git_placement = "after",
-                  symlink_arrow = " -> ",
-                  show = {
-                    file = false,
-                  },
-                  glyphs = {
-                    git = {
-                      unstaged = "US",
-                      staged = "S",
-                      unmerged = "UM",
-                      renamed = "R",
-                      untracked = "UT",
-                      deleted = "D",
-                      ignored = "i",
-                    }
-                  }
-                },
-                symlink_destination = false,
-              },
-              filters = {
-                custom = { ".angular", ".git" },
-                exclude = { ".github", ".gitmodules", ".gitignore", ".gitattributes" }
-              },
-              filesystem_watchers = {
-                enable = true,
-                debounce_delay = 100,
-                ignore_dirs = {
-                  "/.angular",
-                  "/.ccls-cache",
-                  "/build",
-                  "/dist",
-                  "/node_modules",
-                  "/target",
-                },
-              },
-              update_focused_file = {
-                enable = true,
-              },
-              git = {
-                enable = false,
-              }
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/nvim-tree.lua;
         }
         # Tab
         {
           plugin = tabby-nvim;
           type = "lua";
-          config = ''
-            -- https://github.com/nanozuki/tabby.nvim
-            local theme = {
-              fill = "TabLineFill",
-              head = "TabLine",
-              current_tab = { fg = "#ffffff", bg = "#526596" },
-              tab = "TabLine",
-              win = "TabLine",
-              tail = "TabLine",
-            }
-            local function PlainTabName(name)
-              return name:gsub("%[%d+%+%]", "")
-            end
-            require("tabby").setup({
-              line = function(line)
-                return {
-                  {
-                    { " Nvim ", hl = theme.head },
-                    line.sep("", theme.head, theme.fill),
-                  },
-                  line.tabs().foreach(function(tab)
-                    local hl = tab.is_current() and theme.current_tab or theme.tab
-                    return {
-                      line.sep("", hl, theme.fill),
-                      PlainTabName(tab.name()),
-                      line.sep("", hl, theme.fill),
-                      hl = hl,
-                      margin = " ",
-                    }
-                  end),
-                  line.spacer(),
-                  {
-                    line.sep("", theme.tail, theme.fill),
-                    { " EMBRACE TRADITION ", hl = theme.tail },
-                  },
-                  hl = theme.fill,
-                }
-              end,
-              option = {
-                nerdfont = true,
-                lualine_theme = "lackluster"
-              }
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/tabby.lua;
         }
         vim-wakatime
         {
           plugin = myVimPlugin "nvzone/showkeys" "cb0a50296f11f1e585acffba8c253b9e8afc1f84";
           type = "lua";
-          config = ''
-            -- https://github.com/nvzone/showkeys
-            require("showkeys").setup({
-              timeout = 2,
-              maxkeys = 6,
-              show_count = true
-            })
-          '';
+          config = builtins.readFile ./nvim/plugins/showkeys.lua;
         }
         vimtex
       ];
@@ -1755,6 +1063,7 @@ in
         hclfmt
         htmx-lsp
         jdt-language-server
+        lua-language-server
         nil
         nixfmt-rfc-style
         nodePackages.prettier
@@ -1773,205 +1082,7 @@ in
         yaml-language-server
         zls
       ];
-      extraLuaConfig = ''
-        vim.scriptencoding = "utf-8"
-        vim.opt.encoding = "utf-8"
-        vim.opt.fileencoding = "utf-8"
-        vim.opt.clipboard = "unnamedplus"
-        vim.opt.wildignore:append({
-          "*/node_modules/*",
-          "*/target/*",
-          "*/dist/*",
-          "*/.angular/*",
-          "*/.git/*",
-          "*.min.css",
-          "*.min.js"
-        })
-        -- Filetype
-        local function set_filetype_c()
-          vim.bo.filetype = "c"
-        end
-        local function set_filetype_conf()
-          vim.bo.filetype = "conf"
-        end
-        local function set_filetype_json()
-          vim.bo.filetype = "json"
-        end
-        local function set_filetype_dotenv()
-          vim.bo.filetype = "dotenv"
-        end
-        vim.api.nvim_create_augroup("FiletypeConfig", { clear = true })
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-          pattern = { "*.h" },
-          callback = set_filetype_c,
-          group = "FiletypeConfig",
-        })
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-          pattern = { "*/config", "*/conf" },
-          callback = set_filetype_conf,
-          group = "FiletypeConfig",
-        })
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-          pattern = { "*/.env*" },
-          callback = set_filetype_dotenv,
-          group = "FiletypeConfig",
-        })
-        vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-          pattern = { ".firebaserc" },
-          callback = set_filetype_json,
-          group = "FiletypeConfig",
-        })
-        -- Number
-        vim.opt.nu = true
-        vim.opt.cursorline = true
-        vim.opt.relativenumber = true
-        -- Tab indent
-        vim.opt.tabstop = 4
-        vim.opt.softtabstop = 4
-        vim.opt.shiftwidth = 4
-        vim.opt.expandtab = true
-        --
-        vim.api.nvim_create_autocmd("FileType", {
-          pattern = { "yaml", "nix" },
-          callback = function()
-            vim.opt_local.tabstop = 2
-            vim.opt_local.softtabstop = 2
-            vim.opt_local.shiftwidth = 2
-          end,
-        })
-        vim.api.nvim_create_autocmd("BufReadPost", {
-          pattern = "flake.lock",
-          callback = function()
-            vim.opt_local.tabstop = 2
-            vim.opt_local.softtabstop = 2
-            vim.opt_local.shiftwidth = 2
-          end,
-        })
-        vim.opt.smartindent = true
-        vim.opt.showmode = false
-        vim.opt.wrap = false
-        vim.opt.backup = false
-        vim.opt.swapfile = false
-        vim.opt.hlsearch = true
-        vim.opt.incsearch = true
-        vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
-        vim.opt.undofile = true
-        vim.opt.signcolumn = "yes"
-        vim.opt.updatetime = 250
-        vim.opt.cmdheight = 0
-        vim.opt.showcmd = false
-        vim.opt.scrolloff = 10
-        --
-        local options = { noremap = true, silent = true }
-        vim.g.mapleader = " "
-        -- Noop
-        vim.keymap.set("n", "q", "<Nop>", options)
-        vim.keymap.set("v", "q", "<Nop>", options)
-        vim.keymap.set("n", "Q", "<Nop>", options)
-        -- Hlsearch
-        vim.keymap.set("n", "<leader>n", ":noh<CR>", options)
-        vim.keymap.set({ "n", "v" }, "<leader>h", "^", options)
-        vim.keymap.set({ "n", "v" }, "<leader>l", "$", options)
-        -- Explorer
-        vim.keymap.set("n", "<leader>ee", ":NvimTreeToggle<CR>", options)
-        vim.keymap.set("n", "<leader>ef", ":NvimTreeFocus<CR>", options)
-        vim.keymap.set("n", "<leader>ec", ":NvimTreeCollapse<CR>", options)
-        vim.keymap.set("n", "<leader>er", ":NvimTreeRefresh<CR>", options)
-        -- Yank/Paste/Change/Delete
-        vim.keymap.set("x", "<leader>p", [["_dP]])
-        vim.keymap.set({"n", "v"}, "<leader>y", [["+y]])
-        vim.keymap.set("n", "<leader>Y", [["+Y]])
-        -- d
-        vim.keymap.set("n", "d", '"_d', { noremap = true })
-        vim.keymap.set("n", "dd", '"_dd', { noremap = true })
-        vim.keymap.set("n", "D", '"_D', { noremap = true })
-        vim.keymap.set("x", "d", '"_d', { noremap = true })
-        vim.keymap.set("n", "da", '"_da', { noremap = true })
-        vim.keymap.set("n", "di", '"_di', { noremap = true })
-        vim.keymap.set("n", "dw", '"_dw', { noremap = true })
-        vim.keymap.set("n", "D", '"_D', { noremap = true })
-        -- c
-        vim.keymap.set("n", "c", '"_c', { noremap = true })
-        vim.keymap.set("n", "C", '"_C', { noremap = true })
-        vim.keymap.set("x", "c", '"_c', { noremap = true })
-        vim.keymap.set("n", "ca", '"_ca', { noremap = true })
-        vim.keymap.set("n", "ci", '"_ci', { noremap = true })
-        vim.keymap.set("n", "cw", '"_cw', { noremap = true })
-        vim.keymap.set("n", "C", '"_C', { noremap = true })
-        --
-        vim.keymap.set("n", "d<Left>", '"_dh', options)
-        vim.keymap.set("n", "d<Right>", '"_dl', options)
-        vim.keymap.set("n", "d<Up>", '"_d<Up>', options)
-        vim.keymap.set("n", "d<Down>", '"_d<Down>', options)
-        -- Tab
-        vim.opt.showtabline = 2
-        vim.keymap.set("n", "<leader>ta", ":$tabnew<CR>", {noremap = true})
-        vim.keymap.set("n", "<leader>tc", ":tabclose<CR>", {noremap = true})
-        vim.keymap.set("n", "<leader>to", ":tabonly<CR>", {noremap = true})
-        vim.keymap.set("n", "<leader>tn", ":tabn<CR>", {noremap = true})
-        vim.keymap.set("n", "<leader>tp", ":tabp<CR>", {noremap = true})
-        vim.keymap.set("n", "<leader>1", "1gt", options)
-        vim.keymap.set("n", "<leader>2", "2gt", options)
-        vim.keymap.set("n", "<leader>3", "3gt", options)
-        vim.keymap.set("n", "<leader>4", "4gt", options)
-        vim.keymap.set("n", "<leader>5", "5gt", options)
-        vim.keymap.set("n", "<leader>6", "6gt", options)
-        vim.keymap.set("n", "<leader>7", "7gt", options)
-        vim.keymap.set("n", "<leader>8", "8gt", options)
-        vim.keymap.set("n", "<leader>9", "9gt", options)
-        -- Definiton
-        --Ctrl ] and Ctrl o
-        -- Diagnostic
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
-        -- CTRL
-        vim.keymap.set("i", "<C-c>", "<Esc>")
-        vim.keymap.set("n", "<C-z>", "u", options)
-        vim.keymap.set({"i", "v"}, "<C-z>", "<Nop>")
-        vim.keymap.set("n", "<C-y>", "<C-r>", options)
-        vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", {silent = true})
-        vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", {silent = true})
-        vim.keymap.set("v", "<A-Up>", ":m '<-2<CR>gv=gv", {silent = true})
-        vim.keymap.set("v", "<A-Down>", ":m '>+1<CR>gv=gv", {silent = true})
-        -- Markdown preview
-        function ToggleMarkdownPreview()
-          local is_running = vim.g.markdown_preview_running or false
-          if is_running then
-            vim.cmd("MarkdownPreviewStop")
-            vim.g.markdown_preview_running = false
-          else
-            vim.cmd("MarkdownPreview")
-            vim.g.markdown_preview_running = true
-          end
-        end
-        vim.keymap.set("n", "<leader>mp", ToggleMarkdownPreview, options)
-        -- Undotree
-        vim.keymap.set("n", "<leader><F1>", vim.cmd.UndotreeToggle)
-        vim.api.nvim_create_autocmd("VimLeave", {
-          pattern = "*",
-          command = "set guicursor=a:ver25-Cursor/lCursor",
-        })
-        -- Wrap
-        function WrapWord(symbol1, symbol2)
-          local word = vim.fn.expand("<cword>")
-          local cmd = string.format("normal ciw%s%s%s", symbol1, word, symbol2)
-          vim.cmd(cmd)
-        end
-        vim.keymap.set("n", "<leader>()", ":lua WrapWord('(', ')')<CR>", options)
-        vim.keymap.set("n", "<leader>[]", ":lua WrapWord('[', ']')<CR>", options)
-        vim.keymap.set("n", "<leader>{}", ":lua WrapWord('{', '}')<CR>", options)
-        vim.keymap.set("n", "<leader>'w", ":lua WrapWord(\"'\", \"'\")<CR>", options)
-        vim.keymap.set("n", '<leader>"w', ":lua WrapWord('\"', '\"')<CR>", options)
-        vim.keymap.set("n", "<leader><>", ":lua WrapWord('<', '>')<CR>", options)
-        -- Telescope cmd
-        vim.keymap.set("n", "<leader><leader>", ":Telescope cmdline<CR>", {noremap = true, desc = "Cmd"})
-        -- Lazygit
-        vim.keymap.set("n", "<leader>gg", ":LazyGit<CR>", options)
-        -- Nui
-        vim.keymap.set("n", ":", "<cmd>FineCmdline<CR>", {noremap = true})
-        vim.keymap.set("n", "<leader>ss", ":SearchBoxIncSearch<CR>")
-        vim.keymap.set("x", "<leader>ss", ":SearchBoxIncSearch visual_mode=true<CR>")
-      '';
+      extraLuaConfig = builtins.readFile ./nvim/init.lua;
       viAlias = true;
       vimAlias = true;
     };
@@ -1989,111 +1100,6 @@ in
         "--glob=!*.min.css"
         "--glob=!*.min.js"
       ];
-    };
-    vscode = {
-      enable = true;
-      package = pkgs.vscodium;
-      profiles.default.userSettings = {
-        breadcrumbs = {
-          enabled = false;
-        };
-        codesnap = {
-          containerPadding = "4px";
-        };
-        editor = {
-          cursorSmoothCaretAnimation = "on";
-          cursorStyle = "line";
-          detectIndentation = false;
-          fontFamily = "FiraCode Nerd Font";
-          fontSize = 14;
-          insertSpaces = false;
-          letterSpacing = 0.4;
-          lineHeight = 1.6;
-          minimap = {
-            enabled = false;
-          };
-          renderWhitespace = "none";
-          smoothScrolling = true;
-          stickyScroll = {
-            enabled = false;
-          };
-          tabSize = 4;
-        };
-        explorer = {
-          confirmDragAndDrop = false;
-          compactFolders = false;
-          confirmDelete = false;
-          fileNesting = {
-            patterns = {
-              "Cargo.toml" = "Cargo.lock";
-              "*.sqlite" = "\${capture}.\${extname}-*";
-              "*.db" = "\${capture}.\${extname}-*";
-              "*.sqlite3" = "\${capture}.\${extname}-*";
-              "*.db3" = "\${capture}.\${extname}-*";
-              "*.min.css" = "\${capture}.\${extname}-*";
-              "*.min.js" = "\${capture}.\${extname}-*";
-              "*.sdb" = "\${capture}.\${extname}-*";
-              "*.s3db" = "\${capture}.\${extname}-*";
-            };
-          };
-        };
-        extensions = {
-          autoUpdate = "onlyEnabledExtensions";
-          ignoreRecommendations = true;
-        };
-        git = {
-          autofetch = true;
-          confirmSync = false;
-        };
-        security = {
-          workspace = {
-            trust = {
-              banner = "never";
-              enabled = true;
-              startupPrompt = false;
-            };
-          };
-        };
-        terminal = {
-          integrated = {
-            cursorBlinking = true;
-            cursorStyle = "line";
-            hideOnStartup = "always";
-            smoothScrolling = true;
-            tabs = {
-              enabled = false;
-            };
-          };
-        };
-        update = {
-          mode = "none";
-        };
-        window = {
-          menuBarVisibility = "toggle";
-          restoreFullscreen = true;
-          title = "Code";
-          titleBarStyle = "native";
-          zoomLevel = 2;
-        };
-        workbench = {
-          activityBar = {
-            location = "top";
-          };
-          colorTheme = "Visual Studio Dark";
-          preferredDarkColorTheme = "Visual Studio Dark";
-          iconTheme = "vscode-jetbrains-icon-theme-2023-dark";
-          list = {
-            smoothScrolling = true;
-          };
-          remoteIndicator = {
-            showExtensionRecommendations = false;
-          };
-          startupEditor = "none";
-          trustedDomains = {
-            promptInTrustedWorkspace = true;
-          };
-        };
-      };
     };
     zellij = {
       enable = true;
