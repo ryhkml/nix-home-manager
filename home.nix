@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.5";
+    version = "1.3.6";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "0sa6vg1ya9z66d157rnaz69hg77pv1gkn8cn1czfmvsaj9mdhlbh";
+      sha256 = "1vqidhf94196ynwc333y4v5vfx4fqkss88svhy86c3am6hhqvacv";
     };
   });
   # Firebase CLI only for linux
@@ -87,10 +87,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "22.21.1";
+    version = "24.13.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "121whz4vkqdwl66nbpvqj27hy1y0jkr9cpnvk15z4zsan8q3y3b8";
+      sha256 = "0znnfby4b8aqm1da9bhmw4a25mjz146sp5rk78rp3fzl2ab5k677";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -133,8 +133,8 @@ let
   # Zellij statusbar plugin
   # https://github.com/dj95/zjstatus
   zjstatusPlugin = pkgs.fetchurl {
-    url = "https://github.com/dj95/zjstatus/releases/download/v0.21.1/zjstatus.wasm";
-    sha256 = "06mfcijmsmvb2gdzsql6w8axpaxizdc190b93s3nczy212i846fw";
+    url = "https://github.com/dj95/zjstatus/releases/download/v0.22.0/zjstatus.wasm";
+    sha256 = "0lyxah0pzgw57wbrvfz2y0bjrna9bgmsw9z9f898dgqw1g92dr2d";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -346,7 +346,10 @@ in
             pane name="Task" {}
           }
           tab name="Debug" {
-            pane name="Test" {}
+            pane name="$$$" {}
+          }
+          tab name="Gemini" {
+            pane name="Agent" {}
           }
         }
       '';
