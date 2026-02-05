@@ -5,7 +5,7 @@ require("nvim-tree").setup({
 	sync_root_with_cwd = true,
 	view = {
 		signcolumn = "no",
-		width = 30,
+		width = 25,
 	},
 	renderer = {
 		group_empty = true,
@@ -39,7 +39,7 @@ require("nvim-tree").setup({
 		symlink_destination = false,
 	},
 	filters = {
-		custom = { ".angular", ".git" },
+		custom = { ".angular", "^.git$" },
 		exclude = { ".github", ".gitmodules", ".gitignore", ".gitattributes" },
 	},
 	filesystem_watchers = {

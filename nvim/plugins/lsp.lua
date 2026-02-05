@@ -151,8 +151,12 @@ vim.lsp.config("yamlls", {
 	settings = {
 		yaml = {
 			schemas = {
-				["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose.{yaml,yml}",
-				["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = "/*-compose-*.{yaml,yml}",
+				["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
+					"/*-compose.{yaml,yml}",
+					"/*-compose-*.{yaml,yml}",
+				},
+				["https://json.schemastore.org/traefik-v3.json"] = "/traefik.{yaml,yml}",
+				["https://json.schemastore.org/traefik-v3-file-provider.json"] = "/config/dynamic/*.{yaml,yml}",
 			},
 		},
 	},

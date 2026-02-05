@@ -3,12 +3,12 @@ require("fine-cmdline").setup({
 	popup = {
 		position = "50%",
 		size = {
-			width = "25%",
+			width = "20%",
 		},
 		border = {
 			style = "single",
 			text = {
-				top = " Cmd ",
+				top = " Command ",
 				top_align = "center",
 			},
 			padding = "0",

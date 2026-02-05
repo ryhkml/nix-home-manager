@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.6";
+    version = "1.3.8";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1vqidhf94196ynwc333y4v5vfx4fqkss88svhy86c3am6hhqvacv";
+      sha256 = "1wd34srfq5jywkga220hvzvcpvas4acd9alq8ak7dni20xzv28h3";
     };
   });
   # Firebase CLI only for linux
@@ -48,10 +48,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "548.0.0";
+    version = "553.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "15d0hnw8ihff75ppciilmhvjidsgma4pyr1hi3bd1bgyrqm86m8b";
+      sha256 = "15vjshlbd27a7yv17zmccr66i2yfdrn59s1cm6s81y4wh8vlxrzx";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -153,6 +153,7 @@ in
       # # B
       binsider
       # # C
+      chromium
       cmus
       # # D
       duf
@@ -206,6 +207,7 @@ in
       # # U
       ueberzugpp
       unar
+      uv
       # # Y
       yt-dlp
       # # Z

@@ -1,7 +1,7 @@
 require("searchbox").setup({
 	popup = {
 		position = "50%",
-		size = "25%",
+		size = "20%",
 		border = {
 			style = "single",
 			text = {
