@@ -127,6 +127,8 @@ vim.lsp.config("nil_ls", {
 	},
 })
 vim.lsp.enable("nil_ls")
+-- P
+vim.lsp.enable("pyright")
 -- R
 vim.lsp.enable("r_language_server")
 -- Rust

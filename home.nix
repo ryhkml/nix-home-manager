@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.8";
+    version = "1.3.9";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1wd34srfq5jywkga220hvzvcpvas4acd9alq8ak7dni20xzv28h3";
+      sha256 = "1am1cpypwjsywf11fr7kp3pz5yzc49fyishcaqcafap38h7fi026";
     };
   });
   # Firebase CLI only for linux
@@ -61,10 +61,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.25.5";
+    version = "1.25.7";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "0kwm3af45rg8a65pbhsr3yv08a4vjnwhcwakn2hjikggj45gv992";
+      sha256 = "02pi7ivc3wldr3jaa86x4zj2j0dv7rmg0ckx2wzb8x02h8r2i3qp";
     };
   });
   # LM Studio AI for Linux x64
@@ -193,12 +193,14 @@ in
       packer
       pnpm
       podman-compose
+      python313Packages.huggingface-hub
       # # R
       rlwrap
       rustup
       rWrapper
       # # T
       terraform
+      tesseract
       texliveFull
       tree-sitter
       tree-sitter-grammars.tree-sitter-latex
@@ -1062,16 +1064,19 @@ in
         astyle
         bash-language-server
         beautysh
+        black
         docker-language-server
         dockerfile-language-server
         gopls
         hclfmt
         htmx-lsp
+        isort
         jdt-language-server
         lua-language-server
         nil
-        nixfmt-rfc-style
+        nixfmt
         nodePackages.prettier
+        pyright
         rust-analyzer
         rustfmt
         shellcheck
@@ -1087,7 +1092,7 @@ in
         yaml-language-server
         zls
       ];
-      extraLuaConfig = builtins.readFile ./nvim/init.lua;
+      initLua = builtins.readFile ./nvim/init.lua;
       viAlias = true;
       vimAlias = true;
     };

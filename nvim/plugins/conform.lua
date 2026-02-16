@@ -21,6 +21,7 @@ require("conform").setup({
 		less = { "prettier" },
 		lua = { "stylua" },
 		nix = { "nixfmt" },
+		python = { "isort", "black" },
 		r = { "styler" },
 		rust = { "rustfmt" },
 		scss = { "prettier" },

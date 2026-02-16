@@ -2,7 +2,7 @@
 local dir_parser = os.getenv("HOME") .. "/.vim/parsers"
 vim.opt.runtimepath:append(dir_parser)
 
-require("nvim-treesitter.configs").setup({
+require("nvim-treesitter").setup({
 	ensure_installed = {
 		"lua",
 		"vim",
