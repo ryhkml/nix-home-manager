@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.9";
+    version = "1.3.10";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1am1cpypwjsywf11fr7kp3pz5yzc49fyishcaqcafap38h7fi026";
+      sha256 = "021f7mrppp2lpa0ajcbipvbv51jlvagkhfms2vkksqirgqcc0yzm";
     };
   });
   # Firebase CLI only for linux
@@ -48,10 +48,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "553.0.0";
+    version = "558.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "15vjshlbd27a7yv17zmccr66i2yfdrn59s1cm6s81y4wh8vlxrzx";
+      sha256 = "0vpgh4xd8mnf8nrs5xp14v0i5a9lq050n30djzqc3fw7lm72pn83";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -61,10 +61,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.25.7";
+    version = "1.25.8";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "02pi7ivc3wldr3jaa86x4zj2j0dv7rmg0ckx2wzb8x02h8r2i3qp";
+      sha256 = "17n5ssl30clqr30xwnimh6im4slkx5c9l25adlzzxiva8jid9279";
     };
   });
   # LM Studio AI for Linux x64
@@ -87,10 +87,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.13.0";
+    version = "24.14.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0znnfby4b8aqm1da9bhmw4a25mjz146sp5rk78rp3fzl2ab5k677";
+      sha256 = "1pr92zqrw5yp6iza2rqcli34yxs72p4w93p6m42idj3pg2xpkka1";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -164,6 +164,7 @@ in
       firebaseToolsLatest
       # # G
       gcloudLatest
+      govulncheck
       (go-migrate.overrideAttrs (old: {
         tags = [
           "mysql"
@@ -352,8 +353,8 @@ in
           tab name="Debug" {
             pane name="$$$" {}
           }
-          tab name="Gemini" {
-            pane name="Agent" {}
+          tab name="Server" {
+            pane name="Remote" {}
           }
         }
       '';
