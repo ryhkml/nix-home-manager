@@ -22,10 +22,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.10";
+    version = "1.3.11";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "021f7mrppp2lpa0ajcbipvbv51jlvagkhfms2vkksqirgqcc0yzm";
+      sha256 = "1v876r4v8c31jvpss1sxbmgc29h32qahlx1qdxdg11pqba9vl4c6";
     };
   });
   # Firebase CLI only for linux
@@ -67,22 +67,6 @@ let
       sha256 = "17n5ssl30clqr30xwnimh6im4slkx5c9l25adlzzxiva8jid9279";
     };
   });
-  # LM Studio AI for Linux x64
-  # https://lmstudio.ai
-  lmStudio = pkgs.stdenv.mkDerivation rec {
-    pname = "lmstudio";
-    version = "0.3.30";
-    src = pkgs.fetchurl {
-      url = "https://installers.lmstudio.ai/linux/x64/${version}-1/LM-Studio-${version}-1-x64.AppImage";
-      sha256 = "1qa4grcfd97v1h12jmm5m8f10b3zsmygw4nsffhm57ib2kmidlmm";
-    };
-    phases = [ "installPhase" ];
-    installPhase = ''
-      mkdir -p $out/bin
-      cp $src $out/bin/LM-Studio.AppImage
-      chmod +x $out/bin/LM-Studio.AppImage
-    '';
-  };
   # Nodejs only for x86_64-linux
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
@@ -136,6 +120,22 @@ let
     url = "https://github.com/dj95/zjstatus/releases/download/v0.22.0/zjstatus.wasm";
     sha256 = "0lyxah0pzgw57wbrvfz2y0bjrna9bgmsw9z9f898dgqw1g92dr2d";
   };
+  # RTK (Rust Token Killer) only for x86_64-linux
+  # https://github.com/rtk-ai/rtk/releases
+  rtkLatest = pkgs.stdenv.mkDerivation rec {
+    pname = "rtk";
+    version = "0.33.1";
+    src = pkgs.fetchurl {
+      url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
+      sha256 = "002xdx5fn6hmicjm7j1x1qvmwldk7nwa1q7dhv1g72dv2ksmrzrz";
+    };
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/bin
+      tar -xzf $src -C $out/bin rtk
+      chmod +x $out/bin/rtk
+    '';
+  };
   pathHome = builtins.getEnv "HOME";
 in
 {
@@ -153,7 +153,6 @@ in
       # # B
       binsider
       # # C
-      chromium
       cmus
       # # D
       duf
@@ -177,6 +176,8 @@ in
       hyperfine
       # # I
       id3v2
+      # # J
+      jq
       # # K
       k6
       # # L
@@ -197,6 +198,7 @@ in
       python313Packages.huggingface-hub
       # # R
       rlwrap
+      rtkLatest
       rustup
       rWrapper
       # # T
@@ -351,10 +353,10 @@ in
             pane name="Task" {}
           }
           tab name="Debug" {
-            pane name="$$$" {}
+            pane name="Test" {}
           }
-          tab name="Server" {
-            pane name="Remote" {}
+          tab name="Claude" {
+            pane name="Agent" {}
           }
         }
       '';
@@ -409,51 +411,19 @@ in
         esac
       '';
       ".personal.txt".text = ''
-        **************************************************
-        **************************************************
-        *********************@@@@@@#%*********************
-        ******************@@@@@@@@@@@#%#******************
-        *****************@@%%%%%@%%@@%%@@*****************
-        ****************@*=---====+++=-:%@****************
-        ****************#==-::-=-=+++**:=#****************
-        *****************=---:--=--=++=::*****************
-        ****************==*+###+==%@#*##:+****************
-        ****************=-=*-@*::+%=@%%#:+#-**************
-        **************=-=--::-:--==+====:-#***************
-        ***************=#-:::::-:=-#+==+=##***************
-        ****************-=-::::+++%#+++++#****************
-        *****************%*--#%**#%%@*+#%*****************
-        ******************#+=#-=+*####%%#*****************
-        *******************@#%=-=###%%%*******************
-        *******************-+@@%%@%@@@*=@*****************
-        ****************@@..--=**%%##%%.@%%***************
-        ************@@@@@@:...--=+*##::.@@@@@@@***********
-        ******#@@@@@@@@@@@@......+...::#@@@@@@@@@@@@@*****
-        ***@@@@@@@@@@@@@@@@........-..:@@@@@@@@@@@@@@@@%**
-        **@@@@@@@@@@@@@@@@@-.-....:#:.=@@@@@@@@@@@@@@@@@#*
-        **@@@@@@@@@@@@@@@@@%......:=.::@@@@@@@@@@@@@@@@@@*
-        *@@@@@@@@@@@@@@@@@@@......:-.::@@@@@@@@@@@@@@@@@@%
-        *@@@@@@@@@@@@@@@@@@@-......:=.@@@@@@@@@@@@@@@@@@@@
-        *@@@@@@@@@@@@@@@@@@@#.......#.@@@@@@@@@@@@@@@@++@@
-        @@@@@@@@@@@@@@@@@@@@@:......%.@@@@@@@@@@@@@@@@@@@@
+            .--.
+           |o_o |
+           |:_/ |
+          //   \ \
+         (|     | )
+        /'\_   _/`\
+        \___)=(___/
       '';
     };
     sessionVariables = {
       EDITOR = "nvim";
       VISUAL = "nvim";
     };
-  };
-
-  xdg.desktopEntries.lmstudio = {
-    name = "LM Studio";
-    comment = "Discover, download, and run local LLMs";
-    exec = "${lmStudio}/bin/LM-Studio.AppImage";
-    type = "Application";
-    categories = [
-      "Utility"
-      "Development"
-    ];
-    terminal = false;
   };
 
   editorconfig = {
@@ -519,6 +489,10 @@ in
       Q = "exit";
       # Act
       acts = "act --no-cache-server --rm";
+      # Claude Code
+      cr = "claude -r";
+      cdr = "claude doctor";
+      cup = "claude update";
       # Update library
       cmusup = "cmus-remote -C clear; cmus-remote -C \"add ~/Music\"; cmus-remote -C \"update-cache -f\"";
       # Greatest abbreviations downloader ever
@@ -560,11 +534,6 @@ in
     };
     shellAliases = {
       docker = "podman";
-      la = "eza -ahl --color never --time-style relative";
-      lg = "eza -hl --git --color never --time-style relative";
-      ll = "eza -hl --color never --time-style relative";
-      ls = "eza -h --color never";
-      tree = "eza -T --color never";
       zigfmt = "zig fmt";
     };
     shellInit = ''
@@ -739,7 +708,6 @@ in
       enable = true;
       nix-direnv.enable = true;
     };
-    eza.enable = true;
     fastfetch = {
       enable = true;
       settings = {
@@ -838,6 +806,12 @@ in
           {
             type = "command";
             key = "- ";
+            text = "claude --version | awk '{print $1}'";
+            format = "claude (Claude Code) {result}";
+          }
+          {
+            type = "command";
+            key = "- ";
             text = "(git --version | cut -d ' ' -f3) 2>/dev/null || echo -n 'ERROR'";
             format = "git (Git) {result}";
           }
@@ -930,7 +904,17 @@ in
           config = builtins.readFile ./nvim/plugins/gitsigns.lua;
         }
         {
-          plugin = hlchunk-nvim;
+          plugin = hlchunk-nvim.overrideAttrs (old: {
+            postPatch = (old.postPatch or "") + ''
+              substituteInPlace lua/hlchunk/utils/chunkHelper.lua \
+                --replace-fail \
+                  'local cur_row_val = vim.api.nvim_buf_get_lines(pos.bufnr, pos.row, pos.row + 1, false)[1]' \
+                  'local cur_row_val = vim.api.nvim_buf_get_lines(pos.bufnr, pos.row, pos.row + 1, false)[1]
+              if cur_row_val == nil then
+                  return chunkHelper.CHUNK_RANGE_RET.NO_CHUNK, Scope(pos.bufnr, -1, -1)
+              end'
+            '';
+          });
           type = "lua";
           config = builtins.readFile ./nvim/plugins/hlchunk.lua;
         }

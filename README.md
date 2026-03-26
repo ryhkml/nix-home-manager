@@ -1,28 +1,29 @@
 # Nix Home Manager
 
-The nix home manager configuration i use is my never-ending journey to keep things smooth and fun.
+My home-manager config for Fedora. One `home.nix` file, a pile of Neovim Lua, and the usual overengineered dotfiles.
 
 ## Installation
 
 > [!NOTE]
 >
-> This is my personal best practice how to install Nix Home Manager on all Linux distributions, except immutable distributions.
->
-> If you are using an immutable distribution, visit [here](https://github.com/DeterminateSystems/nix-installer).
+> These steps are for a standard (mutable) Linux distribution with single-user Nix. On immutable distros Silverblue, use the [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer) instead.
 
-1. Choose single-user installation, run:
+1. Install Nix (single-user, no daemon):
 
     ```sh
     sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
     . /home/$USER/.nix-profile/etc/profile.d/nix.sh
     ```
-	Nix version:
-	```sh
-	nix (Nix) 2.31.2+1
-	```
-    For more information, visit [nixos.org/download](https://nixos.org/download/)
 
-2. Add Home Manager channel, run:
+    Nix version:
+
+    ```sh
+    nix (Nix) 2.31.3
+    ```
+
+    More info at [nixos.org/download](https://nixos.org/download/)
+
+2. Add channels:
 
     ```sh
     nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
@@ -30,11 +31,9 @@ The nix home manager configuration i use is my never-ending journey to keep thin
     nix-channel --update
     ```
 
-    In the Nix ecosystem, which includes the Nix Home Manager, a channel refers to a method for managing and distributing collections of Nix packages and configurations.
-    Channels are essentially repositories of Nix expressions that define both packages and configurations. These channels are regularly updated, allowing users to subscribe to them to receive the latest updates.
-    The mentioned command adds a channel named "home-manager", indicating that any package installed through this channel will be updated to the latest version available, as per the unstable branch listed on [search.nixos.org/packages](https://search.nixos.org/packages). For the channel called “nixgl”, you can visit [here](https://github.com/nix-community/nixGL).
+    The `home-manager` channel tracks unstable/master, so packages follow whatever is current on [search.nixos.org/packages](https://search.nixos.org/packages). The `nixgl` channel is for GPU wrappers on non-NixOS systems ([nixGL repo](https://github.com/nix-community/nixGL)).
 
-3. Run the Home Manager installation command and create the first Home Manager generation:
+3. Install Home Manager and create the first generation:
 
     ```sh
     nix-shell '<home-manager>' -A install
@@ -42,18 +41,18 @@ The nix home manager configuration i use is my never-ending journey to keep thin
     source ~/.bashrc
     ```
 
-4. Check home.nix configuration, run:
+4. Verify:
     ```sh
     cat ~/.config/home-manager/home.nix
     ```
 
-## Next Step
+## Next step
 
-Visit [configuration example](https://nix-community.github.io/home-manager/index.xhtml#sec-usage-configuration), how to use `home-manager` command.
+See the [Home Manager manual](https://nix-community.github.io/home-manager/index.xhtml#sec-usage-configuration) for how to use the `home-manager` command.
 
 ## Packages
 
-The installed packages include command line interface, language server protocol, formatter, and some plugins of the package itself.
+CLIs, language servers, formatters, and a few plugins.
 
 ### A
 
@@ -61,8 +60,8 @@ The installed packages include command line interface, language server protocol,
 1. [air](https://github.com/air-verse/air) - Live reload for Go apps
 1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
-1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP fo Assembly
-1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter fo Assembly
+1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP for Assembly
+1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter for Assembly
 1. [astyle](https://astyle.sourceforge.net) - Formatter only for Java
 
 ### B
@@ -71,6 +70,7 @@ The installed packages include command line interface, language server protocol,
 1. [bat](https://github.com/sharkdp/bat) - Alternative to _cat_
 1. [beautysh](https://github.com/lovesegfault/beautysh) - Formatter for Shell
 1. [binsider](https://github.com/orhun/binsider) - Analyzer of executables using a terminal user interface
+1. [black](https://github.com/psf/black) - Formatter for Python
 1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
 1. [btop](https://github.com/aristocratos/btop) - A monitor of resources
 
@@ -81,6 +81,7 @@ The installed packages include command line interface, language server protocol,
 ### D
 
 1. [direnv](https://direnv.net) - Unclutter your .profile
+1. [docker-language-server](https://github.com/microsoft/compose-language-service) - LSP for Docker Compose
 1. [dockerfile-language-server](https://github.com/rcjsuen/dockerfile-language-server) - LSP for Dockerfile
 1. [duf](https://github.com/muesli/duf) - Disk usage or free utility. A better _df_ alternative
 
@@ -88,7 +89,6 @@ The installed packages include command line interface, language server protocol,
 
 1. [editorconfig](https://editorconfig.org) - Enforces consistent coding styles across editors and IDEs
 1. [exiftool](https://exiftool.org) - Meta information reader or writer
-1. [eza](https://eza.rocks) - A modern alternative to _ls_
 
 ### F
 
@@ -106,21 +106,24 @@ The installed packages include command line interface, language server protocol,
 1. [go](https://go.dev) - Golang!
 1. [go-migrate](https://github.com/golang-migrate/migrate) - Database migrations. CLI and Golang library
 1. [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - LSP for Go
+1. [govulncheck](https://pkg.go.dev/golang.org/x/vuln/cmd/govulncheck) - Go vulnerability checker
 1. [gping](https://github.com/orf/gping) - Ping, but with a graph
 
 ### H
 
 1. [hclfmt](https://github.com/hashicorp/hcl/tree/main/cmd/hclfmt) - Formatter for HCL
 1. [hey](https://github.com/rakyll/hey) - HTTP load generator, ApacheBench (ab) replacement
+1. [htmx-lsp](https://github.com/ThePrimeagen/htmx-lsp) - LSP for HTMX
+1. [huggingface-hub](https://github.com/huggingface/huggingface_hub) - CLI and Python library for HuggingFace Hub
 1. [hyperfine](https://github.com/sharkdp/hyperfine) - Command line benchmarking tool
 
 ### I
 
 1. [id3v2](https://id3v2.sourceforge.net) - Command line editor for id3v2 tags
+1. [isort](https://pycqa.github.io/isort) - Formatter for Python imports
 
 ### J
 
-1. [java](https://openjdk.java.net) - Java Development Kit
 1. [jdt-language-server](https://github.com/eclipse/eclipse.jdt.ls) - LSP for Java
 1. [jq](https://jqlang.github.io/jq) - Lightweight and flexible command line JSON processor
 
@@ -134,8 +137,8 @@ The installed packages include command line interface, language server protocol,
 1. [lazydocker](https://github.com/jesseduffield/lazydocker) - The lazier way to manage everything docker
 1. [lazygit](https://github.com/jesseduffield/lazygit) - Terminal UI for git commands
 1. [lazysql](https://github.com/jorgerojas26/lazysql) - A cross-platform TUI database management tool written in Go
-1. [lmstudio](https://lmstudio.ai) - Run local LLMs
 1. [lua](https://www.lua.org) - Lualang!
+1. [lua-language-server](https://github.com/LuaLS/lua-language-server) - LSP for Lua
 
 ### M
 
@@ -160,12 +163,14 @@ The installed packages include command line interface, language server protocol,
 1. [packer](https://www.packer.io) - Tool for creating identical machine images
 1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
+1. [pyright](https://github.com/microsoft/pyright) - LSP for Python
 
 ### R
 
 1. [R](http://www.r-project.org) - Free software environment for statistical computing and graphics
 1. [ripgrep](https://github.com/BurntSushi/ripgrep) - Searcher with the raw speed of grep
 1. [rlwrap](https://github.com/hanslub42/rlwrap) - A readline wrapper
+1. [rtk](https://github.com/rtk-ai/rtk) - Reduces LLM token consumption by 60-90% on common dev commands
 1. [rustup](https://www.rustup.rs) - Rust toolchain installer
 1. [rust-analyzer](https://rust-analyzer.github.io) - Modular compiler frontend for the Rust language
 1. [rustfmt](https://github.com/rust-lang-nursery/rustfmt) - Formatter for Rust
@@ -177,9 +182,13 @@ The installed packages include command line interface, language server protocol,
 
 ### T
 
+1. [tailwindcss-language-server](https://github.com/tailwindlabs/tailwindcss-intellisense) - LSP for Tailwind CSS
 1. [taplo](https://taplo.tamasfe.dev) - TOML toolkit written in Rust
 1. [terraform](https://www.terraform.io) - Tool for building, changing, and versioning infrastructure
 1. [terraform-ls](https://github.com/hashicorp/terraform-ls) - LSP for Terraform
+1. [tesseract](https://github.com/tesseract-ocr/tesseract) - OCR engine
+1. [tex-fmt](https://github.com/WGUNDERWOOD/tex-fmt) - Formatter for TeX
+1. [texlab](https://github.com/latex-lsp/texlab) - LSP for TeX
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
 1. [tree-sitter](https://github.com/tree-sitter/tree-sitter) - Parser generator tool and an incremental parsing library
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
@@ -187,7 +196,9 @@ The installed packages include command line interface, language server protocol,
 
 ### U
 
+1. [ueberzugpp](https://github.com/jstkdng/ueberzugpp) - Display images in terminal emulators
 1. [unar](https://theunarchiver.com) - Archive unpacker program
+1. [uv](https://docs.astral.sh/uv) - Fast Python package manager
 
 ### V
 
@@ -206,9 +217,9 @@ The installed packages include command line interface, language server protocol,
 1. [zls](https://github.com/zigtools/zls) - LSP for Zig
 1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast _cd_ that learns your habits
 
-## Uninstalling Nix and Nix Home Manager (Single-User)
+## Uninstalling Nix and Home Manager (single-user)
 
-Just delete the files and directories containing nix and home-manager
+Delete everything nix-related:
 
 ```sh
 nix-collect-garbage
@@ -221,7 +232,7 @@ rm -rf ~/.cache/nix \
 sudo rm -rf /nix
 ```
 
-Finally, remove the installation script section from the `.bashrc` and `.bash_profile` files as well
+Then remove these lines from `.bashrc` and `.bash_profile`:
 
 ```sh
 # .bash_profile
@@ -233,13 +244,17 @@ if [ -e /home/user/.nix-profile/etc/profile.d/nix.sh ]; then . /home/user/.nix-p
 ## Screenshot
 
 #### fastfetch
+
 ![fastfetch](./screenshot/1.png)
 
 #### btop
+
 ![btop](./screenshot/2.png)
 
 #### nvim
+
 ![neovim](./screenshot/3.png)
 
 #### zellij
+
 ![zellij](./screenshot/4.png)
