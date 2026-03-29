@@ -66,17 +66,25 @@ require("conform").setup({
 			},
 		},
 		prettier = {
-			prepend_args = {
-				"--print-width",
-				"100",
-				"--use-tabs",
-				"--tab-width",
-				"4",
-				"--trailing-comma",
-				"none",
-				"--embedded-language-formatting",
-				"auto",
-			},
+			prepend_args = function(_, ctx)
+				local args = {
+					"--print-width",
+					"100",
+					"--use-tabs",
+					"--tab-width",
+					"4",
+					"--trailing-comma",
+					"none",
+					"--embedded-language-formatting",
+					"auto",
+				}
+				local fname = vim.fn.fnamemodify(ctx.filename, ":t")
+				if fname == ".firebaserc" then
+					table.insert(args, "--parser")
+					table.insert(args, "json")
+				end
+				return args
+			end,
 		},
 		["tex-fmt"] = {
 			prepend_args = {

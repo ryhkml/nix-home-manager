@@ -61,10 +61,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.25.8";
+    version = "1.26.1";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "17n5ssl30clqr30xwnimh6im4slkx5c9l25adlzzxiva8jid9279";
+      sha256 = "1fyzhnbvrz90dkk0pzazijxgcxq47yhpp3k98h8xq2dj0hyjjwii";
     };
   });
   # Nodejs only for x86_64-linux
@@ -124,10 +124,10 @@ let
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.33.1";
+    version = "0.34.1";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "002xdx5fn6hmicjm7j1x1qvmwldk7nwa1q7dhv1g72dv2ksmrzrz";
+      sha256 = "1xvgcpc5z2xv3wqflzhfqg0373imz35i3c9gyv27k79w0znpmgbq";
     };
     phases = [ "installPhase" ];
     installPhase = ''
