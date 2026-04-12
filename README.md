@@ -10,41 +10,41 @@ My home-manager config for Fedora. One `home.nix` file, a pile of Neovim Lua, an
 
 1. Install Nix (single-user, no daemon):
 
-    ```sh
-    sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
-    . /home/$USER/.nix-profile/etc/profile.d/nix.sh
-    ```
+   ```sh
+   sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
+   . /home/$USER/.nix-profile/etc/profile.d/nix.sh
+   ```
 
-    Nix version:
+   Nix version:
 
-    ```sh
-    nix (Nix) 2.31.3
-    ```
+   ```sh
+   nix (Nix) 2.31.3
+   ```
 
-    More info at [nixos.org/download](https://nixos.org/download/)
+   More info at [nixos.org/download](https://nixos.org/download/)
 
 2. Add channels:
 
-    ```sh
-    nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-    nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
-    nix-channel --update
-    ```
+   ```sh
+   nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
+   nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
+   nix-channel --update
+   ```
 
-    The `home-manager` channel tracks unstable/master, so packages follow whatever is current on [search.nixos.org/packages](https://search.nixos.org/packages). The `nixgl` channel is for GPU wrappers on non-NixOS systems ([nixGL repo](https://github.com/nix-community/nixGL)).
+   The `home-manager` channel tracks unstable/master, so packages follow whatever is current on [search.nixos.org/packages](https://search.nixos.org/packages). The `nixgl` channel is for GPU wrappers on non-NixOS systems ([nixGL repo](https://github.com/nix-community/nixGL)).
 
 3. Install Home Manager and create the first generation:
 
-    ```sh
-    nix-shell '<home-manager>' -A install
-    echo ". /home/$USER/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
-    source ~/.bashrc
-    ```
+   ```sh
+   nix-shell '<home-manager>' -A install
+   echo ". /home/$USER/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
+   source ~/.bashrc
+   ```
 
 4. Verify:
-    ```sh
-    cat ~/.config/home-manager/home.nix
-    ```
+   ```sh
+   cat ~/.config/home-manager/home.nix
+   ```
 
 ## Next step
 

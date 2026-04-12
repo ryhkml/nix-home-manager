@@ -13,6 +13,9 @@ vim.opt.wildignore:append({
 })
 
 -- Filetype
+-- local function set_filetype_astro()
+-- 	vim.bo.filetype = "astro"
+-- end
 local function set_filetype_c()
 	vim.bo.filetype = "c"
 end
@@ -27,6 +30,11 @@ local function set_filetype_dotenv()
 end
 
 vim.api.nvim_create_augroup("FiletypeConfig", { clear = true })
+-- vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+-- 	pattern = { "*.astro" },
+-- 	callback = set_filetype_astro,
+-- 	group = "FiletypeConfig",
+-- })
 vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 	pattern = { "*.h" },
 	callback = set_filetype_c,
@@ -75,6 +83,9 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 		vim.opt_local.shiftwidth = 2
 	end,
 })
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "TermClose", "TermLeave" }, {
+	command = "checktime",
+})
 vim.opt.smartindent = true
 vim.opt.showmode = false
 vim.opt.wrap = false
@@ -82,8 +93,9 @@ vim.opt.backup = false
 vim.opt.swapfile = false
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undo"
+vim.opt.autoread = true
 vim.opt.undofile = true
+vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.signcolumn = "yes"
 vim.opt.updatetime = 250
 vim.opt.cmdheight = 0
@@ -159,7 +171,8 @@ end)
 -- CTRL
 vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("n", "<C-z>", "u", options)
-vim.keymap.set({ "i", "v" }, "<C-z>", "<Nop>")
+vim.keymap.set("i", "<C-z>", "<Esc>u")
+vim.keymap.set("v", "<C-z>", "<Nop>")
 vim.keymap.set("n", "<C-y>", "<C-r>", options)
 vim.keymap.set("n", "<A-Up>", ":m .-2<CR>==", { silent = true })
 vim.keymap.set("n", "<A-Down>", ":m .+1<CR>==", { silent = true })

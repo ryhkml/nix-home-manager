@@ -18,14 +18,24 @@ let
         rev = rev;
       };
     };
+  # Neovim stable from nixpkgs 25.11
+  neovimStable0117 = pkgs.neovim-unwrapped.overrideAttrs (_: rec {
+    version = "0.11.7";
+    src = pkgs.fetchFromGitHub {
+      owner = "neovim";
+      repo = "neovim";
+      tag = "v${version}";
+      hash = "sha256-NAZAp4WSKYcEmwzhTy/OwYY4KO/dsUtjD0ddzMwm+8Q=";
+    };
+  });
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.11";
+    version = "1.3.12";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1v876r4v8c31jvpss1sxbmgc29h32qahlx1qdxdg11pqba9vl4c6";
+      sha256 = "1ifx07png2cqqxp8lsvf6ks2qc0raqywmiipjwa5wsf13ghkxp0i";
     };
   });
   # Firebase CLI only for linux
@@ -48,10 +58,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "558.0.0";
+    version = "563.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "0vpgh4xd8mnf8nrs5xp14v0i5a9lq050n30djzqc3fw7lm72pn83";
+      sha256 = "00fdcsyi4x4qk6nbl7pca8n7fw60vb51x10qppnn4gzsj6gl3pic";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -71,10 +81,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.14.0";
+    version = "24.14.1";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1pr92zqrw5yp6iza2rqcli34yxs72p4w93p6m42idj3pg2xpkka1";
+      sha256 = "1gi26c6940q3c77sma5zn7alkaldsyn72gjws0bp2i29shaqglw4";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -124,10 +134,10 @@ let
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.34.1";
+    version = "0.35.0";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "1xvgcpc5z2xv3wqflzhfqg0373imz35i3c9gyv27k79w0znpmgbq";
+      sha256 = "1ybg3avc6i5vyn1g6yn51gbd1pq2pcacccx3m9qa5a0myjk55j1h";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -324,8 +334,49 @@ in
             cyan "#08979c"
             white "#ffffff"
             orange "#965287"
+            text_selected {
+              base 255 255 255
+              background 38 79 120
+              emphasis_0 255 77 79
+              emphasis_1 8 151 156
+              emphasis_2 82 196 26
+              emphasis_3 196 29 127
+            }
+            table_cell_selected {
+              base 255 255 255
+              background 38 79 120
+              emphasis_0 255 77 79
+              emphasis_1 8 151 156
+              emphasis_2 82 196 26
+              emphasis_3 196 29 127
+            }
+            list_selected {
+              base 255 255 255
+              background 38 79 120
+              emphasis_0 255 77 79
+              emphasis_1 8 151 156
+              emphasis_2 82 196 26
+              emphasis_3 196 29 127
+            }
+            frame_selected {
+              base 82 101 150
+              background 0 0 0
+              emphasis_0 255 77 79
+              emphasis_1 8 151 156
+              emphasis_2 196 29 127
+              emphasis_3 0 0 0
+            }
+            frame_highlight {
+              base 82 101 150
+              background 0 0 0
+              emphasis_0 196 29 127
+              emphasis_1 255 77 79
+              emphasis_2 255 77 79
+              emphasis_3 255 77 79
+            }
           }
         }
+        theme "default"
         simplified_ui true
         default_shell "${config.home.profileDirectory}/bin/fish"
         layout_dir "${pathHome}/.config/zellij/layouts"
@@ -638,6 +689,10 @@ in
         colors = {
           primary.foreground = "#ffffff";
           primary.background = "#0c0c0c";
+          selection = {
+            text = "#ffffff";
+            background = "#264f78";
+          };
           normal.red = "#ff4d4f";
           normal.blue = "#096dd9";
           normal.green = "#52c41a";
@@ -656,10 +711,9 @@ in
             shape = "Beam";
             blinking = "Always";
           };
-          blink_interval = 250;
+          blink_interval = 200;
           blink_timeout = 0;
         };
-        mouse.hide_when_typing = true;
         window = {
           padding = {
             y = 4;
@@ -897,6 +951,7 @@ in
     neovim = {
       enable = true;
       defaultEditor = true;
+      package = neovimStable0117;
       plugins = with pkgs.vimPlugins; [
         {
           plugin = gitsigns-nvim;
@@ -1046,6 +1101,7 @@ in
         # LSP and Fmt
         asm-lsp
         asmfmt
+        astro-language-server
         astyle
         bash-language-server
         beautysh
@@ -1060,7 +1116,7 @@ in
         lua-language-server
         nil
         nixfmt
-        nodePackages.prettier
+        prettier
         pyright
         rust-analyzer
         rustfmt

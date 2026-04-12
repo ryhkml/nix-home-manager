@@ -21,6 +21,8 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 -- ASM
 vim.lsp.enable("asm_lsp")
+-- Astro
+vim.lsp.enable("astro")
 -- Bash
 vim.lsp.enable("bashls")
 -- C
@@ -168,4 +170,4 @@ vim.lsp.enable("yamlls")
 -- Zig
 vim.lsp.enable("zls")
 -- Disable log
-vim.lsp.set_log_level("off")
+vim.lsp.log.set_level("off")
