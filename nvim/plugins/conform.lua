@@ -1,7 +1,39 @@
 -- https://github.com/stevearc/conform.nvim
+local prettier_formatter = require("conform.formatters.prettier")
+
+local function prettier_args(_, ctx)
+	local args = {
+		"--print-width",
+		"100",
+		"--use-tabs",
+		"--tab-width",
+		"4",
+		"--trailing-comma",
+		"none",
+		"--embedded-language-formatting",
+		"auto",
+	}
+	local fname = vim.fn.fnamemodify(ctx.filename, ":t")
+	if fname == ".firebaserc" then
+		table.insert(args, "--parser")
+		table.insert(args, "json")
+	end
+	return args
+end
+
+local function prettier_astro_args(self, ctx)
+	local args = prettier_args(self, ctx)
+	return vim.list_extend(args, prettier_formatter.args(self, ctx) or {})
+end
+
+local function prettier_astro_range_args(self, ctx)
+	local args = prettier_args(self, ctx)
+	return vim.list_extend(args, prettier_formatter.range_args(self, ctx) or {})
+end
+
 require("conform").setup({
 	formatters_by_ft = {
-		astro = { "prettier" },
+		astro = { "prettier_astro" },
 		asm = { "asmfmt" },
 		c = { "clang-format" },
 		css = { "prettier" },
@@ -66,26 +98,14 @@ require("conform").setup({
 				"--width=100",
 			},
 		},
+		prettier_astro = {
+			command = "prettier-with-astro",
+			args = prettier_astro_args,
+			range_args = prettier_astro_range_args,
+			cwd = prettier_formatter.cwd,
+		},
 		prettier = {
-			prepend_args = function(_, ctx)
-				local args = {
-					"--print-width",
-					"100",
-					"--use-tabs",
-					"--tab-width",
-					"4",
-					"--trailing-comma",
-					"none",
-					"--embedded-language-formatting",
-					"auto",
-				}
-				local fname = vim.fn.fnamemodify(ctx.filename, ":t")
-				if fname == ".firebaserc" then
-					table.insert(args, "--parser")
-					table.insert(args, "json")
-				end
-				return args
-			end,
+			prepend_args = prettier_args,
 		},
 		["tex-fmt"] = {
 			prepend_args = {

@@ -10,7 +10,7 @@ let
   # Some Vim plugins is not available in nixpkgs
   myVimPlugin =
     repo: rev:
-    pkgs.vimUtils.buildVimPlugin {
+    pkgs2511.vimUtils.buildVimPlugin {
       pname = "${lib.strings.sanitizeDerivationName repo}";
       version = "HEAD";
       src = builtins.fetchGit {
@@ -18,24 +18,26 @@ let
         rev = rev;
       };
     };
-  # Neovim stable from nixpkgs 25.11
-  neovimStable0117 = pkgs.neovim-unwrapped.overrideAttrs (_: rec {
-    version = "0.11.7";
-    src = pkgs.fetchFromGitHub {
-      owner = "neovim";
-      repo = "neovim";
-      tag = "v${version}";
-      hash = "sha256-NAZAp4WSKYcEmwzhTy/OwYY4KO/dsUtjD0ddzMwm+8Q=";
-    };
-  });
+  pkgs2511 =
+    import
+      (builtins.fetchTarball {
+        url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-25.11.tar.gz";
+        sha256 = "1i4bkzy1siavmxaskp49lgi9s02gam6crb0d0abbbjmsyl39jbsf";
+      })
+      {
+        system = pkgs.stdenv.hostPlatform.system;
+        config.allowUnfree = true;
+      };
+  # Neovim stable from nixpkgs 25.11, including its compatible tree-sitter dependency set.
+  neovimStable = pkgs2511.neovim-unwrapped;
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.12";
+    version = "1.3.14";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "1ifx07png2cqqxp8lsvf6ks2qc0raqywmiipjwa5wsf13ghkxp0i";
+      sha256 = "13w4gvgwrjq9bi3ddp53hgm3z399d8i2aqpcmsaqbw2mx2pf47lm";
     };
   });
   # Firebase CLI only for linux
@@ -81,10 +83,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.14.1";
+    version = "24.15.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1gi26c6940q3c77sma5zn7alkaldsyn72gjws0bp2i29shaqglw4";
+      sha256 = "1xm09cz9v1607w01imarbjbjbg6kr7h671y462bmaldq3xc5a9j7";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -94,6 +96,15 @@ let
       mv $out/LICENSE $out/share/doc/LICENSE_nodejs
     '';
   };
+  prettierWithAstro = pkgs.writeShellScriptBin "prettier-with-astro" ''
+    shopt -s nullglob
+    plugins=(${pkgs.astro-language-server}/lib/node_modules/astro-language-server/node_modules/.pnpm/prettier-plugin-astro@*/node_modules/prettier-plugin-astro/dist/index.js)
+    if [ ''${#plugins[@]} -eq 0 ]; then
+      echo "prettier-plugin-astro not found in astro-language-server package" >&2
+      exit 1
+    fi
+    exec ${pkgs.prettier}/bin/prettier --plugin "''${plugins[0]}" "$@"
+  '';
   # R lang
   rWrapper = pkgs.rWrapper.override {
     packages = with pkgs.rPackages; [
@@ -124,20 +135,14 @@ let
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
     sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
   };
-  # Zellij statusbar plugin
-  # https://github.com/dj95/zjstatus
-  zjstatusPlugin = pkgs.fetchurl {
-    url = "https://github.com/dj95/zjstatus/releases/download/v0.22.0/zjstatus.wasm";
-    sha256 = "0lyxah0pzgw57wbrvfz2y0bjrna9bgmsw9z9f898dgqw1g92dr2d";
-  };
   # RTK (Rust Token Killer) only for x86_64-linux
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.35.0";
+    version = "0.40.0";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "1ybg3avc6i5vyn1g6yn51gbd1pq2pcacccx3m9qa5a0myjk55j1h";
+      sha256 = "1bzm5vsdbwi88w9yqczsg8lnvlq1pbpv98kdq5mi0x2q8h522pd7";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -145,6 +150,28 @@ let
       tar -xzf $src -C $out/bin rtk
       chmod +x $out/bin/rtk
     '';
+  };
+  # Zellij no-web binary only for x86_64-linux
+  # https://github.com/zellij-org/zellij/releases
+  zellijLatest = pkgs.stdenv.mkDerivation rec {
+    pname = "zellij";
+    version = "0.44.3";
+    src = pkgs.fetchurl {
+      url = "https://github.com/zellij-org/zellij/releases/download/v${version}/zellij-no-web-x86_64-unknown-linux-musl.tar.gz";
+      sha256 = "1yfi19f8s0rkcadm0k1j04jddrgxsyn573r7byn0b95h36ci40gr";
+    };
+    phases = [ "installPhase" ];
+    installPhase = ''
+      mkdir -p $out/bin
+      tar -xzf $src -C $out/bin zellij
+      chmod +x $out/bin/zellij
+    '';
+  };
+  # Zellij statusbar plugin
+  # https://github.com/dj95/zjstatus
+  zjstatusPlugin = pkgs.fetchurl {
+    url = "https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm";
+    sha256 = "1zv173qh67x4bf4k4m5fpz22vy0pbp6f88c0c7dkjhjj4c9901p0";
   };
   pathHome = builtins.getEnv "HOME";
 in
@@ -161,6 +188,7 @@ in
       air
       asciiquarium-transparent
       # # B
+      bash-language-server
       binsider
       # # C
       cmus
@@ -173,6 +201,7 @@ in
       firebaseToolsLatest
       # # G
       gcloudLatest
+      gopls
       govulncheck
       (go-migrate.overrideAttrs (old: {
         tags = [
@@ -194,8 +223,10 @@ in
       lazydocker
       lazysql
       lua
+      lua-language-server
       # # M
       minify
+      mysql84
       # # N
       nix-prefetch-git
       nodejsLatestLts
@@ -203,14 +234,20 @@ in
       onefetch
       # # P
       packer
+      php
       pnpm
       podman-compose
+      postgresql
+      prettier
+      pyright
       python313Packages.huggingface-hub
       # # R
       rlwrap
       rtkLatest
       rustup
       rWrapper
+      # # S
+      shellcheck
       # # T
       terraform
       tesseract
@@ -219,16 +256,30 @@ in
       tree-sitter-grammars.tree-sitter-latex
       tokei
       typescript
+      typescript-language-server
       # # U
       ueberzugpp
       unar
       uv
+      # # V
+      vscode-langservers-extracted
+      # # W
+      weathr
       # # Y
       yt-dlp
       # # Z
+      zellijLatest
       zig
     ];
     file = {
+      ".bunfig.toml".text = ''
+        smol = true
+        telemetry = false
+
+        [install]
+        exact = true
+        minimumReleaseAge = 259200
+      '';
       ".clang-format".text = ''
         ---
         BasedOnStyle: Google
@@ -389,11 +440,26 @@ in
             pane size=1 borderless=true {
               plugin location="file:${zjstatusPlugin}" {
                 format_left "{tabs}"
+                format_center ""
+                format_right "{mode}"
+                format_space ""
                 hide_frame_for_single_pane "false"
-                mode_normal "#[bg=#096dd9]"
-                mode_tmux "#[bg=#faad14]"
-                tab_normal "#[fg=#ffffff] {index}->{name} "
-                tab_active "#[fg=#526596,bold] {index}->{name} "
+                mode_normal "#[fg=#526596,bold] NORMAL"
+                mode_locked "#[fg=#ff4d4f,bold] LOCKED"
+                mode_resize "#[fg=#526596,bold] RESIZE"
+                mode_pane "#[fg=#526596,bold] PANE"
+                mode_tab "#[fg=#526596,bold] TAB"
+                mode_scroll "#[fg=#526596,bold] SCROLL"
+                mode_enter_search "#[fg=#526596,bold] SEARCH"
+                mode_search "#[fg=#526596,bold] SEARCH"
+                mode_rename_tab "#[fg=#526596,bold] RENAME TAB"
+                mode_rename_pane "#[fg=#526596,bold] RENAME PANE"
+                mode_session "#[fg=#526596,bold] SESSION"
+                mode_move "#[fg=#526596,bold] MOVE"
+                mode_prompt "#[fg=#526596,bold] PROMPT"
+                mode_tmux "#[fg=#526596,bold] TMUX"
+                tab_normal "#[fg=#ffffff]{index}->{name}  "
+                tab_active "#[fg=#526596,bold]{index}->{name}  "
               }
             }
           }
@@ -410,6 +476,11 @@ in
             pane name="Agent" {}
           }
         }
+      '';
+      ".npmrc".text = ''
+        ignore-scripts=true
+        min-release-age=3
+        save-exact=true
       '';
       ".scripts/waybar/custom-wifi.sh".text = ''
         #!/usr/bin/env bash
@@ -576,6 +647,7 @@ in
       fv = "fd -H -I -E .angular -E .git -E dist -E node_modules -E target | fzf --reverse | xargs -r nvim";
       # Zellij
       zla = "zellij a ?";
+      zlad = "zellij action detach";
       zld = "zellij d ?";
       zls = "zellij ls";
       zlda = "zellij da -y";
@@ -752,10 +824,6 @@ in
     };
     bun = {
       enable = true;
-      settings = {
-        smol = true;
-        telemetry = false;
-      };
       package = bunLatest;
     };
     direnv = {
@@ -951,8 +1019,10 @@ in
     neovim = {
       enable = true;
       defaultEditor = true;
-      package = neovimStable0117;
-      plugins = with pkgs.vimPlugins; [
+      package = neovimStable;
+      withRuby = true;
+      withPython3 = true;
+      plugins = with pkgs2511.vimPlugins; [
         {
           plugin = gitsigns-nvim;
           type = "lua";
@@ -1053,6 +1123,7 @@ in
         }
         {
           plugin = markdown-preview-nvim;
+          type = "viml";
           config = ''
             let g:mkdp_port = "10013"
             let g:mkdp_theme = "dark"
@@ -1064,7 +1135,7 @@ in
           optional = true;
         }
         {
-          plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "7db181d1cb294581b12a036eadffffde762a118f";
+          plugin = myVimPlugin "VonHeikemen/fine-cmdline.nvim" "6e646f4da6afe856e36f3d952489b723d1475638";
           type = "lua";
           config = builtins.readFile ./nvim/plugins/fine-cmdline.lua;
         }
@@ -1103,32 +1174,25 @@ in
         asmfmt
         astro-language-server
         astyle
-        bash-language-server
         beautysh
         black
+        prettierWithAstro
         docker-language-server
         dockerfile-language-server
-        gopls
         hclfmt
         htmx-lsp
         isort
-        jdt-language-server
-        lua-language-server
+        #jdt-language-server
         nil
         nixfmt
-        prettier
-        pyright
         rust-analyzer
         rustfmt
-        shellcheck
         stylua
         tailwindcss-language-server
         taplo
         terraform-ls
         tex-fmt
         texlab
-        typescript-language-server
-        vscode-langservers-extracted
         yamlfmt
         yaml-language-server
         zls
@@ -1151,10 +1215,6 @@ in
         "--glob=!*.min.css"
         "--glob=!*.min.js"
       ];
-    };
-    zellij = {
-      enable = true;
-      enableBashIntegration = true;
     };
     zoxide.enable = true;
   };
