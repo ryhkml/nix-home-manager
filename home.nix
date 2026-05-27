@@ -22,7 +22,7 @@ let
     import
       (builtins.fetchTarball {
         url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-25.11.tar.gz";
-        sha256 = "1i4bkzy1siavmxaskp49lgi9s02gam6crb0d0abbbjmsyl39jbsf";
+        sha256 = "1n1lqgnk84mf28v23f3q8z6xwc79biqwqqy84cg75mrrpa65k4mx";
       })
       {
         system = pkgs.stdenv.hostPlatform.system;
@@ -60,10 +60,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "563.0.0";
+    version = "569.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "00fdcsyi4x4qk6nbl7pca8n7fw60vb51x10qppnn4gzsj6gl3pic";
+      sha256 = "1r8p3ch0blcg9fazbxrw7418rfp8v8i71iawj8brpxjfncibwhnj";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -73,20 +73,20 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.26.1";
+    version = "1.26.3";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "1fyzhnbvrz90dkk0pzazijxgcxq47yhpp3k98h8xq2dj0hyjjwii";
+      sha256 = "1f4jj5nkv79ac1q090n8x3pvs97zg77mgvc4649rk1xas1snhr0w";
     };
   });
   # Nodejs only for x86_64-linux
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.15.0";
+    version = "24.16.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1xm09cz9v1607w01imarbjbjbg6kr7h671y462bmaldq3xc5a9j7";
+      sha256 = "1jg6ppxdhjqz5g1cbpn5ivsv2h7g8gb1kdcj23f23p7d6ifq816q";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -139,10 +139,10 @@ let
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.40.0";
+    version = "0.42.0";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "1bzm5vsdbwi88w9yqczsg8lnvlq1pbpv98kdq5mi0x2q8h522pd7";
+      sha256 = "1gjj06c30im6fm0h98dwqlfc9p3a1n493aak3gvmisbwr5xgim6d";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -278,7 +278,7 @@ in
 
         [install]
         exact = true
-        minimumReleaseAge = 259200
+        minimumReleaseAge = 86400
       '';
       ".clang-format".text = ''
         ---
@@ -359,6 +359,9 @@ in
           font: "FiraCode Nerd Font 14";
         }
         ${builtins.readFile rofiTheme}
+        window {
+          width: 40%;
+        }
       '';
       ".config/zellij/config.kdl".text = ''
         ui {
@@ -479,7 +482,6 @@ in
       '';
       ".npmrc".text = ''
         ignore-scripts=true
-        min-release-age=3
         save-exact=true
       '';
       ".scripts/waybar/custom-wifi.sh".text = ''
@@ -497,10 +499,11 @@ in
         networks=()
         while IFS= read -r line; do
           networks+=("$line")
-        done < <(nmcli -t -f SSID device wifi list | grep -v '^$' | uniq)
+        done < <(nmcli -t -f SSID,SIGNAL device wifi list | awk -F: '$1 != "" && !seen[$1]++ { printf "[%s%%] %s\n", $2, $1 }')
         chosen=$(printf '%s\n' "''${networks[@]}" | rofi -dmenu -no-custom -i -p "Select a WiFi network")
         [ -z "$chosen" ] && exit
-        nmcli device wifi connect "$chosen" && notify-send -t 3000 "WiFi" "Connected to $chosen"
+        ssid="''${chosen#*] }"
+        nmcli device wifi connect "$ssid" && notify-send -t 3000 "WiFi" "Connected to $ssid"
       '';
       ".scripts/waybar/custom-clock.sh".text = ''
         #!/usr/bin/env bash
