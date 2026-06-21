@@ -50,12 +50,8 @@ vim.lsp.config("html", {
 	capabilities = capabilities,
 })
 vim.lsp.enable("html")
--- HTMX
---vim.lsp.enable("htmx")
 -- Go
 vim.lsp.enable("gopls")
--- Java
---vim.lsp.enable("jdtls")
 -- JSON
 local json_schemas = require("schemastore").json.schemas({
 	select = {
@@ -82,8 +78,6 @@ vim.lsp.config("jsonls", {
 	},
 })
 vim.lsp.enable("jsonls")
--- LaTeX
-vim.lsp.enable("texlab")
 -- Lua
 vim.lsp.enable("stylua")
 vim.lsp.config("lua_ls", {
@@ -132,8 +126,6 @@ vim.lsp.config("nil_ls", {
 vim.lsp.enable("nil_ls")
 -- P
 vim.lsp.enable("pyright")
--- R
-vim.lsp.enable("r_language_server")
 -- Rust
 vim.lsp.config("rust_analyzer", {
 	settings = {

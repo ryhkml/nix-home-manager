@@ -47,19 +47,17 @@ require("conform").setup({
 			return { "hcl" }
 		end,
 		html = { "prettier" },
-		java = { "astyle" },
 		javascript = { "prettier" },
 		json = { "prettier" },
 		jsonc = { "prettier" },
 		less = { "prettier" },
 		lua = { "stylua" },
+		nginx = { "nginxfmt" },
 		nix = { "nixfmt" },
 		python = { "isort", "black" },
-		r = { "styler" },
 		rust = { "rustfmt" },
 		scss = { "prettier" },
 		sh = { "beautysh" },
-		tex = { "tex-fmt" },
 		tf = { "terraform_fmt" },
 		toml = { "taplo" },
 		typescript = { "prettier" },
@@ -79,13 +77,6 @@ require("conform").setup({
 	notify_no_formatters = false,
 	-- Custom formatters and overrides for built-in formatters
 	formatters = {
-		astyle = {
-			prepend_args = {
-				"--style=java",
-				"-t4",
-				"--add-braces",
-			},
-		},
 		beautysh = {
 			prepend_args = {
 				"--indent-size",
@@ -106,14 +97,6 @@ require("conform").setup({
 		},
 		prettier = {
 			prepend_args = prettier_args,
-		},
-		["tex-fmt"] = {
-			prepend_args = {
-				"--wraplen",
-				"100",
-				"--usetabs",
-				"--nowrap",
-			},
 		},
 	},
 })

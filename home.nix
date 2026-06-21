@@ -73,10 +73,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.26.3";
+    version = "1.26.4";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "1f4jj5nkv79ac1q090n8x3pvs97zg77mgvc4649rk1xas1snhr0w";
+      sha256 = "0bb089d2bfszfc8r4cra94qsdb8x5y69dyw1m3k344gwzcr8lrjg";
     };
   });
   # Nodejs only for x86_64-linux
@@ -105,31 +105,6 @@ let
     fi
     exec ${pkgs.prettier}/bin/prettier --plugin "''${plugins[0]}" "$@"
   '';
-  # R lang
-  rWrapper = pkgs.rWrapper.override {
-    packages = with pkgs.rPackages; [
-      argparse
-      cowplot
-      DT
-      dplyr
-      dplyrAssist
-      GGally
-      ggplot2
-      ggrepel
-      gridExtra
-      jsonlite
-      languageserver
-      lubridate
-      magick
-      readr
-      readxl
-      rmarkdown
-      scales
-      styler
-      tidyr
-      tidyverse
-    ];
-  };
   # Rofi Arc-Dark theme
   rofiTheme = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
@@ -139,10 +114,10 @@ let
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.42.0";
+    version = "0.42.4";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "1gjj06c30im6fm0h98dwqlfc9p3a1n493aak3gvmisbwr5xgim6d";
+      sha256 = "0dly1lksd4xngyv0x8a27bnj42ry2icggnh14m89xq0iv8b535rl";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -151,6 +126,16 @@ let
       chmod +x $out/bin/rtk
     '';
   };
+  # Tmux from source
+  # https://github.com/tmux/tmux/releases
+  tmuxLatest = pkgs.tmux.overrideAttrs (old: rec {
+    pname = "tmux";
+    version = "3.6b";
+    src = pkgs.fetchurl {
+      url = "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz";
+      sha256 = "1iz3k8mi1wwf3w1ah0vxzmq70qvyj84bi0n9gs41d86vbz95j1rr";
+    };
+  });
   # Zellij no-web binary only for x86_64-linux
   # https://github.com/zellij-org/zellij/releases
   zellijLatest = pkgs.stdenv.mkDerivation rec {
@@ -245,13 +230,13 @@ in
       rlwrap
       rtkLatest
       rustup
-      rWrapper
       # # S
       shellcheck
       # # T
       terraform
       tesseract
       texliveFull
+      tmuxLatest
       tree-sitter
       tree-sitter-grammars.tree-sitter-latex
       tokei
@@ -278,7 +263,6 @@ in
 
         [install]
         exact = true
-        minimumReleaseAge = 86400
       '';
       ".clang-format".text = ''
         ---
@@ -750,6 +734,9 @@ in
     alacritty = {
       enable = true;
       settings = {
+        env = {
+          TERM = "alacritty";
+        };
         terminal.shell = {
           program = "${config.home.profileDirectory}/bin/fish";
         };
@@ -789,9 +776,16 @@ in
           blink_interval = 200;
           blink_timeout = 0;
         };
+        keyboard.bindings = [
+          {
+            key = "Return";
+            mods = "Shift";
+            chars = "\n";
+          }
+        ];
         window = {
           padding = {
-            y = 4;
+            y = 1;
           };
           decorations = "None";
           decorations_theme_variant = "Dark";
@@ -1185,7 +1179,7 @@ in
         hclfmt
         htmx-lsp
         isort
-        #jdt-language-server
+        nginx-config-formatter
         nil
         nixfmt
         rust-analyzer
@@ -1194,8 +1188,6 @@ in
         tailwindcss-language-server
         taplo
         terraform-ls
-        tex-fmt
-        texlab
         yamlfmt
         yaml-language-server
         zls

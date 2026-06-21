@@ -13,48 +13,22 @@ vim.opt.wildignore:append({
 })
 
 -- Filetype
--- local function set_filetype_astro()
--- 	vim.bo.filetype = "astro"
--- end
-local function set_filetype_c()
-	vim.bo.filetype = "c"
-end
-local function set_filetype_conf()
-	vim.bo.filetype = "conf"
-end
-local function set_filetype_json()
-	vim.bo.filetype = "json"
-end
-local function set_filetype_dotenv()
-	vim.bo.filetype = "dotenv"
-end
-
 vim.api.nvim_create_augroup("FiletypeConfig", { clear = true })
--- vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
--- 	pattern = { "*.astro" },
--- 	callback = set_filetype_astro,
--- 	group = "FiletypeConfig",
--- })
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	pattern = { "*.h" },
-	callback = set_filetype_c,
-	group = "FiletypeConfig",
-})
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	pattern = { "*/config", "*/conf" },
-	callback = set_filetype_conf,
-	group = "FiletypeConfig",
-})
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	pattern = { "*/.env*" },
-	callback = set_filetype_dotenv,
-	group = "FiletypeConfig",
-})
-vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
-	pattern = { ".firebaserc" },
-	callback = set_filetype_json,
-	group = "FiletypeConfig",
-})
+local ft_map = {
+	{ pattern = { "*.h" }, filetype = "c" },
+	{ pattern = { "*/config", "*/conf" }, filetype = "conf" },
+	{ pattern = { "*/.env*" }, filetype = "dotenv" },
+	{ pattern = { ".firebaserc" }, filetype = "json" },
+}
+for _, m in ipairs(ft_map) do
+	vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+		pattern = m.pattern,
+		callback = function()
+			vim.bo.filetype = m.filetype
+		end,
+		group = "FiletypeConfig",
+	})
+end
 
 -- Number
 vim.opt.nu = true
@@ -67,21 +41,18 @@ vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 --
+local function indent_2()
+	vim.opt_local.tabstop = 2
+	vim.opt_local.softtabstop = 2
+	vim.opt_local.shiftwidth = 2
+end
 vim.api.nvim_create_autocmd("FileType", {
 	pattern = { "yaml", "nix" },
-	callback = function()
-		vim.opt_local.tabstop = 2
-		vim.opt_local.softtabstop = 2
-		vim.opt_local.shiftwidth = 2
-	end,
+	callback = indent_2,
 })
 vim.api.nvim_create_autocmd("BufReadPost", {
 	pattern = "flake.lock",
-	callback = function()
-		vim.opt_local.tabstop = 2
-		vim.opt_local.softtabstop = 2
-		vim.opt_local.shiftwidth = 2
-	end,
+	callback = indent_2,
 })
 vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "TermClose", "TermLeave" }, {
 	command = "checktime",
@@ -129,7 +100,6 @@ vim.keymap.set("x", "d", '"_d', { noremap = true })
 vim.keymap.set("n", "da", '"_da', { noremap = true })
 vim.keymap.set("n", "di", '"_di', { noremap = true })
 vim.keymap.set("n", "dw", '"_dw', { noremap = true })
-vim.keymap.set("n", "D", '"_D', { noremap = true })
 -- c
 vim.keymap.set("n", "c", '"_c', { noremap = true })
 vim.keymap.set("n", "C", '"_C', { noremap = true })
@@ -137,7 +107,6 @@ vim.keymap.set("x", "c", '"_c', { noremap = true })
 vim.keymap.set("n", "ca", '"_ca', { noremap = true })
 vim.keymap.set("n", "ci", '"_ci', { noremap = true })
 vim.keymap.set("n", "cw", '"_cw', { noremap = true })
-vim.keymap.set("n", "C", '"_C', { noremap = true })
 --
 vim.keymap.set("n", "d<Left>", '"_dh', options)
 vim.keymap.set("n", "d<Right>", '"_dl', options)

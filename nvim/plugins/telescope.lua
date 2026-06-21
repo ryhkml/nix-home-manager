@@ -1,18 +1,20 @@
 -- https://github.com/nvim-telescope/telescope.nvim
+local ignore_patterns = {
+	"^.angular/",
+	"^.database/",
+	"^.db/",
+	"^.firebase/",
+	"^.git/",
+	"^dist/",
+	"^node_modules/",
+	"^target/",
+	"%.min%.css$",
+	"%.min%.js$",
+}
+
 require("telescope").setup({
 	defaults = {
-		file_ignore_patterns = {
-			"^.angular/",
-			"^.database/",
-			"^.db/",
-			"^.firebase/",
-			"^.git/",
-			"^dist/",
-			"^node_modules/",
-			"^target/",
-			"%.min%.css$",
-			"%.min%.js$",
-		},
+		file_ignore_patterns = ignore_patterns,
 		vimgrep_arguments = {
 			"rg",
 			"--color=never",
@@ -30,18 +32,7 @@ require("telescope").setup({
 			hidden = true,
 			no_ignore = true,
 			disable_devicons = true,
-			file_ignore_patterns = {
-				"^.angular/",
-				"^.database/",
-				"^.db/",
-				"^.firebase/",
-				"^.git/",
-				"^dist/",
-				"^node_modules/",
-				"^target/",
-				"%.min%.css$",
-				"%.min%.js$",
-			},
+			file_ignore_patterns = ignore_patterns,
 			find_command = {
 				"fd",
 				".",

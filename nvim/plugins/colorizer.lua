@@ -8,6 +8,10 @@ require("colorizer").setup({
 		"less",
 		"javascript",
 		"typescript",
+		"tsx",
+		"astro",
+		"nix",
+		"lua",
 	},
 	user_default_options = {
 		RGB = true,
