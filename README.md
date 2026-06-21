@@ -62,6 +62,7 @@ CLIs, language servers, formatters, and a few plugins.
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
 1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP for Assembly
 1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter for Assembly
+1. [astro-language-server](https://github.com/withastro/language-tools) - LSP for Astro
 1. [astyle](https://astyle.sourceforge.net) - Formatter only for Java
 
 ### B
@@ -71,8 +72,8 @@ CLIs, language servers, formatters, and a few plugins.
 1. [beautysh](https://github.com/lovesegfault/beautysh) - Formatter for Shell
 1. [binsider](https://github.com/orhun/binsider) - Analyzer of executables using a terminal user interface
 1. [black](https://github.com/psf/black) - Formatter for Python
-1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
 1. [btop](https://github.com/aristocratos/btop) - A monitor of resources
+1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
 
 ### C
 
@@ -124,7 +125,6 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### J
 
-1. [jdt-language-server](https://github.com/eclipse/eclipse.jdt.ls) - LSP for Java
 1. [jq](https://jqlang.github.io/jq) - Lightweight and flexible command line JSON processor
 
 ### K
@@ -143,16 +143,17 @@ CLIs, language servers, formatters, and a few plugins.
 ### M
 
 1. [minify](https://go.tacodewolff.nl/minify) - Web formats minifier
+1. [mysql](https://www.mysql.com) - Open-source relational database
 
 ### N
 
 1. [neovim](https://www.neovim.io) - Hyperextensible Vim-based text editor
+1. [nginx-config-formatter](https://github.com/slomkowski/nginx-config-formatter) - Formatter for Nginx config
 1. [nil](https://github.com/oxalica/nil) - Yet another LSP for Nix
-1. [nixgl](https://github.com/nix-community/nixGL) - A wrapper tool for Nix OpenGL application
 1. [nix-prefetch-git](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/tools/package-management/nix-prefetch-scripts/default.nix) - Script used to obtain source hashes for fetchgit
 1. [nixfmt-rfc-style](https://github.com/NixOS/nixfmt) - Formatter for Nix
+1. [nixgl](https://github.com/nix-community/nixGL) - A wrapper tool for Nix OpenGL application
 1. [nodejs](https://nodejs.org/en) - Event-driven I/O framework for the V8 Javascript engine
-1. [nodePackages.prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
 
 ### O
 
@@ -161,19 +162,21 @@ CLIs, language servers, formatters, and a few plugins.
 ### P
 
 1. [packer](https://www.packer.io) - Tool for creating identical machine images
+1. [php](https://www.php.net) - General-purpose scripting language
 1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
+1. [postgresql](https://www.postgresql.org) - Object-relational database system
+1. [prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
 1. [pyright](https://github.com/microsoft/pyright) - LSP for Python
 
 ### R
 
-1. [R](http://www.r-project.org) - Free software environment for statistical computing and graphics
 1. [ripgrep](https://github.com/BurntSushi/ripgrep) - Searcher with the raw speed of grep
 1. [rlwrap](https://github.com/hanslub42/rlwrap) - A readline wrapper
 1. [rtk](https://github.com/rtk-ai/rtk) - Reduces LLM token consumption by 60-90% on common dev commands
-1. [rustup](https://www.rustup.rs) - Rust toolchain installer
 1. [rust-analyzer](https://rust-analyzer.github.io) - Modular compiler frontend for the Rust language
 1. [rustfmt](https://github.com/rust-lang-nursery/rustfmt) - Formatter for Rust
+1. [rustup](https://www.rustup.rs) - Rust toolchain installer
 
 ### S
 
@@ -187,8 +190,7 @@ CLIs, language servers, formatters, and a few plugins.
 1. [terraform](https://www.terraform.io) - Tool for building, changing, and versioning infrastructure
 1. [terraform-ls](https://github.com/hashicorp/terraform-ls) - LSP for Terraform
 1. [tesseract](https://github.com/tesseract-ocr/tesseract) - OCR engine
-1. [tex-fmt](https://github.com/WGUNDERWOOD/tex-fmt) - Formatter for TeX
-1. [texlab](https://github.com/latex-lsp/texlab) - LSP for TeX
+1. [tmux](https://github.com/tmux/tmux) - Terminal multiplexer
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
 1. [tree-sitter](https://github.com/tree-sitter/tree-sitter) - Parser generator tool and an incremental parsing library
 1. [typescript](https://www.typescriptlang.org) - Javascript with syntax for types
@@ -204,10 +206,14 @@ CLIs, language servers, formatters, and a few plugins.
 
 1. [vscode-langservers-extracted](https://github.com/hrsh7th/vscode-langservers-extracted) - LSP extracted from Vscode only for HTML/CSS/JSON/ESLint
 
+### W
+
+1. [weathr](https://github.com/veirt/weathr) - Terminal weather app with ascii animation
+
 ### Y
 
-1. [yamlfmt](https://github.com/google/yamlfmt) - Formatter for YAML
 1. [yaml-language-server](https://github.com/redhat-developer/yaml-language-server) - LSP for YAML
+1. [yamlfmt](https://github.com/google/yamlfmt) - Formatter for YAML
 1. [yt-dlp](https://github.com/yt-dlp/yt-dlp) - Command line tool to download videos from Youtube and other sites
 
 ### Z
