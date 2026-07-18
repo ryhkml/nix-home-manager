@@ -22,7 +22,7 @@ let
     import
       (builtins.fetchTarball {
         url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-25.11.tar.gz";
-        sha256 = "1n1lqgnk84mf28v23f3q8z6xwc79biqwqqy84cg75mrrpa65k4mx";
+        sha256 = "0ln4yw7z3g9lb0x081hc0pd2j1wsx2qqf6bgmwwvdbkcl4bcy1dp";
       })
       {
         system = pkgs.stdenv.hostPlatform.system;
@@ -30,6 +30,21 @@ let
       };
   # Neovim stable from nixpkgs 25.11, including its compatible tree-sitter dependency set.
   neovimStable = pkgs2511.neovim-unwrapped;
+  # vscode-langservers-extracted pinned to the last commit before nixpkgs rewrote it to
+  # "extract directly from vscodium" (5611e17, 2026-06-23). That rewrite ships 1.106.27818,
+  # whose json/css server entrypoints require missing webpack chunks (962/920) → jsonls/cssls
+  # crash on startup. This parent commit provides the working 4.10.0 build.
+  langserversFixed =
+    (import
+      (builtins.fetchTarball {
+        url = "https://github.com/NixOS/nixpkgs/archive/ff77533172372be5d4b8566100c73e96d9c57a50.tar.gz";
+        sha256 = "1h6mapfkwndizayx9a36vymkaddarksrwfhjxk5rvhp7lxw9jk4a";
+      })
+      {
+        system = pkgs.stdenv.hostPlatform.system;
+        config.allowUnfree = true;
+      }
+    ).vscode-langservers-extracted;
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
@@ -60,10 +75,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "569.0.0";
+    version = "576.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "1r8p3ch0blcg9fazbxrw7418rfp8v8i71iawj8brpxjfncibwhnj";
+      sha256 = "1gjf2yg1h1z0rwnl87lv6lgav5k3v9fxk6hlzd5yjg8agrl5qr2c";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -73,20 +88,20 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.26.4";
+    version = "1.26.5";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "0bb089d2bfszfc8r4cra94qsdb8x5y69dyw1m3k344gwzcr8lrjg";
+      sha256 = "0hnwn9v6kk2cfqgd8jbv7p9nd16rmcb42nrf75kwashphyyf8ns9";
     };
   });
   # Nodejs only for x86_64-linux
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.16.0";
+    version = "24.18.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1jg6ppxdhjqz5g1cbpn5ivsv2h7g8gb1kdcj23f23p7d6ifq816q";
+      sha256 = "0hk7lw7lak3yh41ig21nibww1da5d6pdbnpwcpbji3yqz59p3ajm";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -114,10 +129,10 @@ let
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.42.4";
+    version = "0.43.0";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "0dly1lksd4xngyv0x8a27bnj42ry2icggnh14m89xq0iv8b535rl";
+      sha256 = "02d6lbz7ig0z7n4yal9yydnzzjcpvjhyqnm8j591fvj9crvix2pz";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -130,34 +145,13 @@ let
   # https://github.com/tmux/tmux/releases
   tmuxLatest = pkgs.tmux.overrideAttrs (old: rec {
     pname = "tmux";
-    version = "3.6b";
+    version = "3.7b";
     src = pkgs.fetchurl {
       url = "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz";
-      sha256 = "1iz3k8mi1wwf3w1ah0vxzmq70qvyj84bi0n9gs41d86vbz95j1rr";
+      sha256 = "15nv6bavcw2nl7jsm780yx25f6p5sxpgsbq0rbr76nb87fgfkwl7";
     };
+    patches = [ ];
   });
-  # Zellij no-web binary only for x86_64-linux
-  # https://github.com/zellij-org/zellij/releases
-  zellijLatest = pkgs.stdenv.mkDerivation rec {
-    pname = "zellij";
-    version = "0.44.3";
-    src = pkgs.fetchurl {
-      url = "https://github.com/zellij-org/zellij/releases/download/v${version}/zellij-no-web-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "1yfi19f8s0rkcadm0k1j04jddrgxsyn573r7byn0b95h36ci40gr";
-    };
-    phases = [ "installPhase" ];
-    installPhase = ''
-      mkdir -p $out/bin
-      tar -xzf $src -C $out/bin zellij
-      chmod +x $out/bin/zellij
-    '';
-  };
-  # Zellij statusbar plugin
-  # https://github.com/dj95/zjstatus
-  zjstatusPlugin = pkgs.fetchurl {
-    url = "https://github.com/dj95/zjstatus/releases/download/v0.23.0/zjstatus.wasm";
-    sha256 = "1zv173qh67x4bf4k4m5fpz22vy0pbp6f88c0c7dkjhjj4c9901p0";
-  };
   pathHome = builtins.getEnv "HOME";
 in
 {
@@ -233,12 +227,9 @@ in
       # # S
       shellcheck
       # # T
-      terraform
       tesseract
-      texliveFull
       tmuxLatest
       tree-sitter
-      tree-sitter-grammars.tree-sitter-latex
       tokei
       typescript
       typescript-language-server
@@ -247,14 +238,11 @@ in
       unar
       uv
       # # V
-      vscode-langservers-extracted
+      langserversFixed
       # # W
       weathr
       # # Y
       yt-dlp
-      # # Z
-      zellijLatest
-      zig
     ];
     file = {
       ".bunfig.toml".text = ''
@@ -347,123 +335,6 @@ in
           width: 40%;
         }
       '';
-      ".config/zellij/config.kdl".text = ''
-        ui {
-          pane_frames {
-            rounded_corners false
-          }
-        }
-        keybinds {
-          unbind "Ctrl b" "Ctrl o" "Ctrl q"
-          normal {
-            bind "Ctrl a" { SwitchToMode "Tmux"; }
-          }
-        }
-        themes {
-          default {
-            fg "#ffffff"
-            bg "#0c0c0c"
-            black "#0c0c0c"
-            red "#ff4d4f"
-            green "#526596"
-            blue "#096dd9"
-            yellow "#faad14"
-            magenta "#965252"
-            cyan "#08979c"
-            white "#ffffff"
-            orange "#965287"
-            text_selected {
-              base 255 255 255
-              background 38 79 120
-              emphasis_0 255 77 79
-              emphasis_1 8 151 156
-              emphasis_2 82 196 26
-              emphasis_3 196 29 127
-            }
-            table_cell_selected {
-              base 255 255 255
-              background 38 79 120
-              emphasis_0 255 77 79
-              emphasis_1 8 151 156
-              emphasis_2 82 196 26
-              emphasis_3 196 29 127
-            }
-            list_selected {
-              base 255 255 255
-              background 38 79 120
-              emphasis_0 255 77 79
-              emphasis_1 8 151 156
-              emphasis_2 82 196 26
-              emphasis_3 196 29 127
-            }
-            frame_selected {
-              base 82 101 150
-              background 0 0 0
-              emphasis_0 255 77 79
-              emphasis_1 8 151 156
-              emphasis_2 196 29 127
-              emphasis_3 0 0 0
-            }
-            frame_highlight {
-              base 82 101 150
-              background 0 0 0
-              emphasis_0 196 29 127
-              emphasis_1 255 77 79
-              emphasis_2 255 77 79
-              emphasis_3 255 77 79
-            }
-          }
-        }
-        theme "default"
-        simplified_ui true
-        default_shell "${config.home.profileDirectory}/bin/fish"
-        layout_dir "${pathHome}/.config/zellij/layouts"
-      '';
-      ".config/zellij/layouts/default.kdl".text = ''
-        layout {
-          cwd "${pathHome}"
-          default_tab_template {
-            children
-            pane size=1 borderless=true {
-              plugin location="file:${zjstatusPlugin}" {
-                format_left "{tabs}"
-                format_center ""
-                format_right "{mode}"
-                format_space ""
-                hide_frame_for_single_pane "false"
-                mode_normal "#[fg=#526596,bold] NORMAL"
-                mode_locked "#[fg=#ff4d4f,bold] LOCKED"
-                mode_resize "#[fg=#526596,bold] RESIZE"
-                mode_pane "#[fg=#526596,bold] PANE"
-                mode_tab "#[fg=#526596,bold] TAB"
-                mode_scroll "#[fg=#526596,bold] SCROLL"
-                mode_enter_search "#[fg=#526596,bold] SEARCH"
-                mode_search "#[fg=#526596,bold] SEARCH"
-                mode_rename_tab "#[fg=#526596,bold] RENAME TAB"
-                mode_rename_pane "#[fg=#526596,bold] RENAME PANE"
-                mode_session "#[fg=#526596,bold] SESSION"
-                mode_move "#[fg=#526596,bold] MOVE"
-                mode_prompt "#[fg=#526596,bold] PROMPT"
-                mode_tmux "#[fg=#526596,bold] TMUX"
-                tab_normal "#[fg=#ffffff]{index}->{name}  "
-                tab_active "#[fg=#526596,bold]{index}->{name}  "
-              }
-            }
-          }
-          tab name="Sysinfo" {
-            pane command="btop" name="Monitor resource" {}
-          }
-          tab name="Editor" {
-            pane name="Task" {}
-          }
-          tab name="Debug" {
-            pane name="Test" {}
-          }
-          tab name="Claude" {
-            pane name="Agent" {}
-          }
-        }
-      '';
       ".npmrc".text = ''
         ignore-scripts=true
         save-exact=true
@@ -550,9 +421,6 @@ in
         indent_style = "space";
         indent_size = 2;
       };
-      "*.tex" = {
-        indent_size = 2;
-      };
       "*.toml" = {
         indent_style = "space";
         indent_size = 2;
@@ -632,19 +500,11 @@ in
       v = "nvim";
       # Greatest abbreviations ever
       fv = "fd -H -I -E .angular -E .git -E dist -E node_modules -E target | fzf --reverse | xargs -r nvim";
-      # Zellij
-      zla = "zellij a ?";
-      zlad = "zellij action detach";
-      zld = "zellij d ?";
-      zls = "zellij ls";
-      zlda = "zellij da -y";
-      zl = "zellij -s Main";
       # Open
       xof = "xdg-open $(pwd)/?";
     };
     shellAliases = {
       docker = "podman";
-      zigfmt = "zig fmt";
     };
     shellInit = ''
       # Source: jorgebucaran, https://github.com/jorgebucaran/humantime.fish
@@ -784,9 +644,6 @@ in
           }
         ];
         window = {
-          padding = {
-            y = 1;
-          };
           decorations = "None";
           decorations_theme_variant = "Dark";
           dynamic_padding = true;
@@ -904,7 +761,7 @@ in
           {
             type = "command";
             key = "Terminal Workspace: ";
-            text = "echo \"alacritty $(alacritty -V | cut -d ' ' -f2) + zellij $(zellij --version | cut -d ' ' -f2)\"";
+            text = "echo \"$(alacritty -V) + $(tmux -V)\"";
             format = "{result}";
           }
           {
@@ -1163,7 +1020,6 @@ in
           type = "lua";
           config = builtins.readFile ./nvim/plugins/showkeys.lua;
         }
-        vimtex
       ];
       extraPackages = with pkgs; [
         # LSP and Fmt
@@ -1187,10 +1043,8 @@ in
         stylua
         tailwindcss-language-server
         taplo
-        terraform-ls
         yamlfmt
         yaml-language-server
-        zls
       ];
       initLua = builtins.readFile ./nvim/init.lua;
       viAlias = true;

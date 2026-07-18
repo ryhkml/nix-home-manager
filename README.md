@@ -133,7 +133,6 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### L
 
-1. [latexmk](https://mgeier.github.io/latexmk.html) - TeX Live environment
 1. [lazydocker](https://github.com/jesseduffield/lazydocker) - The lazier way to manage everything docker
 1. [lazygit](https://github.com/jesseduffield/lazygit) - Terminal UI for git commands
 1. [lazysql](https://github.com/jorgerojas26/lazysql) - A cross-platform TUI database management tool written in Go
@@ -187,8 +186,6 @@ CLIs, language servers, formatters, and a few plugins.
 
 1. [tailwindcss-language-server](https://github.com/tailwindlabs/tailwindcss-intellisense) - LSP for Tailwind CSS
 1. [taplo](https://taplo.tamasfe.dev) - TOML toolkit written in Rust
-1. [terraform](https://www.terraform.io) - Tool for building, changing, and versioning infrastructure
-1. [terraform-ls](https://github.com/hashicorp/terraform-ls) - LSP for Terraform
 1. [tesseract](https://github.com/tesseract-ocr/tesseract) - OCR engine
 1. [tmux](https://github.com/tmux/tmux) - Terminal multiplexer
 1. [tokei](https://github.com/XAMPPRocky/tokei) - Count your code quickly
@@ -218,9 +215,6 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### Z
 
-1. [zellij](https://zellij.dev) - A terminal workspace
-1. [zig](https://ziglang.org) - Ziglang!
-1. [zls](https://github.com/zigtools/zls) - LSP for Zig
 1. [zoxide](https://github.com/ajeetdsouza/zoxide) - Fast _cd_ that learns your habits
 
 ## Uninstalling Nix and Home Manager (single-user)

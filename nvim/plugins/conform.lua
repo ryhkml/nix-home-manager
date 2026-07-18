@@ -58,11 +58,9 @@ require("conform").setup({
 		rust = { "rustfmt" },
 		scss = { "prettier" },
 		sh = { "beautysh" },
-		tf = { "terraform_fmt" },
 		toml = { "taplo" },
 		typescript = { "prettier" },
 		yaml = { "yamlfmt" },
-		zig = { "zigfmt" },
 		["_"] = { "trim_whitespace" },
 	},
 	default_format_opts = {

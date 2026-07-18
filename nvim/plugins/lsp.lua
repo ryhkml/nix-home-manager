@@ -56,6 +56,7 @@ vim.lsp.enable("gopls")
 local json_schemas = require("schemastore").json.schemas({
 	select = {
 		"angular.json",
+		"Claude Code Settings",
 		"Firebase",
 		"package.json",
 		"tsconfig.json",
@@ -66,6 +67,16 @@ table.insert(json_schemas, {
 	description = "OpenAPI 3.0 Specification",
 	fileMatch = { "**/openapi/*.json", "openapi.json" },
 	url = "https://spec.openapis.org/oas/3.0/schema/2021-09-28",
+})
+table.insert(json_schemas, {
+	name = "Claude Code Settings (local)",
+	fileMatch = { "**/.claude/settings.local.json" },
+	url = "https://www.schemastore.org/claude-code-settings.json",
+})
+table.insert(json_schemas, {
+	name = "Claude Code Keybindings",
+	fileMatch = { "**/.claude/keybindings.json" },
+	url = "https://www.schemastore.org/claude-code-keybindings.json",
 })
 vim.lsp.config("jsonls", {
 	settings = {
@@ -139,8 +150,6 @@ vim.lsp.config("rust_analyzer", {
 vim.lsp.enable("rust_analyzer")
 -- Tailwindcss
 vim.lsp.enable("tailwindcss")
--- Terraform
-vim.lsp.enable("terraformls")
 -- Typescript
 vim.lsp.enable("ts_ls")
 -- YAML
@@ -159,7 +168,5 @@ vim.lsp.config("yamlls", {
 	},
 })
 vim.lsp.enable("yamlls")
--- Zig
-vim.lsp.enable("zls")
--- Disable log
-vim.lsp.log.set_level("off")
+-- Log level
+vim.lsp.log.set_level("warn")
