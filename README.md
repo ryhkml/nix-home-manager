@@ -11,7 +11,7 @@ My home-manager config for Fedora. One `home.nix` file, a pile of Neovim Lua, an
 1. Install Nix (single-user, no daemon):
 
    ```sh
-   sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --no-daemon
+   curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon
    . /home/$USER/.nix-profile/etc/profile.d/nix.sh
    ```
 
@@ -62,7 +62,7 @@ CLIs, language servers, formatters, and a few plugins.
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
 1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP for Assembly
 1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter for Assembly
-1. [astro-language-server](https://github.com/withastro/language-tools) - LSP for Astro
+1. [astro-language-server](https://github.com/withastro/astro/tree/main/packages/language-tools) - LSP for Astro
 1. [astyle](https://astyle.sourceforge.net) - Formatter only for Java
 
 ### B
@@ -142,15 +142,15 @@ CLIs, language servers, formatters, and a few plugins.
 ### M
 
 1. [minify](https://go.tacodewolff.nl/minify) - Web formats minifier
-1. [mysql](https://www.mysql.com) - Open-source relational database
+1. [mysql](https://www.mysql.com) - The world's most popular open source database
 
 ### N
 
 1. [neovim](https://www.neovim.io) - Hyperextensible Vim-based text editor
-1. [nginx-config-formatter](https://github.com/slomkowski/nginx-config-formatter) - Formatter for Nginx config
+1. [nginx-config-formatter](https://github.com/slomkowski/nginx-config-formatter) - Formatter for nginx config
 1. [nil](https://github.com/oxalica/nil) - Yet another LSP for Nix
 1. [nix-prefetch-git](https://github.com/NixOS/nixpkgs/blob/nixos-unstable/pkgs/tools/package-management/nix-prefetch-scripts/default.nix) - Script used to obtain source hashes for fetchgit
-1. [nixfmt-rfc-style](https://github.com/NixOS/nixfmt) - Formatter for Nix
+1. [nixfmt](https://github.com/NixOS/nixfmt) - Formatter for Nix
 1. [nixgl](https://github.com/nix-community/nixGL) - A wrapper tool for Nix OpenGL application
 1. [nodejs](https://nodejs.org/en) - Event-driven I/O framework for the V8 Javascript engine
 
@@ -164,7 +164,7 @@ CLIs, language servers, formatters, and a few plugins.
 1. [php](https://www.php.net) - General-purpose scripting language
 1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
-1. [postgresql](https://www.postgresql.org) - Object-relational database system
+1. [postgresql](https://www.postgresql.org) - Advanced open source relational database
 1. [prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
 1. [pyright](https://github.com/microsoft/pyright) - LSP for Python
 
@@ -205,7 +205,7 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### W
 
-1. [weathr](https://github.com/veirt/weathr) - Terminal weather app with ascii animation
+1. [weathr](https://github.com/veirt/weathr) - Weather in your terminal
 
 ### Y
 
@@ -222,7 +222,6 @@ CLIs, language servers, formatters, and a few plugins.
 Delete everything nix-related:
 
 ```sh
-nix-collect-garbage
 nix-collect-garbage -d
 rm -rf ~/.cache/nix \
     ~/.config/nix ~/.config/home-manager \
@@ -240,21 +239,3 @@ if [ -e /home/user/.nix-profile/etc/profile.d/nix.sh ]; then . /home/user/.nix-p
 # .bashrc
 . "$HOME"/.nix-profile/etc/profile.d/nix.sh
 ```
-
-## Screenshot
-
-#### fastfetch
-
-![fastfetch](./screenshot/1.png)
-
-#### btop
-
-![btop](./screenshot/2.png)
-
-#### nvim
-
-![neovim](./screenshot/3.png)
-
-#### zellij
-
-![zellij](./screenshot/4.png)
