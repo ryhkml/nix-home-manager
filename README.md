@@ -18,7 +18,7 @@ My home-manager config for Fedora. One `home.nix` file, a pile of Neovim Lua, an
    Nix version:
 
    ```sh
-   nix (Nix) 2.31.3
+   nix (Nix) 2.34.8
    ```
 
    More info at [nixos.org/download](https://nixos.org/download/)
