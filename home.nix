@@ -666,7 +666,7 @@ in
     btop = {
       enable = true;
       settings = {
-        color_theme = "adwaita-dark";
+        color_theme = "kanagawa-dragon";
         show_battery = false;
         base_10_sizes = true;
         temp_scale = "celsius";
