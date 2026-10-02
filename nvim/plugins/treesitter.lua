@@ -18,7 +18,9 @@ local size_limited = {
 	yaml = true,
 }
 
-require("nvim-treesitter").setup({
+-- Must be `.configs`: on master, `nvim-treesitter`'s own setup() takes no
+-- parameters and discards this table silently, so highlighting never starts.
+require("nvim-treesitter.configs").setup({
 	ensure_installed = {
 		"lua",
 		"vim",
@@ -51,6 +53,7 @@ require("nvim-treesitter").setup({
 		"scss",
 		"ssh_config",
 		"sql",
+		"svelte",
 		"sway",
 		"python",
 		"rust",
