@@ -2,6 +2,11 @@
   config,
   lib,
   pkgs,
+  # Extra nixpkgs instances and nixGL, supplied by flake.nix via extraSpecialArgs.
+  pkgs2511,
+  pkgsLangservers,
+  pkgsGhostty,
+  nixgl,
   ...
 }:
 
@@ -18,43 +23,66 @@ let
         rev = rev;
       };
     };
-  pkgs2511 =
-    import
-      (builtins.fetchTarball {
-        url = "https://github.com/NixOS/nixpkgs/archive/refs/heads/nixos-25.11.tar.gz";
-        sha256 = "0ln4yw7z3g9lb0x081hc0pd2j1wsx2qqf6bgmwwvdbkcl4bcy1dp";
-      })
-      {
-        system = pkgs.stdenv.hostPlatform.system;
-        config.allowUnfree = true;
-      };
   # Neovim stable from nixpkgs 25.11, including its compatible tree-sitter dependency set.
   neovimStable = pkgs2511.neovim-unwrapped;
   # vscode-langservers-extracted pinned to the last commit before nixpkgs rewrote it to
   # "extract directly from vscodium" (5611e17, 2026-06-23). That rewrite ships 1.106.27818,
   # whose json/css server entrypoints require missing webpack chunks (962/920) → jsonls/cssls
   # crash on startup. This parent commit provides the working 4.10.0 build.
-  langserversFixed =
-    (import
-      (builtins.fetchTarball {
-        url = "https://github.com/NixOS/nixpkgs/archive/ff77533172372be5d4b8566100c73e96d9c57a50.tar.gz";
-        sha256 = "1h6mapfkwndizayx9a36vymkaddarksrwfhjxk5rvhp7lxw9jk4a";
-      })
-      {
-        system = pkgs.stdenv.hostPlatform.system;
-        config.allowUnfree = true;
-      }
-    ).vscode-langservers-extracted;
+  langserversFixed = pkgsLangservers.vscode-langservers-extracted;
   # Bun only for x86_64-linux
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.3.14";
+    version = "1.4.2";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "13w4gvgwrjq9bi3ddp53hgm3z399d8i2aqpcmsaqbw2mx2pf47lm";
+      sha256 = "04x94ba6hh6nin521diym3r425q2936m6bm5zzapay2jyyp8ydin";
     };
   });
+  # CodeGraph only for x86_64-linux
+  # https://github.com/colbymchenry/codegraph/releases
+  codegraphLatest = pkgs.stdenv.mkDerivation rec {
+    pname = "codegraph";
+    version = "1.6.1";
+    src = pkgs.fetchurl {
+      url = "https://github.com/colbymchenry/codegraph/releases/download/v${version}/codegraph-linux-x64.tar.gz";
+      sha256 = "09jxiwmlfsp108nbbi19vrcz9zh3h9lc3vwdfvfs6xc1mwpi2z3n";
+    };
+    sourceRoot = "codegraph-linux-x64";
+    nativeBuildInputs = [
+      pkgs.makeWrapper
+      pkgs.autoPatchelfHook
+    ];
+    buildInputs = [ pkgs.stdenv.cc.cc.lib ];
+    dontConfigure = true;
+    dontBuild = true;
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/lib/codegraph
+      cp -r lib $out/lib/codegraph/lib
+      cp node $out/lib/codegraph/node
+      install -Dm 755 bin/codegraph $out/lib/codegraph/bin/codegraph
+      mkdir -p $out/bin
+      makeWrapper $out/lib/codegraph/bin/codegraph $out/bin/codegraph
+      runHook postInstall
+    '';
+  };
+  # fff MCP server only for x86_64-linux.
+  # Upstream ships a static-pie musl binary, so this tracks the latest release without compiling the Rust workspace.
+  # https://github.com/dmtrKovalenko/fff/releases
+  fffMcpLatest = pkgs.stdenv.mkDerivation rec {
+    pname = "fff-mcp";
+    version = "0.10.6";
+    src = pkgs.fetchurl {
+      url = "https://github.com/dmtrKovalenko/fff/releases/download/v${version}/fff-mcp-x86_64-unknown-linux-musl";
+      sha256 = "03zvip4w8m4mn2khsd85iwlidva8lzcj83397fk4lxgi2m0gckm4";
+    };
+    phases = [ "installPhase" ];
+    installPhase = ''
+      install -Dm 755 $src $out/bin/fff-mcp
+    '';
+  };
   # Firebase CLI only for linux
   # https://github.com/firebase/firebase-tools/releases
   firebaseToolsLatest = pkgs.stdenv.mkDerivation rec {
@@ -75,33 +103,49 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "576.0.0";
+    version = "581.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "1gjf2yg1h1z0rwnl87lv6lgav5k3v9fxk6hlzd5yjg8agrl5qr2c";
+      sha256 = "14gvc7c0cha7v7jv4bkisc0m3q018kr989agi7hma4xgqmdwzrij";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
     '';
   });
+  # Ghostty comes from its own pinned input. overrideAttrs does not work here:
+  # Ghostty builds with Zig against a version-specific vendored cache, which
+  # nixpkgs generates as 36 hashes in by-name/gh/ghostty/deps.nix.
+  #
+  # Update: nix flake update nixpkgs-ghostty
+  # https://github.com/ghostty-org/ghostty/releases
+  ghosttyLatest = pkgsGhostty.ghostty;
   # Go only for Linux x86_64
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.26.5";
+    version = "1.27.1";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "0hnwn9v6kk2cfqgd8jbv7p9nd16rmcb42nrf75kwashphyyf8ns9";
+      sha256 = "1c9qn8m8cpxldnw97mhj2g5f7w2l5hzij9s62sv1dn96w6x8lh2f";
     };
+    # nixpkgs still ships the 1.26 copy of go_no_vendor_checks and its hunk no
+    # longer applies to the 1.27 tree, which fails the whole build.
+    # The patch only relaxes vendor consistency checks for nixpkgs' own
+    # buildGoModule; this toolchain is used interactively, so stock upstream
+    # behaviour is what we want. Every other patch is kept -- go_ldso and tzdata
+    # are what make Go work against store paths.
+    patches = builtins.filter (
+      p: !lib.hasSuffix "go_no_vendor_checks-1.26.patch" (toString p)
+    ) old.patches;
   });
   # Nodejs only for x86_64-linux
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.18.0";
+    version = "24.20.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "0hk7lw7lak3yh41ig21nibww1da5d6pdbnpwcpbji3yqz59p3ajm";
+      sha256 = "1wnblxq6q5v1pi5xw19iixnd7lrfiiy0qhb5fvj0v3ricahhsb1g";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -111,28 +155,58 @@ let
       mv $out/LICENSE $out/share/doc/LICENSE_nodejs
     '';
   };
-  prettierWithAstro = pkgs.writeShellScriptBin "prettier-with-astro" ''
+  # Obscura only for x86_64-linux
+  # nixpkgs lags upstream, so the release tarball is used instead. The stealth
+  # variant bundles both build features nixpkgs leaves off: render (screenshots,
+  # screencasts, PDF) and stealth (BoringSSL TLS impersonation, tracker blocking).
+  # https://github.com/h4ckf0r0day/obscura/releases
+  obscuraLatest = pkgs.stdenv.mkDerivation rec {
+    pname = "obscura";
+    version = "0.2.2";
+    src = pkgs.fetchurl {
+      url = "https://github.com/h4ckf0r0day/obscura/releases/download/v${version}/obscura-x86_64-linux-stealth.tar.gz";
+      sha256 = "18axvlmy59cjvcybh6dvccys9nvsaynzlikg9pacc44cjhl6rx7s";
+    };
+    # Two loose binaries, no wrapping directory.
+    sourceRoot = ".";
+    nativeBuildInputs = [ pkgs.autoPatchelfHook ];
+    buildInputs = [ pkgs.stdenv.cc.cc.lib ];
+    dontConfigure = true;
+    dontBuild = true;
+    installPhase = ''
+      runHook preInstall
+      # obscura launches obscura-worker by bare name, so both must share a bin.
+      install -Dm 755 obscura obscura-worker -t $out/bin
+      runHook postInstall
+    '';
+  };
+  # nixpkgs ships neither prettier-plugin-astro nor prettier-plugin-svelte on its
+  # own; both are bundled inside their language server behind a pnpm-hashed
+  # directory name, hence the glob.
+  prettierWithPlugins = pkgs.writeShellScriptBin "prettier-with-plugins" ''
     shopt -s nullglob
-    plugins=(${pkgs.astro-language-server}/lib/node_modules/astro-language-server/node_modules/.pnpm/prettier-plugin-astro@*/node_modules/prettier-plugin-astro/dist/index.js)
-    if [ ''${#plugins[@]} -eq 0 ]; then
-      echo "prettier-plugin-astro not found in astro-language-server package" >&2
+    astro=(${pkgs.astro-language-server}/lib/node_modules/astro-language-server/node_modules/.pnpm/prettier-plugin-astro@*/node_modules/prettier-plugin-astro/dist/index.js)
+    svelte=(${pkgs.svelte-language-server}/lib/node_modules/svelte-language-server/node_modules/.pnpm/prettier-plugin-svelte@*/node_modules/prettier-plugin-svelte/plugin.js)
+    args=()
+    for plugin in "''${astro[0]}" "''${svelte[0]}"; do
+      if [ -n "$plugin" ]; then
+        args+=(--plugin "$plugin")
+      fi
+    done
+    if [ ''${#args[@]} -eq 0 ]; then
+      echo "no prettier plugin found in the astro or svelte language server" >&2
       exit 1
     fi
-    exec ${pkgs.prettier}/bin/prettier --plugin "''${plugins[0]}" "$@"
+    exec ${pkgs.prettier}/bin/prettier "''${args[@]}" "$@"
   '';
-  # Rofi Arc-Dark theme
-  rofiTheme = pkgs.fetchurl {
-    url = "https://raw.githubusercontent.com/davatorium/rofi/refs/heads/next/themes/Arc-Dark.rasi";
-    sha256 = "1kqv5hbdq9w8sf0fx96knfhmzb8avh6yzp28jaizh77hpsmgdx9s";
-  };
   # RTK (Rust Token Killer) only for x86_64-linux
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.43.0";
+    version = "0.50.0";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "02d6lbz7ig0z7n4yal9yydnzzjcpvjhyqnm8j591fvj9crvix2pz";
+      sha256 = "12azv9xxr8rmc8ayx9gcmxbpgq874fp1cpzl5v49diyrn018jaxw";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -145,14 +219,13 @@ let
   # https://github.com/tmux/tmux/releases
   tmuxLatest = pkgs.tmux.overrideAttrs (old: rec {
     pname = "tmux";
-    version = "3.7b";
+    version = "3.7c";
     src = pkgs.fetchurl {
       url = "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz";
-      sha256 = "15nv6bavcw2nl7jsm780yx25f6p5sxpgsbq0rbr76nb87fgfkwl7";
+      sha256 = "1gxkrw0l5vi93dz48pjmsizzq048kvyall27wbi8hlp2l3lwlq3w";
     };
     patches = [ ];
   });
-  pathHome = builtins.getEnv "HOME";
 in
 {
   nixpkgs.config.allowUnfree = true;
@@ -171,11 +244,13 @@ in
       binsider
       # # C
       cmus
+      codegraphLatest
       # # D
       duf
       # # E
       exiftool
       # # F
+      fffMcpLatest
       file
       firebaseToolsLatest
       # # G
@@ -204,15 +279,16 @@ in
       lua
       lua-language-server
       # # M
+      markitdown
       minify
       mysql84
       # # N
       nix-prefetch-git
       nodejsLatestLts
       # # O
+      obscuraLatest
       onefetch
       # # P
-      packer
       php
       pnpm
       podman-compose
@@ -220,6 +296,8 @@ in
       prettier
       pyright
       python313Packages.huggingface-hub
+      # # Q
+      qpdf
       # # R
       rlwrap
       rtkLatest
@@ -283,23 +361,55 @@ in
         [global]
         font = FiraCode Nerd Font 13
         width = (300, 600)
-        offset = 0x0
-        separator_height = 0
-        frame_width = 0
+        origin = bottom-center
+        # Nothing occupies the bottom edge, so this is a plain margin.
+        # The horizontal value is ignored by a centered origin.
+        offset = (0, 24)
+        # A gap makes dunst frame and round each notification separately instead of shaping the whole stack.
+        # It also makes separator_height irrelevant, so that setting is gone.
+        gap_size = 8
+        # No corner radius anywhere: waybar sets border-radius 0 and niri draws square windows, so a rounded notification would be the only curve on screen.
+        # The frame is 2px to match the width of the niri focus ring.
+        frame_width = 2
+        padding = 14
+        horizontal_padding = 14
+        text_icon_padding = 12
+        icon_position = left
+        max_icon_size = 48
+        enable_recursive_icon_lookup = true
+        # bin/volume and bin/brightness already send int:value, so this bar is in use.
+        progress_bar_height = 8
+        progress_bar_frame_width = 0
         sort = update
+        # The transparency option is X11 only.
+        # On Wayland the alpha has to ride on the color itself, hence the trailing b3 (70% opaque).
+        # Measured against a bright video frame: 80% hid the blur entirely, 60% picked up too much of the background colour at bottom-center.
         [urgency_low]
-        background = "#ffffff"
-        foreground = "#000000"
+        background = "#1c1f26b3"
+        # #c4cbd4 held only 3.73:1 against the card over a white page, and the old #3a4152 frame just 1.77:1 against the card itself.
+        foreground = "#dadee4"
+        frame_color = "#59637d"
+        highlight = "#526596"
         [urgency_normal]
-        background = "#526596"
+        background = "#1c1f26b3"
+        foreground = "#e6e6e6"
+        frame_color = "#526596"
+        highlight = "#526596"
         [urgency_critical]
-        background = "#ff4d4f"
+        background = "#1c1f26b3"
+        foreground = "#ffffff"
+        frame_color = "#ff4d4f"
+        highlight = "#ff4d4f"
         [ignore]
         appname=spotify
         skip_display = true
         [skip-display]
         appname=spotify
         skip_display = yes
+        # No filter, so this matches every notification.
+        # The script itself skips volume, brightness and Spotify, because a later rule can only add scripts, never remove one.
+        [sound]
+        script = ${config.home.homeDirectory}/.config/niri/bin/notify-sound
       '';
       ".config/foot/foot.ini".text = ''
         font=FiraCode Nerd Font:size=16
@@ -329,10 +439,122 @@ in
           modes: "drun";
           combi-modes: [drun];
           font: "FiraCode Nerd Font 14";
+          drun-display-format: "{name}";
         }
-        ${builtins.readFile rofiTheme}
+
+        /* Same palette as dunst and the niri focus ring, and square everywhere for the same reason waybar sets border-radius 0. */
+        * {
+          surface:    #1c1f26b3;
+          on-surface: #e6e6e6;
+          muted:      #dadee4;   /* 4.52:1 worst case; #c4cbd4 gave 3.73:1 */
+          accent:     #526596;
+          urgent:     #ff4d4f;
+
+          background-color: transparent;
+          text-color:       @on-surface;
+        }
+
         window {
-          width: 40%;
+          width:            40%;
+          background-color: @surface;
+          border:           2px;
+          border-color:     @accent;
+          padding:          0;
+        }
+
+        mainbox {
+          padding:  0;
+          spacing:  0;
+          children: [ inputbar, listview ];
+        }
+
+        inputbar {
+          padding:      14px 16px;
+          spacing:      10px;
+          children:     [ prompt, entry ];
+          border:       0 0 2px 0;
+          border-color: @accent;
+        }
+
+        /* Both need an explicit text-color for the same reason the element states do: rofi's own rules outrank the * selector. */
+        prompt {
+          text-color:     @muted;
+          vertical-align: 0.5;
+        }
+
+        entry {
+          text-color:        @on-surface;
+          cursor-color:      @on-surface;
+          vertical-align:    0.5;
+          placeholder:       "";
+          placeholder-color: @muted;
+        }
+
+        listview {
+          lines:     10;
+          columns:   1;
+          scrollbar: false;
+          padding:   8px 0;
+          spacing:   0;
+          /* rofi's own listview carries a dashed top border; the inputbar below already draws the separator. */
+          border:    0;
+          /* Without this the power menu reserves all 10 rows for its 4 entries. */
+          fixed-height: false;
+        }
+
+        element {
+          padding: 10px 16px;
+          spacing: 12px;
+        }
+
+        /* Every state needs naming: rofi ships its own element rules, and a bare * selector loses to them. */
+        element normal.normal,
+        element alternate.normal {
+          background-color: transparent;
+          text-color:       @on-surface;
+        }
+
+        element normal.urgent,
+        element alternate.urgent {
+          background-color: transparent;
+          text-color:       @urgent;
+        }
+
+        element normal.active,
+        element alternate.active {
+          background-color: transparent;
+          text-color:       @accent;
+        }
+
+        element selected.normal,
+        element selected.active {
+          background-color: @accent;
+          text-color:       #ffffff;
+        }
+
+        element selected.urgent {
+          background-color: @urgent;
+          text-color:       #ffffff;
+        }
+
+        element-icon {
+          size:           28px;
+          vertical-align: 0.5;
+        }
+
+        element-text {
+          vertical-align: 0.5;
+          text-color:     inherit;
+        }
+
+        message {
+          padding:      10px 16px;
+          border:       2px 0 0 0;
+          border-color: @accent;
+        }
+
+        textbox {
+          text-color: @muted;
         }
       '';
       ".npmrc".text = ''
@@ -374,7 +596,13 @@ in
         menu=$(echo -e "$options" | rofi -dmenu -no-custom -i -p "Select Action")
         case "$menu" in
           "Logout")
-            swaymsg exit
+            # One script serves both sessions: niri exports NIRI_SOCKET, sway does not.
+            # No braces on the variable: Nix would read ''${...} as interpolation.
+            if [ -n "$NIRI_SOCKET" ]; then
+              niri msg action quit -s
+            else
+              swaymsg exit
+            fi
             ;;
           "Suspend")
             systemctl suspend
@@ -443,7 +671,7 @@ in
   # GPU on non-NixOS systems
   # https://nix-community.github.io/home-manager/index.xhtml#sec-usage-gpu-non-nixos
   # https://github.com/nix-community/nixGL
-  targets.genericLinux.nixGL.packages = import <nixgl> { inherit pkgs; };
+  targets.genericLinux.nixGL.packages = import nixgl { inherit pkgs; };
   targets.genericLinux.nixGL.defaultWrapper = "mesa";
   targets.genericLinux.nixGL.installScripts = [ "mesa" ];
 
@@ -525,29 +753,27 @@ in
         if test $last_status -ne 0
           set stat (set_color red)" [$last_status]"(set_color normal)
         end
-        # Check if the current directory is a git repository
-        set -l arrow ">>"
-        set -l git_rev
-        set -l git_branch
-        if test -d .git
-          set git_rev (set_color cyan)(git rev-parse --short HEAD 2>/dev/null)
-          set git_branch (git rev-parse --abbrev-ref HEAD 2>/dev/null)(set_color normal)
-        end
-        if test -n "$git_branch" && test -n "$git_rev"
-          set -l git_status (git status --porcelain 2>/dev/null)
-          if test -n "$git_status"
-            set -l indicator (set_color yellow)"!"(set_color normal)
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch " "$indicator $arrow "
+        # One call reports oid, head and dirtiness, and unlike `test -d .git` it
+        # still works from a subdirectory.
+        set -l git_out (git status --porcelain=v2 --branch 2>/dev/null)
+        set -l git_info
+        if test -n "$git_out"
+          set -l oid (string replace -f "# branch.oid " "" -- $git_out)
+          set -l head (string replace -f "# branch.head " "" -- $git_out)
+          set -l dirty (string match -v -- "#*" $git_out)
+          if test "$oid" = "(initial)"
+            set git_info (set_color cyan)" git?"(set_color normal)
           else
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $git_rev:$git_branch" " $arrow "
-          end
-        else
-          if test -d .git
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat (set_color cyan)" git?"(set_color normal) " $arrow "
-          else
-            string join "" -- (set_color normal) "" (prompt_pwd) $stat " $arrow "
+            # Must be "" and not an empty list: concatenating an empty list
+            # collapses the whole expression to nothing.
+            set -l mark ""
+            if test -n "$dirty"
+              set mark " "(set_color yellow)"!"(set_color normal)
+            end
+            set git_info " "(set_color cyan)(string sub -l 7 -- $oid)":$head"(set_color normal)$mark
           end
         end
+        string join "" -- (set_color normal) (prompt_pwd) $stat $git_info " -> "
       end
       # Right side prompt
       function fish_right_prompt
@@ -564,6 +790,10 @@ in
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
       set -gx XCURSOR_THEME Bibata-Original-Ice
+      # Opencode
+      set -gx OPENCODE_DISABLE_CLAUDE_CODE 1
+      set -gx OPENCODE_DISABLE_CLAUDE_CODE_PROMPT 1
+      set -gx OPENCODE_DISABLE_CLAUDE_CODE_SKILLS 1
     '';
     functions = {
       "screenshot_entire_screen -S" = ''
@@ -591,69 +821,6 @@ in
   };
 
   programs = {
-    alacritty = {
-      enable = true;
-      settings = {
-        env = {
-          TERM = "alacritty";
-        };
-        terminal.shell = {
-          program = "${config.home.profileDirectory}/bin/fish";
-        };
-        general.live_config_reload = false;
-        font = {
-          normal = {
-            family = "FiraCode Nerd Font";
-            style = "Regular";
-          };
-          size = 16;
-        };
-        colors = {
-          primary.foreground = "#ffffff";
-          primary.background = "#0c0c0c";
-          selection = {
-            text = "#ffffff";
-            background = "#264f78";
-          };
-          normal.red = "#ff4d4f";
-          normal.blue = "#096dd9";
-          normal.green = "#52c41a";
-          normal.yellow = "#faad14";
-          normal.black = "#0c0c0c";
-          normal.white = "#ffffff";
-          normal.cyan = "#08979c";
-          normal.magenta = "#c41d7f";
-        };
-        cursor = {
-          style = {
-            shape = "Beam";
-            blinking = "Always";
-          };
-          vi_mode_style = {
-            shape = "Beam";
-            blinking = "Always";
-          };
-          blink_interval = 200;
-          blink_timeout = 0;
-        };
-        keyboard.bindings = [
-          {
-            key = "Return";
-            mods = "Shift";
-            chars = "\n";
-          }
-        ];
-        window = {
-          decorations = "None";
-          decorations_theme_variant = "Dark";
-          dynamic_padding = true;
-          opacity = 0.95;
-          startup_mode = "Maximized";
-        };
-        selection.save_to_clipboard = true;
-      };
-      package = config.lib.nixGL.wrap pkgs.alacritty;
-    };
     bat = {
       enable = true;
       config = {
@@ -688,7 +855,7 @@ in
       enable = true;
       settings = {
         logo = {
-          source = "${pathHome}/.personal.txt";
+          source = "${config.home.homeDirectory}/.personal.txt";
           color = {
             "1" = "white";
           };
@@ -761,7 +928,7 @@ in
           {
             type = "command";
             key = "Terminal Workspace: ";
-            text = "echo \"$(alacritty -V) + $(tmux -V)\"";
+            text = "echo \"$(ghostty --version | head -1) + $(tmux -V)\"";
             format = "{result}";
           }
           {
@@ -845,11 +1012,57 @@ in
       ];
     };
     fzf.enable = true;
+    ghostty = {
+      enable = true;
+      package = config.lib.nixGL.wrap ghosttyLatest;
+      settings = {
+        command = "${config.home.profileDirectory}/bin/fish";
+        shell-integration-features = "sudo,ssh-env";
+        font-family = "FiraCode Nerd Font";
+        font-style = "Regular";
+        font-size = 16;
+        foreground = "#ffffff";
+        background = "#0c0c0c";
+        selection-foreground = "#ffffff";
+        selection-background = "#264f78";
+        # All six hues stay: TUIs treat ANSI colors as semantics (red = error),
+        # so graying them out would break git, fzf and btop. Aligned instead:
+        # slot 4 is the Neovim/Sway blue, 8 and 12 match Comment and escape, and
+        # every entry clears 4.5:1 on #0c0c0c -- old 4 and 5 did not.
+        palette = [
+          "0=#0c0c0c"
+          "1=#ff4d4f"
+          "2=#52c41a"
+          "3=#faad14"
+          "4=#667db7"
+          "5=#f759ab"
+          "6=#08979c"
+          "7=#cccccc"
+          "8=#7a7a7a"
+          "9=#ff7875"
+          "10=#73d13d"
+          "11=#ffc53d"
+          "12=#9fb0d8"
+          "13=#ff85c0"
+          "14=#36cfc9"
+          "15=#ffffff"
+        ];
+        cursor-style = "bar";
+        cursor-style-blink = true;
+        window-decoration = "none";
+        window-theme = "dark";
+        window-padding-balance = true;
+        background-opacity = 0.95;
+        maximize = true;
+        copy-on-select = "clipboard";
+        keybind = [ "shift+enter=text:\\n" ];
+      };
+    };
     go = {
       enable = true;
       package = goLatest;
       telemetry.mode = "off";
-      env.GOPATH = "${pathHome}/.go";
+      env.GOPATH = "${config.home.homeDirectory}/.go";
     };
     lazygit = {
       enable = true;
@@ -1027,9 +1240,8 @@ in
         asmfmt
         astro-language-server
         astyle
-        beautysh
         black
-        prettierWithAstro
+        prettierWithPlugins
         docker-language-server
         dockerfile-language-server
         hclfmt
@@ -1040,7 +1252,9 @@ in
         nixfmt
         rust-analyzer
         rustfmt
+        shfmt
         stylua
+        svelte-language-server
         tailwindcss-language-server
         taplo
         yamlfmt
