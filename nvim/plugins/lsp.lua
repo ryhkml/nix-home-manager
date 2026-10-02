@@ -131,6 +131,14 @@ vim.lsp.config("nil_ls", {
 			formatting = {
 				command = { "nixfmt" },
 			},
+			-- Without this nil blocks on "Some flake inputs are not available.
+			-- Fetch them now?" every time a .nix file is opened. The inputs are
+			-- already in the store here, so archiving costs nothing.
+			nix = {
+				flake = {
+					autoArchive = true,
+				},
+			},
 		},
 	},
 })
@@ -148,6 +156,8 @@ vim.lsp.config("rust_analyzer", {
 	},
 })
 vim.lsp.enable("rust_analyzer")
+-- Svelte
+vim.lsp.enable("svelte")
 -- Tailwindcss
 vim.lsp.enable("tailwindcss")
 -- Typescript

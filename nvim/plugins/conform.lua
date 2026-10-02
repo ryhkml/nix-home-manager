@@ -21,43 +21,39 @@ local function prettier_args(_, ctx)
 	return args
 end
 
-local function prettier_astro_args(self, ctx)
+local function prettier_plugins_args(self, ctx)
 	local args = prettier_args(self, ctx)
 	return vim.list_extend(args, prettier_formatter.args(self, ctx) or {})
 end
 
-local function prettier_astro_range_args(self, ctx)
+local function prettier_plugins_range_args(self, ctx)
 	local args = prettier_args(self, ctx)
 	return vim.list_extend(args, prettier_formatter.range_args(self, ctx) or {})
 end
 
 require("conform").setup({
 	formatters_by_ft = {
-		astro = { "prettier_astro" },
+		astro = { "prettier_plugins" },
 		asm = { "asmfmt" },
 		c = { "clang-format" },
 		css = { "prettier" },
 		fish = { "fish_indent" },
 		go = { "gofmt" },
-		hcl = function(bufnr)
-			local filename = vim.api.nvim_buf_get_name(bufnr)
-			if filename:match("%.pkr.hcl$") or filename:match("%.pkrvars.hcl$") then
-				return { "packer_fmt" }
-			end
-			return { "hcl" }
-		end,
+		hcl = { "hcl" },
 		html = { "prettier" },
 		javascript = { "prettier" },
 		json = { "prettier" },
 		jsonc = { "prettier" },
 		less = { "prettier" },
 		lua = { "stylua" },
+		markdown = { "prettier" },
 		nginx = { "nginxfmt" },
 		nix = { "nixfmt" },
 		python = { "isort", "black" },
 		rust = { "rustfmt" },
 		scss = { "prettier" },
-		sh = { "beautysh" },
+		sh = { "shfmt" },
+		svelte = { "prettier_plugins" },
 		toml = { "taplo" },
 		typescript = { "prettier" },
 		yaml = { "yamlfmt" },
@@ -75,26 +71,28 @@ require("conform").setup({
 	notify_no_formatters = false,
 	-- Custom formatters and overrides for built-in formatters
 	formatters = {
-		beautysh = {
-			prepend_args = {
-				"--indent-size",
-				"4",
-				"--tab",
-			},
-		},
 		nixfmt = {
 			prepend_args = {
 				"--width=100",
 			},
 		},
-		prettier_astro = {
-			command = "prettier-with-astro",
-			args = prettier_astro_args,
-			range_args = prettier_astro_range_args,
+		prettier_plugins = {
+			command = "prettier-with-plugins",
+			args = prettier_plugins_args,
+			range_args = prettier_plugins_range_args,
 			cwd = prettier_formatter.cwd,
 		},
 		prettier = {
 			prepend_args = prettier_args,
+		},
+		shfmt = {
+			args = {
+				"-i",
+				"0",
+				"-ci",
+				"-filename",
+				"$FILENAME",
+			},
 		},
 	},
 })

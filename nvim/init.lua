@@ -2,6 +2,8 @@ vim.scriptencoding = "utf-8"
 vim.opt.encoding = "utf-8"
 vim.opt.fileencoding = "utf-8"
 vim.opt.clipboard = "unnamedplus"
+-- Suppresses the built-in intro, which the startup screen at the bottom replaces.
+vim.opt.shortmess:append("I")
 vim.opt.wildignore:append({
 	"*/node_modules/*",
 	"*/target/*",
@@ -39,15 +41,18 @@ vim.opt.relativenumber = true
 vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
-vim.opt.expandtab = true
+vim.opt.expandtab = false
+-- Markdown ftplugin forces expandtab unless its recommended style is off.
+vim.g.markdown_recommended_style = 0
 --
 local function indent_2()
 	vim.opt_local.tabstop = 2
 	vim.opt_local.softtabstop = 2
 	vim.opt_local.shiftwidth = 2
+	vim.opt_local.expandtab = true
 end
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "yaml", "nix" },
+	pattern = { "nix", "toml", "yaml" },
 	callback = indent_2,
 })
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -185,3 +190,208 @@ vim.keymap.set("n", "<leader>gg", ":LazyGit<CR>", options)
 vim.keymap.set("n", ":", "<cmd>FineCmdline<CR>", { noremap = true })
 vim.keymap.set("n", "<leader>ss", ":SearchBoxIncSearch<CR>")
 vim.keymap.set("x", "<leader>ss", ":SearchBoxIncSearch visual_mode=true<CR>")
+-- Startup screen
+-- Neovim's intro is hardcoded in C and cannot be edited, only suppressed
+-- (shortmess "I" at the top) and redrawn.
+-- figlet -f small nvim
+local startup_art = {
+	"         _",
+	" _ ___ _(_)_ __",
+	"| ' \\ V / | '  \\",
+	"|_||_\\_/|_|_|_|_|",
+}
+
+local startup_menu = {
+	{ "h", "hunt down a file" },
+	{ "j", "jump to any word in the tree" },
+	{ "k", "keep tabs on open buffers" },
+	{ "l", "launch a blank buffer" },
+}
+
+local startup_actions = {
+	h = "Telescope find_files",
+	j = "lua require('telescope').extensions.live_grep_args.live_grep_args()",
+	k = "Telescope buffers",
+	l = "enew",
+}
+
+-- tokei only honours .gitignore, so vendored and minified trees that are
+-- committed still need excluding by hand.
+local startup_tokei_exclude = {
+	".agents",
+	".angular",
+	".astro",
+	".backup",
+	".claude",
+	".codegraph",
+	".codex",
+	".env",
+	".env.*",
+	".firebase",
+	".git",
+	".github",
+	"dist",
+	"node_modules",
+	"out",
+	"target",
+	"tmp",
+	"vendor",
+	"*_test.go",
+	"*.bak",
+	"*.log",
+	"*.min.*",
+	"note.txt",
+}
+
+-- Both filled in asynchronously; the screen is redrawn as each one lands.
+local startup_stat = { loc = "", git = "" }
+
+local function startup_render(buf)
+	if not vim.api.nvim_buf_is_valid(buf) then
+		return
+	end
+	local win = vim.fn.bufwinid(buf)
+	if win == -1 then
+		return
+	end
+
+	local menu = {}
+	for _, item in ipairs(startup_menu) do
+		table.insert(menu, string.format("%s   %s", item[1], item[2]))
+	end
+
+	local groups = { startup_art, menu }
+	for _, stat in ipairs({ startup_stat.loc, startup_stat.git }) do
+		if stat ~= "" then
+			table.insert(groups, { stat })
+		end
+	end
+	table.insert(groups, { "NVIM v" .. tostring(vim.version()) })
+
+	local rows = #groups - 1
+	for _, group in ipairs(groups) do
+		rows = rows + #group
+	end
+
+	-- Window metrics, not vim.o.lines/columns: those count the cmdline and
+	-- statusline, which pushes the block above the true middle.
+	local height = vim.api.nvim_win_get_height(win)
+	local width = vim.api.nvim_win_get_width(win)
+
+	local lines = {}
+	for _ = 1, math.max(0, math.floor((height - rows) / 2)) do
+		table.insert(lines, "")
+	end
+	-- One shared offset for every group, so the art keeps its shape and the menu,
+	-- stats and version all start on the same left edge.
+	local block = 0
+	for _, group in ipairs(groups) do
+		for _, line in ipairs(group) do
+			block = math.max(block, vim.fn.strdisplaywidth(line))
+		end
+	end
+	local left = string.rep(" ", math.max(0, math.floor((width - block) / 2)))
+
+	for i, group in ipairs(groups) do
+		for _, line in ipairs(group) do
+			table.insert(lines, left .. line)
+		end
+		if i < #groups then
+			table.insert(lines, "")
+		end
+	end
+
+	vim.bo[buf].modifiable = true
+	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+	vim.bo[buf].modifiable = false
+	vim.bo[buf].modified = false
+end
+
+local function startup_count_loc(buf)
+	if vim.fn.executable("tokei") ~= 1 then
+		startup_stat.loc = "tokei not installed"
+		return
+	end
+	startup_stat.loc = "Counting lines of code..."
+
+	local cmd = { "tokei", "--output", "json" }
+	for _, pattern in ipairs(startup_tokei_exclude) do
+		table.insert(cmd, "--exclude")
+		table.insert(cmd, pattern)
+	end
+
+	-- tokei walks the whole tree, so the count lands late. The callback runs in a
+	-- fast event context, hence the schedule before touching the buffer.
+	vim.system(cmd, { text = true }, function(out)
+		local text = "Line count unavailable"
+		if out.code == 0 then
+			local ok, data = pcall(vim.json.decode, out.stdout)
+			if ok and data.Total and data.Total.code then
+				text = string.format("%d lines of code in this tree", data.Total.code)
+			end
+		end
+		startup_stat.loc = text
+		vim.schedule(function()
+			startup_render(buf)
+		end)
+	end)
+end
+
+local function startup_count_git(buf)
+	if vim.fn.executable("git") ~= 1 then
+		startup_stat.git = "Git not installed"
+		return
+	end
+	vim.system({ "git", "status", "--porcelain" }, { text = true }, function(out)
+		-- A non-zero exit here means there is no repository above the cwd.
+		local text = "Not a git repository"
+		if out.code == 0 then
+			local count = 0
+			for line in out.stdout:gmatch("[^\n]+") do
+				-- Column two is the worktree status; anything but a space means the
+				-- change is unstaged. Untracked files arrive as "??".
+				if line:sub(2, 2) ~= " " then
+					count = count + 1
+				end
+			end
+			if count == 0 then
+				text = "Working tree clean"
+			else
+				text = string.format("%d unstaged change%s", count, count == 1 and "" or "s")
+			end
+		end
+		startup_stat.git = text
+		vim.schedule(function()
+			startup_render(buf)
+		end)
+	end)
+end
+
+vim.api.nvim_create_autocmd("VimEnter", {
+	group = vim.api.nvim_create_augroup("StartupScreen", { clear = true }),
+	callback = function()
+		local buf = vim.api.nvim_get_current_buf()
+		-- Bare `nvim` only: no file argument, no piped stdin, nothing typed yet.
+		if vim.fn.argc() > 0 or vim.api.nvim_buf_get_name(buf) ~= "" then
+			return
+		end
+		if vim.api.nvim_buf_line_count(buf) > 1 then
+			return
+		end
+
+		startup_count_loc(buf)
+		startup_count_git(buf)
+		startup_render(buf)
+
+		vim.bo[buf].buftype = "nofile"
+		vim.bo[buf].bufhidden = "wipe"
+		vim.opt_local.number = false
+		vim.opt_local.relativenumber = false
+		vim.opt_local.cursorline = false
+		vim.opt_local.fillchars = "eob: "
+
+		for key, action in pairs(startup_actions) do
+			vim.keymap.set("n", key, "<cmd>" .. action .. "<CR>", { buffer = buf, silent = true })
+		end
+	end,
+})
