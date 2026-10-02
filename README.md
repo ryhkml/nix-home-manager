@@ -2,53 +2,36 @@
 
 My home-manager config for Fedora. One `home.nix` file, a pile of Neovim Lua, and the usual overengineered dotfiles.
 
-## Installation
+## Setup
 
-> [!NOTE]
->
-> These steps are for a standard (mutable) Linux distribution with single-user Nix. On immutable distros Silverblue, use the [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer) instead.
+Flake-based, no `nix-channel`. Every input is pinned in `flake.lock`, and only `x86_64-linux` is declared.
 
-1. Install Nix (single-user, no daemon):
+1. Install Nix and enable flakes:
 
-   ```sh
-   curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon
-   . /home/$USER/.nix-profile/etc/profile.d/nix.sh
-   ```
+    ```sh
+    curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon
+    . ~/.nix-profile/etc/profile.d/nix.sh
+    mkdir -p ~/.config/nix
+    echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+    ```
 
-   Nix version:
+    On immutable distros such as Silverblue, use the [Determinate Systems installer](https://github.com/DeterminateSystems/nix-installer) instead, which enables flakes for you.
 
-   ```sh
-   nix (Nix) 2.34.8
-   ```
+2. Clone, build, and activate:
 
-   More info at [nixos.org/download](https://nixos.org/download/)
+    ```sh
+    git clone https://github.com/ryhkml/nix-home-manager ~/.config/home-manager
+    cd ~/.config/home-manager
+    nix build .#homeConfigurations.ryhkml.activationPackage
+    ./result/activate
+    ```
 
-2. Add channels:
+3. Update later:
 
-   ```sh
-   nix-channel --add https://github.com/nix-community/home-manager/archive/master.tar.gz home-manager
-   nix-channel --add https://github.com/nix-community/nixGL/archive/main.tar.gz nixgl
-   nix-channel --update
-   ```
-
-   The `home-manager` channel tracks unstable/master, so packages follow whatever is current on [search.nixos.org/packages](https://search.nixos.org/packages). The `nixgl` channel is for GPU wrappers on non-NixOS systems ([nixGL repo](https://github.com/nix-community/nixGL)).
-
-3. Install Home Manager and create the first generation:
-
-   ```sh
-   nix-shell '<home-manager>' -A install
-   echo ". /home/$USER/.nix-profile/etc/profile.d/nix.sh" | tee -a ~/.bashrc > /dev/null
-   source ~/.bashrc
-   ```
-
-4. Verify:
-   ```sh
-   cat ~/.config/home-manager/home.nix
-   ```
-
-## Next step
-
-See the [Home Manager manual](https://nix-community.github.io/home-manager/index.xhtml#sec-usage-configuration) for how to use the `home-manager` command.
+    ```sh
+    nix flake update
+    home-manager switch --flake .#ryhkml
+    ```
 
 ## Packages
 
@@ -58,7 +41,6 @@ CLIs, language servers, formatters, and a few plugins.
 
 1. [act](https://nektosact.com) - Run GitHub Actions locally
 1. [air](https://github.com/air-verse/air) - Live reload for Go apps
-1. [alacritty](https://alacritty.org) - A cross-platform OpenGL terminal emulator
 1. [asciiquarium-transparent](https://github.com/nothub/asciiquarium) - Aquarium/sea animation in ASCII art
 1. [asm-lsp](https://github.com/bergercookie/asm-lsp) - LSP for Assembly
 1. [asmfmt](https://github.com/klauspost/asmfmt) - Formatter for Assembly
@@ -69,7 +51,6 @@ CLIs, language servers, formatters, and a few plugins.
 
 1. [bash-language-server](https://github.com/bash-lsp/bash-language-server) - LSP for Bash
 1. [bat](https://github.com/sharkdp/bat) - Alternative to _cat_
-1. [beautysh](https://github.com/lovesegfault/beautysh) - Formatter for Shell
 1. [binsider](https://github.com/orhun/binsider) - Analyzer of executables using a terminal user interface
 1. [black](https://github.com/psf/black) - Formatter for Python
 1. [btop](https://github.com/aristocratos/btop) - A monitor of resources
@@ -78,6 +59,7 @@ CLIs, language servers, formatters, and a few plugins.
 ### C
 
 1. [cmus](https://cmus.github.io) - Console music player for Unix-like operating systems
+1. [codegraph](https://github.com/colbymchenry/codegraph) - Symbol and call graph index of a codebase for AI code assistants
 
 ### D
 
@@ -95,6 +77,7 @@ CLIs, language servers, formatters, and a few plugins.
 
 1. [fastfetch](https://github.com/fastfetch-cli/fastfetch) - Neofetch like system information tool
 1. [fd](https://github.com/sharkdp/fd) - Alternative to _find_
+1. [fff-mcp](https://github.com/dmtrKovalenko/fff) - Fast file search MCP server for AI code assistants
 1. [file](https://darwinsys.com/file) - Shows the type of files
 1. [firebase](https://firebase.google.com/docs/cli) - Firebase CLI
 1. [fish](https://fishshell.com) - User friendly command line shell
@@ -104,6 +87,7 @@ CLIs, language servers, formatters, and a few plugins.
 ### G
 
 1. [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud CLI
+1. [ghostty](https://ghostty.org) - Fast, native, feature-rich terminal emulator
 1. [go](https://go.dev) - Golang!
 1. [go-migrate](https://github.com/golang-migrate/migrate) - Database migrations. CLI and Golang library
 1. [gopls](https://pkg.go.dev/golang.org/x/tools/gopls) - LSP for Go
@@ -141,6 +125,7 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### M
 
+1. [markitdown](https://github.com/microsoft/markitdown) - Converts files and office documents to Markdown
 1. [minify](https://go.tacodewolff.nl/minify) - Web formats minifier
 1. [mysql](https://www.mysql.com) - The world's most popular open source database
 
@@ -156,17 +141,21 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### O
 
+1. [obscura](https://github.com/h4ckf0r0day/obscura) - Headless browser for AI agents and web scraping
 1. [onefetch](https://github.com/o2sh/onefetch) - Git repository summary on your terminal
 
 ### P
 
-1. [packer](https://www.packer.io) - Tool for creating identical machine images
 1. [php](https://www.php.net) - General-purpose scripting language
 1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
 1. [postgresql](https://www.postgresql.org) - Advanced open source relational database
-1. [prettier](https://prettier.io) - Formatter only for HTML, CSS, JS, TS, and JSON
+1. [prettier](https://prettier.io) - Formatter for HTML, CSS, JS, TS, JSON, Markdown, Astro, and Svelte
 1. [pyright](https://github.com/microsoft/pyright) - LSP for Python
+
+### Q
+
+1. [qpdf](https://qpdf.sourceforge.io) - Structural, content-preserving transformations on PDF files
 
 ### R
 
@@ -180,7 +169,9 @@ CLIs, language servers, formatters, and a few plugins.
 ### S
 
 1. [shellcheck](https://hackage.haskell.org/package/ShellCheck) - Shell script analysis tool
+1. [shfmt](https://github.com/mvdan/sh) - Formatter for Shell
 1. [stylua](https://github.com/johnnymorganz/stylua) - Formatter for Lua
+1. [svelte-language-server](https://github.com/sveltejs/language-tools) - LSP for Svelte
 
 ### T
 
