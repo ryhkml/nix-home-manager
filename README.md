@@ -147,10 +147,12 @@ CLIs, language servers, formatters, and a few plugins.
 ### P
 
 1. [php](https://www.php.net) - General-purpose scripting language
+1. [playwright](https://playwright.dev) - Framework for Web Testing and Automation
 1. [pnpm](https://pnpm.io) - Fast, disk space efficient package manager
 1. [podman-compose](https://github.com/containers/podman-compose) - Implementation of docker-compose with podman backend
 1. [postgresql](https://www.postgresql.org) - Advanced open source relational database
 1. [prettier](https://prettier.io) - Formatter for HTML, CSS, JS, TS, JSON, Markdown, Astro, and Svelte
+1. [puppeteer-cli](https://github.com/JarvusInnovations/puppeteer-cli) - Command-line wrapper for generating PDF prints and PNG screenshots with Puppeteer
 1. [pyright](https://github.com/microsoft/pyright) - LSP for Python
 
 ### Q
@@ -159,6 +161,7 @@ CLIs, language servers, formatters, and a few plugins.
 
 ### R
 
+1. [rea](https://github.com/morluto/rea) - Reverse engineer anything from your terminal or agent with one CLI and MCP server
 1. [ripgrep](https://github.com/BurntSushi/ripgrep) - Searcher with the raw speed of grep
 1. [rlwrap](https://github.com/hanslub42/rlwrap) - A readline wrapper
 1. [rtk](https://github.com/rtk-ai/rtk) - Reduces LLM token consumption by 60-90% on common dev commands

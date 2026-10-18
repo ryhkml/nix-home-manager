@@ -34,20 +34,20 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.4.2";
+    version = "1.4.3";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "04x94ba6hh6nin521diym3r425q2936m6bm5zzapay2jyyp8ydin";
+      sha256 = "063fh4iwnadqwx9g5wrp1afhkx2dgiw0cp7hhwzz0xcpv0l0awry";
     };
   });
   # CodeGraph only for x86_64-linux
   # https://github.com/colbymchenry/codegraph/releases
   codegraphLatest = pkgs.stdenv.mkDerivation rec {
     pname = "codegraph";
-    version = "1.6.1";
+    version = "1.6.2";
     src = pkgs.fetchurl {
       url = "https://github.com/colbymchenry/codegraph/releases/download/v${version}/codegraph-linux-x64.tar.gz";
-      sha256 = "09jxiwmlfsp108nbbi19vrcz9zh3h9lc3vwdfvfs6xc1mwpi2z3n";
+      sha256 = "0a5q6x7nx5mz136llq7yf5llmpvy1c08cdvjrhfgna1114bg82pg";
     };
     sourceRoot = "codegraph-linux-x64";
     nativeBuildInputs = [
@@ -73,10 +73,10 @@ let
   # https://github.com/dmtrKovalenko/fff/releases
   fffMcpLatest = pkgs.stdenv.mkDerivation rec {
     pname = "fff-mcp";
-    version = "0.10.6";
+    version = "0.11.0";
     src = pkgs.fetchurl {
       url = "https://github.com/dmtrKovalenko/fff/releases/download/v${version}/fff-mcp-x86_64-unknown-linux-musl";
-      sha256 = "03zvip4w8m4mn2khsd85iwlidva8lzcj83397fk4lxgi2m0gckm4";
+      sha256 = "1sxck5zwkg7ara2i82crbwpbwx2bq0ga4a0pm9d4976880gngs6i";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -103,10 +103,10 @@ let
   # https://console.cloud.google.com/storage/browser/cloud-sdk-release
   gcloudLatest = pkgs.google-cloud-sdk.overrideAttrs (old: rec {
     pname = "google-cloud-sdk";
-    version = "581.0.0";
+    version = "589.0.0";
     src = pkgs.fetchurl {
       url = "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${version}-linux-x86_64.tar.gz";
-      sha256 = "14gvc7c0cha7v7jv4bkisc0m3q018kr989agi7hma4xgqmdwzrij";
+      sha256 = "1w5p4k7kl2yf6zrlx9vqj4pqzsgwa30irhdskfapg9sq7z34j0cc";
     };
     installCheckPhase = ''
       echo "Skip installCheckPhase"
@@ -123,10 +123,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.27.1";
+    version = "1.27.2";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "1c9qn8m8cpxldnw97mhj2g5f7w2l5hzij9s62sv1dn96w6x8lh2f";
+      sha256 = "0qkfny0m1zxgns9gy106d588p9sg8m4jx6f4ym04v2b4pai5sj83";
     };
     # nixpkgs still ships the 1.26 copy of go_no_vendor_checks and its hunk no
     # longer applies to the 1.27 tree, which fails the whole build.
@@ -142,10 +142,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.20.0";
+    version = "24.21.0";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1wnblxq6q5v1pi5xw19iixnd7lrfiiy0qhb5fvj0v3ricahhsb1g";
+      sha256 = "1mmjdkslkgjgv4klm2sd82zb3ln7327m9ywa55m0yl8ilpamk3px";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -162,10 +162,10 @@ let
   # https://github.com/h4ckf0r0day/obscura/releases
   obscuraLatest = pkgs.stdenv.mkDerivation rec {
     pname = "obscura";
-    version = "0.2.2";
+    version = "0.2.5";
     src = pkgs.fetchurl {
       url = "https://github.com/h4ckf0r0day/obscura/releases/download/v${version}/obscura-x86_64-linux-stealth.tar.gz";
-      sha256 = "18axvlmy59cjvcybh6dvccys9nvsaynzlikg9pacc44cjhl6rx7s";
+      sha256 = "0v1ii04ngs8qn2n9qm5my1x7bz5gd0xilvrs63y460ixazvmq5yr";
     };
     # Two loose binaries, no wrapping directory.
     sourceRoot = ".";
@@ -199,14 +199,40 @@ let
     fi
     exec ${pkgs.prettier}/bin/prettier "''${args[@]}" "$@"
   '';
+  # REA has no nixpkgs package; the published npm CLI is packaged with a
+  # production-only lockfile, so devDependencies stay out of the closure.
+  # https://github.com/morluto/rea
+  reaAgentsLatest = pkgs.buildNpmPackage rec {
+    pname = "rea-agents";
+    version = "6.7.0";
+    src = pkgs.fetchurl {
+      url = "https://registry.npmjs.org/rea-agents/-/rea-agents-${version}.tgz";
+      hash = "sha256-IJWKZtuhoBHlCkhr65Rjo0MSjtNoyYT5QGU2LBP1H5A=";
+    };
+    sourceRoot = "package";
+    npmDepsHash = "sha256-L17VSEYsIDDOYTeMXYfuwiUZdvLphYwKe//vnKSejzY=";
+    dontNpmBuild = true;
+    dontNpmPrune = true;
+    npmRebuildFlags = [ "--ignore-scripts" ];
+    postPatch = ''
+      cp ${./nix/rea-agents/package.json} package.json
+      cp ${./nix/rea-agents/package-lock.json} package-lock.json
+    '';
+    meta = {
+      description = "Reverse engineer anything from your terminal or agent with one CLI and MCP server";
+      homepage = "https://github.com/morluto/rea";
+      license = lib.licenses.mit;
+      mainProgram = "rea";
+    };
+  };
   # RTK (Rust Token Killer) only for x86_64-linux
   # https://github.com/rtk-ai/rtk/releases
   rtkLatest = pkgs.stdenv.mkDerivation rec {
     pname = "rtk";
-    version = "0.50.0";
+    version = "1.0.1";
     src = pkgs.fetchurl {
       url = "https://github.com/rtk-ai/rtk/releases/download/v${version}/rtk-x86_64-unknown-linux-musl.tar.gz";
-      sha256 = "12azv9xxr8rmc8ayx9gcmxbpgq874fp1cpzl5v49diyrn018jaxw";
+      sha256 = "0dil02i2zpjr1r2189iy2zgzr90hfihhwvc6c5xbd6dprhxrr4av";
     };
     phases = [ "installPhase" ];
     installPhase = ''
@@ -219,10 +245,10 @@ let
   # https://github.com/tmux/tmux/releases
   tmuxLatest = pkgs.tmux.overrideAttrs (old: rec {
     pname = "tmux";
-    version = "3.7c";
+    version = "3.8";
     src = pkgs.fetchurl {
       url = "https://github.com/tmux/tmux/releases/download/${version}/tmux-${version}.tar.gz";
-      sha256 = "1gxkrw0l5vi93dz48pjmsizzq048kvyall27wbi8hlp2l3lwlq3w";
+      sha256 = "0bnqcqwjym1lxg4dnyb9n48y6q8jimxy29d1lk8cr7clgsf6k777";
     };
     patches = [ ];
   });
@@ -242,6 +268,7 @@ in
       # # B
       bash-language-server
       binsider
+      binwalk
       # # C
       cmus
       codegraphLatest
@@ -255,6 +282,7 @@ in
       firebaseToolsLatest
       # # G
       gcloudLatest
+      ghidra
       gopls
       govulncheck
       (go-migrate.overrideAttrs (old: {
@@ -266,6 +294,7 @@ in
       gping
       # # H
       hey
+      hopper
       hyperfine
       # # I
       id3v2
@@ -290,15 +319,20 @@ in
       onefetch
       # # P
       php
+      # nixpkgs ships the Playwright CLI and browsers as playwright-test; `playwright` is only the library.
+      playwright-test
       pnpm
       podman-compose
       postgresql
       prettier
+      # nixpkgs has no `puppeteer` package, only this CLI wrapper.
+      puppeteer-cli
       pyright
       python313Packages.huggingface-hub
       # # Q
       qpdf
       # # R
+      reaAgentsLatest
       rlwrap
       rtkLatest
       rustup
@@ -322,6 +356,20 @@ in
       # # Y
       yt-dlp
     ];
+    # REA's bundled skill lives in agent-owned directories, so the package cannot
+    # refresh it; run the skill-only sync after every switch.
+    activation.reaSkillSync = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      if ! rea_skill_sync_output=$(HOME=${config.home.homeDirectory} PATH=${
+        lib.makeBinPath [ pkgs.procps ]
+      }:$PATH ${reaAgentsLatest}/bin/rea setup \
+        --skill-client claude_code \
+        --skill-client omp \
+        --yes --format json 2>&1); then
+        echo "warning: REA skill sync failed:" >&2
+        echo "$rea_skill_sync_output" >&2
+        echo "run rea setup --skill-client claude_code --skill-client omp --yes" >&2
+      fi
+    '';
     file = {
       ".bunfig.toml".text = ''
         smol = true
@@ -671,7 +719,10 @@ in
   # GPU on non-NixOS systems
   # https://nix-community.github.io/home-manager/index.xhtml#sec-usage-gpu-non-nixos
   # https://github.com/nix-community/nixGL
-  targets.genericLinux.nixGL.packages = import nixgl { inherit pkgs; };
+  # nixGL loads its Mesa into the wrapped app's process, so it must share that
+  # app's nixpkgs: a Mesa built against a newer glibc fails with "Failed to
+  # create EGL display". Ghostty is the only wrapped app.
+  targets.genericLinux.nixGL.packages = import nixgl { pkgs = pkgsGhostty; };
   targets.genericLinux.nixGL.defaultWrapper = "mesa";
   targets.genericLinux.nixGL.installScripts = [ "mesa" ];
 
@@ -733,6 +784,7 @@ in
     };
     shellAliases = {
       docker = "podman";
+      tmq = "tmux kill-server";
     };
     shellInit = ''
       # Source: jorgebucaran, https://github.com/jorgebucaran/humantime.fish
@@ -790,6 +842,10 @@ in
       set -gx GPG_TTY (tty)
       set -gx NODE_OPTIONS --max-old-space-size=8192
       set -gx XCURSOR_THEME Bibata-Original-Ice
+      # Cargo
+      set -gx CARGO_BUILD_JOBS 4
+      # FFrames
+      set -gx FFRAMES_NUM_THREADS 4
       # Opencode
       set -gx OPENCODE_DISABLE_CLAUDE_CODE 1
       set -gx OPENCODE_DISABLE_CLAUDE_CODE_PROMPT 1
@@ -816,6 +872,15 @@ in
         set -l output_file $output_dir/ss-$timestamp.png
         grim -g (slurp) $output_file
         notify-send "Screenshot" "Selected area saved" -t 2000
+      '';
+      tm = ''
+        if not tmux has-session 2>/dev/null
+          tmux new-session -d -n Info btop
+          tmux new-window -d -n Editor
+          tmux new-window -d -n Debug
+          tmux new-window -d -n Agent
+        end
+        tmux attach
       '';
     };
   };
