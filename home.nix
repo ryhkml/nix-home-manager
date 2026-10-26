@@ -34,10 +34,10 @@ let
   # https://github.com/oven-sh/bun/releases
   bunLatest = pkgs.bun.overrideAttrs (old: rec {
     pname = "bun";
-    version = "1.4.3";
+    version = "1.4.4";
     src = pkgs.fetchurl {
       url = "https://github.com/oven-sh/bun/releases/download/bun-v${version}/bun-linux-x64.zip";
-      sha256 = "063fh4iwnadqwx9g5wrp1afhkx2dgiw0cp7hhwzz0xcpv0l0awry";
+      sha256 = "0p1rrgy55nry189wdnrlfl3xib8pag2iavcs1yg1b00b5gxwp35z";
     };
   });
   # CodeGraph only for x86_64-linux
@@ -123,10 +123,10 @@ let
   # https://go.dev/dl
   goLatest = pkgs.go.overrideAttrs (old: rec {
     pname = "go";
-    version = "1.27.2";
+    version = "1.27.3";
     src = pkgs.fetchurl {
       url = "https://go.dev/dl/go${version}.src.tar.gz";
-      sha256 = "0qkfny0m1zxgns9gy106d588p9sg8m4jx6f4ym04v2b4pai5sj83";
+      sha256 = "1fr6gxvm13jz6xf9x23iys7dm7yzg7m65lbm4mmz0q7kbh1ljxvf";
     };
     # nixpkgs still ships the 1.26 copy of go_no_vendor_checks and its hunk no
     # longer applies to the 1.27 tree, which fails the whole build.
@@ -142,10 +142,10 @@ let
   # https://nodejs.org/en/download/prebuilt-binaries
   nodejsLatestLts = pkgs.stdenv.mkDerivation rec {
     pname = "nodejs";
-    version = "24.21.0";
+    version = "24.22.1";
     src = pkgs.fetchurl {
       url = "https://nodejs.org/dist/v${version}/node-v${version}-linux-x64.tar.xz";
-      sha256 = "1mmjdkslkgjgv4klm2sd82zb3ln7327m9ywa55m0yl8ilpamk3px";
+      sha256 = "1rlmf2kjmkpwhi5s11l0flr5xvpjd94bv9xm3y07p3vinsd2l5vc";
     };
     nativeBuildInputs = [ pkgs.gnutar ];
     installPhase = ''
@@ -204,19 +204,25 @@ let
   # https://github.com/morluto/rea
   reaAgentsLatest = pkgs.buildNpmPackage rec {
     pname = "rea-agents";
-    version = "6.7.0";
+    version = "6.8.0";
     src = pkgs.fetchurl {
       url = "https://registry.npmjs.org/rea-agents/-/rea-agents-${version}.tgz";
-      hash = "sha256-IJWKZtuhoBHlCkhr65Rjo0MSjtNoyYT5QGU2LBP1H5A=";
+      hash = "sha256-jVQux2qcs1BYS2CmycCIcG/4EtW7WwlMIMlbbcJWmLs=";
     };
     sourceRoot = "package";
-    npmDepsHash = "sha256-L17VSEYsIDDOYTeMXYfuwiUZdvLphYwKe//vnKSejzY=";
+    npmDepsHash = "sha256-J7jSfZph5vA2sJVeBM0vYDEthOSpRwf0nCcRH1zQsJs=";
     dontNpmBuild = true;
     dontNpmPrune = true;
     npmRebuildFlags = [ "--ignore-scripts" ];
     postPatch = ''
       cp ${./nix/rea-agents/package.json} package.json
       cp ${./nix/rea-agents/package-lock.json} package-lock.json
+    '';
+    # Upstream requires Node 24.22.1, but buildNpmPackage builds against nixpkgs'
+    # older Node; only the final entry point needs the newer runtime.
+    postFixup = ''
+      substituteInPlace $out/bin/rea $out/bin/rea-agents \
+        --replace-fail '${pkgs.nodejs}/bin/node' '${nodejsLatestLts}/bin/node'
     '';
     meta = {
       description = "Reverse engineer anything from your terminal or agent with one CLI and MCP server";
