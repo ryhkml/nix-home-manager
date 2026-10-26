@@ -52,6 +52,7 @@ CLIs, language servers, formatters, and a few plugins.
 1. [bash-language-server](https://github.com/bash-lsp/bash-language-server) - LSP for Bash
 1. [bat](https://github.com/sharkdp/bat) - Alternative to _cat_
 1. [binsider](https://github.com/orhun/binsider) - Analyzer of executables using a terminal user interface
+1. [binwalk](https://github.com/ReFirmLabs/binwalk) - Firmware analysis tool
 1. [black](https://github.com/psf/black) - Formatter for Python
 1. [btop](https://github.com/aristocratos/btop) - A monitor of resources
 1. [bun](https://bun.sh) - Javascript runtime, bundler, test runner, and package manager
@@ -87,6 +88,7 @@ CLIs, language servers, formatters, and a few plugins.
 ### G
 
 1. [gcloud](https://cloud.google.com/sdk/docs/install) - Google Cloud CLI
+1. [ghidra](https://ghidra-sre.org) - Software reverse engineering (SRE) suite of tools
 1. [ghostty](https://ghostty.org) - Fast, native, feature-rich terminal emulator
 1. [go](https://go.dev) - Golang!
 1. [go-migrate](https://github.com/golang-migrate/migrate) - Database migrations. CLI and Golang library
@@ -98,6 +100,7 @@ CLIs, language servers, formatters, and a few plugins.
 
 1. [hclfmt](https://github.com/hashicorp/hcl/tree/main/cmd/hclfmt) - Formatter for HCL
 1. [hey](https://github.com/rakyll/hey) - HTTP load generator, ApacheBench (ab) replacement
+1. [hopper](https://www.hopperapp.com) - macOS and Linux disassembler
 1. [htmx-lsp](https://github.com/ThePrimeagen/htmx-lsp) - LSP for HTMX
 1. [huggingface-hub](https://github.com/huggingface/huggingface_hub) - CLI and Python library for HuggingFace Hub
 1. [hyperfine](https://github.com/sharkdp/hyperfine) - Command line benchmarking tool
