@@ -57,11 +57,12 @@ let
     buildInputs = [ pkgs.stdenv.cc.cc.lib ];
     dontConfigure = true;
     dontBuild = true;
+    # nixpkgs node replaces the bundled one: patchelf 0.19 overlaps its LOAD segments and ld.so segfaults.
     installPhase = ''
       runHook preInstall
       mkdir -p $out/lib/codegraph
       cp -r lib $out/lib/codegraph/lib
-      cp node $out/lib/codegraph/node
+      ln -s ${pkgs.nodejs_24}/bin/node $out/lib/codegraph/node
       install -Dm 755 bin/codegraph $out/lib/codegraph/bin/codegraph
       mkdir -p $out/bin
       makeWrapper $out/lib/codegraph/bin/codegraph $out/bin/codegraph
